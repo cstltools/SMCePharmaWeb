@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dsDistrictSales" targetNamespace="http://tempuri.org/dsDistrictSales.xsd" xmlns:mstns="http://tempuri.org/dsDistrictSales.xsd" xmlns="http://tempuri.org/dsDistrictSales.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="dsDistrictSales" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="dsDistrictSales" msprop:Generator_UserDSName="dsDistrictSales">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="companyInfoDataTable" msprop:Generator_TableClassName="companyInfoDataTableDataTable" msprop:Generator_TableVarName="tablecompanyInfoDataTable" msprop:Generator_TablePropName="companyInfoDataTable" msprop:Generator_RowDeletingName="companyInfoDataTableRowDeleting" msprop:Generator_UserTableName="companyInfoDataTable" msprop:Generator_RowChangingName="companyInfoDataTableRowChanging" msprop:Generator_RowEvHandlerName="companyInfoDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="companyInfoDataTableRowDeleted" msprop:Generator_RowEvArgName="companyInfoDataTableRowChangeEvent" msprop:Generator_RowChangedName="companyInfoDataTableRowChanged" msprop:Generator_RowClassName="companyInfoDataTableRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="CompanyName" msprop:Generator_ColumnVarNameInTable="columnCompanyName" msprop:Generator_ColumnPropNameInRow="CompanyName" msprop:Generator_ColumnPropNameInTable="CompanyNameColumn" msprop:Generator_UserColumnName="CompanyName" type="xs:string" minOccurs="0" />
+              <xs:element name="Address" msprop:Generator_ColumnVarNameInTable="columnAddress" msprop:Generator_ColumnPropNameInRow="Address" msprop:Generator_ColumnPropNameInTable="AddressColumn" msprop:Generator_UserColumnName="Address" type="xs:string" minOccurs="0" />
+              <xs:element name="ContactNo" msprop:Generator_ColumnVarNameInTable="columnContactNo" msprop:Generator_ColumnPropNameInRow="ContactNo" msprop:Generator_ColumnPropNameInTable="ContactNoColumn" msprop:Generator_UserColumnName="ContactNo" type="xs:string" minOccurs="0" />
+              <xs:element name="FaxNo" msprop:Generator_ColumnVarNameInTable="columnFaxNo" msprop:Generator_ColumnPropNameInRow="FaxNo" msprop:Generator_ColumnPropNameInTable="FaxNoColumn" msprop:Generator_UserColumnName="FaxNo" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="districtMainDataTable" msprop:Generator_TableClassName="districtMainDataTableDataTable" msprop:Generator_TableVarName="tabledistrictMainDataTable" msprop:Generator_TablePropName="districtMainDataTable" msprop:Generator_RowDeletingName="districtMainDataTableRowDeleting" msprop:Generator_UserTableName="districtMainDataTable" msprop:Generator_RowChangingName="districtMainDataTableRowChanging" msprop:Generator_RowEvHandlerName="districtMainDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="districtMainDataTableRowDeleted" msprop:Generator_RowEvArgName="districtMainDataTableRowChangeEvent" msprop:Generator_RowChangedName="districtMainDataTableRowChanged" msprop:Generator_RowClassName="districtMainDataTableRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="District" msprop:Generator_ColumnVarNameInTable="columnDistrict" msprop:Generator_ColumnPropNameInRow="District" msprop:Generator_ColumnPropNameInTable="DistrictColumn" msprop:Generator_UserColumnName="District" type="xs:string" minOccurs="0" />
+              <xs:element name="ComUnitName" msprop:Generator_ColumnVarNameInTable="columnComUnitName" msprop:Generator_ColumnPropNameInRow="ComUnitName" msprop:Generator_ColumnPropNameInTable="ComUnitNameColumn" msprop:Generator_UserColumnName="ComUnitName" type="xs:string" minOccurs="0" />
+              <xs:element name="ZoneName" msprop:Generator_ColumnVarNameInTable="columnZoneName" msprop:Generator_ColumnPropNameInRow="ZoneName" msprop:Generator_ColumnPropNameInTable="ZoneNameColumn" msprop:Generator_UserColumnName="ZoneName" type="xs:string" minOccurs="0" />
+              <xs:element name="Fromdate" msprop:Generator_ColumnVarNameInTable="columnFromdate" msprop:Generator_ColumnPropNameInRow="Fromdate" msprop:Generator_ColumnPropNameInTable="FromdateColumn" msprop:Generator_UserColumnName="Fromdate" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="Todate" msprop:Generator_ColumnVarNameInTable="columnTodate" msprop:Generator_ColumnPropNameInRow="Todate" msprop:Generator_ColumnPropNameInTable="TodateColumn" msprop:Generator_UserColumnName="Todate" type="xs:dateTime" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="districtDetailDataTable" msprop:Generator_TableClassName="districtDetailDataTableDataTable" msprop:Generator_TableVarName="tabledistrictDetailDataTable" msprop:Generator_TablePropName="districtDetailDataTable" msprop:Generator_RowDeletingName="districtDetailDataTableRowDeleting" msprop:Generator_UserTableName="districtDetailDataTable" msprop:Generator_RowChangingName="districtDetailDataTableRowChanging" msprop:Generator_RowEvHandlerName="districtDetailDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="districtDetailDataTableRowDeleted" msprop:Generator_RowEvArgName="districtDetailDataTableRowChangeEvent" msprop:Generator_RowChangedName="districtDetailDataTableRowChanged" msprop:Generator_RowClassName="districtDetailDataTableRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ProductCode" msprop:Generator_ColumnVarNameInTable="columnProductCode" msprop:Generator_ColumnPropNameInRow="ProductCode" msprop:Generator_ColumnPropNameInTable="ProductCodeColumn" msprop:Generator_UserColumnName="ProductCode" type="xs:string" minOccurs="0" />
+              <xs:element name="Product" msprop:Generator_ColumnVarNameInTable="columnProduct" msprop:Generator_ColumnPropNameInRow="Product" msprop:Generator_ColumnPropNameInTable="ProductColumn" msprop:Generator_UserColumnName="Product" type="xs:string" minOccurs="0" />
+              <xs:element name="TotalQty" msprop:Generator_ColumnVarNameInTable="columnTotalQty" msprop:Generator_ColumnPropNameInRow="TotalQty" msprop:Generator_ColumnPropNameInTable="TotalQtyColumn" msprop:Generator_UserColumnName="TotalQty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TotalAmount" msprop:Generator_ColumnVarNameInTable="columnTotalAmount" msprop:Generator_ColumnPropNameInRow="TotalAmount" msprop:Generator_ColumnPropNameInTable="TotalAmountColumn" msprop:Generator_UserColumnName="TotalAmount" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

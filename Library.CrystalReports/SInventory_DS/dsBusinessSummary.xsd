@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dsBusinessSummary" targetNamespace="http://tempuri.org/dsBusinessSummary.xsd" xmlns:mstns="http://tempuri.org/dsBusinessSummary.xsd" xmlns="http://tempuri.org/dsBusinessSummary.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="dsBusinessSummary" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="dsBusinessSummary" msprop:Generator_UserDSName="dsBusinessSummary">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="BsummaryDataTable" msprop:Generator_TableClassName="BsummaryDataTableDataTable" msprop:Generator_TableVarName="tableBsummaryDataTable" msprop:Generator_RowChangedName="BsummaryDataTableRowChanged" msprop:Generator_TablePropName="BsummaryDataTable" msprop:Generator_RowDeletingName="BsummaryDataTableRowDeleting" msprop:Generator_RowChangingName="BsummaryDataTableRowChanging" msprop:Generator_RowEvHandlerName="BsummaryDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="BsummaryDataTableRowDeleted" msprop:Generator_RowClassName="BsummaryDataTableRow" msprop:Generator_UserTableName="BsummaryDataTable" msprop:Generator_RowEvArgName="BsummaryDataTableRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ComUnitCode" msdata:Caption="DataColumn1" msprop:Generator_ColumnVarNameInTable="columnComUnitCode" msprop:Generator_ColumnPropNameInRow="ComUnitCode" msprop:Generator_ColumnPropNameInTable="ComUnitCodeColumn" msprop:Generator_UserColumnName="ComUnitCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ComUnitName" msdata:Caption="DataColumn1" msprop:Generator_ColumnVarNameInTable="columnComUnitName" msprop:Generator_ColumnPropNameInRow="ComUnitName" msprop:Generator_ColumnPropNameInTable="ComUnitNameColumn" msprop:Generator_UserColumnName="ComUnitName" type="xs:string" minOccurs="0" />
+              <xs:element name="NumberofProformaInvoice" msdata:Caption="DataColumn1" msprop:Generator_ColumnVarNameInTable="columnNumberofProformaInvoice" msprop:Generator_ColumnPropNameInRow="NumberofProformaInvoice" msprop:Generator_ColumnPropNameInTable="NumberofProformaInvoiceColumn" msprop:Generator_UserColumnName="NumberofProformaInvoice" type="xs:string" minOccurs="0" />
+              <xs:element name="SumofNetProformaAmount" msdata:Caption="DataColumn1" msprop:Generator_ColumnVarNameInTable="columnSumofNetProformaAmount" msprop:Generator_ColumnPropNameInRow="SumofNetProformaAmount" msprop:Generator_ColumnPropNameInTable="SumofNetProformaAmountColumn" msprop:Generator_UserColumnName="SumofNetProformaAmount" type="xs:string" minOccurs="0" />
+              <xs:element name="NumberofInvoiceSold" msdata:Caption="DataColumn1" msprop:Generator_ColumnVarNameInTable="columnNumberofInvoiceSold" msprop:Generator_ColumnPropNameInRow="NumberofInvoiceSold" msprop:Generator_ColumnPropNameInTable="NumberofInvoiceSoldColumn" msprop:Generator_UserColumnName="NumberofInvoiceSold" type="xs:string" minOccurs="0" />
+              <xs:element name="SumofNetSalesAmount" msdata:Caption="DataColumn1" msprop:Generator_ColumnVarNameInTable="columnSumofNetSalesAmount" msprop:Generator_ColumnPropNameInRow="SumofNetSalesAmount" msprop:Generator_ColumnPropNameInTable="SumofNetSalesAmountColumn" msprop:Generator_UserColumnName="SumofNetSalesAmount" type="xs:string" minOccurs="0" />
+              <xs:element name="NumberofReturnInvoice" msdata:Caption="DataColumn1" msprop:Generator_ColumnVarNameInTable="columnNumberofReturnInvoice" msprop:Generator_ColumnPropNameInRow="NumberofReturnInvoice" msprop:Generator_ColumnPropNameInTable="NumberofReturnInvoiceColumn" msprop:Generator_UserColumnName="NumberofReturnInvoice" type="xs:string" minOccurs="0" />
+              <xs:element name="SumofNetReturnAmount" msprop:Generator_ColumnVarNameInTable="columnSumofNetReturnAmount" msprop:Generator_ColumnPropNameInRow="SumofNetReturnAmount" msprop:Generator_ColumnPropNameInTable="SumofNetReturnAmountColumn" msprop:Generator_UserColumnName="SumofNetReturnAmount" type="xs:string" minOccurs="0" />
+              <xs:element name="ShortName" msprop:Generator_ColumnVarNameInTable="columnShortName" msprop:Generator_ColumnPropNameInRow="ShortName" msprop:Generator_ColumnPropNameInTable="ShortNameColumn" msprop:Generator_UserColumnName="ShortName" type="xs:string" minOccurs="0" />
+              <xs:element name="ProTpVat" msprop:Generator_ColumnVarNameInTable="columnProTpVat" msprop:Generator_ColumnPropNameInRow="ProTpVat" msprop:Generator_ColumnPropNameInTable="ProTpVatColumn" msprop:Generator_UserColumnName="ProTpVat" type="xs:string" minOccurs="0" />
+              <xs:element name="DelTpVat" msprop:Generator_ColumnVarNameInTable="columnDelTpVat" msprop:Generator_ColumnPropNameInRow="DelTpVat" msprop:Generator_ColumnPropNameInTable="DelTpVatColumn" msprop:Generator_UserColumnName="DelTpVat" type="xs:string" minOccurs="0" />
+              <xs:element name="DelReTpVat" msprop:Generator_ColumnVarNameInTable="columnDelReTpVat" msprop:Generator_ColumnPropNameInRow="DelReTpVat" msprop:Generator_ColumnPropNameInTable="DelReTpVatColumn" msprop:Generator_UserColumnName="DelReTpVat" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

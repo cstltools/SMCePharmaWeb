@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="MarketwiseSummary" targetNamespace="http://tempuri.org/MarketwiseSummary.xsd" xmlns:mstns="http://tempuri.org/MarketwiseSummary.xsd" xmlns="http://tempuri.org/MarketwiseSummary.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="MarketwiseSummary" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="MarketwiseSummary" msprop:Generator_UserDSName="MarketwiseSummary">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="MarketwiseSummaryDS" msprop:Generator_TableClassName="MarketwiseSummaryDSDataTable" msprop:Generator_TableVarName="tableMarketwiseSummaryDS" msprop:Generator_TablePropName="MarketwiseSummaryDS" msprop:Generator_RowDeletingName="MarketwiseSummaryDSRowDeleting" msprop:Generator_RowChangingName="MarketwiseSummaryDSRowChanging" msprop:Generator_RowEvHandlerName="MarketwiseSummaryDSRowChangeEventHandler" msprop:Generator_RowDeletedName="MarketwiseSummaryDSRowDeleted" msprop:Generator_UserTableName="MarketwiseSummaryDS" msprop:Generator_RowChangedName="MarketwiseSummaryDSRowChanged" msprop:Generator_RowEvArgName="MarketwiseSummaryDSRowChangeEvent" msprop:Generator_RowClassName="MarketwiseSummaryDSRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ComUnitCode" msprop:Generator_ColumnVarNameInTable="columnComUnitCode" msprop:Generator_ColumnPropNameInRow="ComUnitCode" msprop:Generator_ColumnPropNameInTable="ComUnitCodeColumn" msprop:Generator_UserColumnName="ComUnitCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ComUnitName" msprop:Generator_ColumnVarNameInTable="columnComUnitName" msprop:Generator_ColumnPropNameInRow="ComUnitName" msprop:Generator_ColumnPropNameInTable="ComUnitNameColumn" msprop:Generator_UserColumnName="ComUnitName" type="xs:string" minOccurs="0" />
+              <xs:element name="ProformaDate" msprop:Generator_ColumnVarNameInTable="columnProformaDate" msprop:Generator_ColumnPropNameInRow="ProformaDate" msprop:Generator_ColumnPropNameInTable="ProformaDateColumn" msprop:Generator_UserColumnName="ProformaDate" type="xs:string" minOccurs="0" />
+              <xs:element name="NumberofInvoiceSold" msprop:Generator_ColumnVarNameInTable="columnNumberofInvoiceSold" msprop:Generator_ColumnPropNameInRow="NumberofInvoiceSold" msprop:Generator_ColumnPropNameInTable="NumberofInvoiceSoldColumn" msprop:Generator_UserColumnName="NumberofInvoiceSold" type="xs:string" minOccurs="0" />
+              <xs:element name="ProformaAmountTP" msprop:Generator_ColumnVarNameInTable="columnProformaAmountTP" msprop:Generator_ColumnPropNameInRow="ProformaAmountTP" msprop:Generator_ColumnPropNameInTable="ProformaAmountTPColumn" msprop:Generator_UserColumnName="ProformaAmountTP" type="xs:string" minOccurs="0" />
+              <xs:element name="ProformaAmountVAt" msprop:Generator_ColumnVarNameInTable="columnProformaAmountVAt" msprop:Generator_ColumnPropNameInRow="ProformaAmountVAt" msprop:Generator_ColumnPropNameInTable="ProformaAmountVAtColumn" msprop:Generator_UserColumnName="ProformaAmountVAt" type="xs:string" minOccurs="0" />
+              <xs:element name="MarketName" msprop:Generator_ColumnVarNameInTable="columnMarketName" msprop:Generator_ColumnPropNameInRow="MarketName" msprop:Generator_ColumnPropNameInTable="MarketNameColumn" msprop:Generator_UserColumnName="MarketName" type="xs:string" minOccurs="0" />
+              <xs:element name="MarketCode" msprop:Generator_ColumnVarNameInTable="columnMarketCode" msprop:Generator_ColumnPropNameInRow="MarketCode" msprop:Generator_ColumnPropNameInTable="MarketCodeColumn" msprop:Generator_UserColumnName="MarketCode" type="xs:string" minOccurs="0" />
+              <xs:element name="MIACode" msprop:Generator_ColumnVarNameInTable="columnMIACode" msprop:Generator_ColumnPropNameInRow="MIACode" msprop:Generator_ColumnPropNameInTable="MIACodeColumn" msprop:Generator_UserColumnName="MIACode" type="xs:string" minOccurs="0" />
+              <xs:element name="MIAName" msprop:Generator_ColumnVarNameInTable="columnMIAName" msprop:Generator_ColumnPropNameInRow="MIAName" msprop:Generator_ColumnPropNameInTable="MIANameColumn" msprop:Generator_UserColumnName="MIAName" type="xs:string" minOccurs="0" />
+              <xs:element name="AreaCode" msprop:Generator_ColumnVarNameInTable="columnAreaCode" msprop:Generator_ColumnPropNameInRow="AreaCode" msprop:Generator_ColumnPropNameInTable="AreaCodeColumn" msprop:Generator_UserColumnName="AreaCode" type="xs:string" minOccurs="0" />
+              <xs:element name="RegionCode" msprop:Generator_ColumnVarNameInTable="columnRegionCode" msprop:Generator_ColumnPropNameInRow="RegionCode" msprop:Generator_ColumnPropNameInTable="RegionCodeColumn" msprop:Generator_UserColumnName="RegionCode" type="xs:string" minOccurs="0" />
+              <xs:element name="DisCode" msprop:Generator_ColumnVarNameInTable="columnDisCode" msprop:Generator_ColumnPropNameInRow="DisCode" msprop:Generator_ColumnPropNameInTable="DisCodeColumn" msprop:Generator_UserColumnName="DisCode" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

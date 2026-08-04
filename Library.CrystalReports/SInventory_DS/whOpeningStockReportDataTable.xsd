@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="whOpeningStockReportDataTable" targetNamespace="http://tempuri.org/whOpeningStockReportDataTable.xsd" xmlns:mstns="http://tempuri.org/whOpeningStockReportDataTable.xsd" xmlns="http://tempuri.org/whOpeningStockReportDataTable.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="whOpeningStockReportDataTable" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="whOpeningStockReportDataTable" msprop:Generator_UserDSName="whOpeningStockReportDataTable">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="whOpeningStockReportDataTable" msprop:Generator_TableClassName="whOpeningStockReportDataTableDataTable" msprop:Generator_TableVarName="tablewhOpeningStockReportDataTable" msprop:Generator_TablePropName="_whOpeningStockReportDataTable" msprop:Generator_RowDeletingName="whOpeningStockReportDataTableRowDeleting" msprop:Generator_RowChangingName="whOpeningStockReportDataTableRowChanging" msprop:Generator_RowEvHandlerName="whOpeningStockReportDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="whOpeningStockReportDataTableRowDeleted" msprop:Generator_UserTableName="whOpeningStockReportDataTable" msprop:Generator_RowChangedName="whOpeningStockReportDataTableRowChanged" msprop:Generator_RowEvArgName="whOpeningStockReportDataTableRowChangeEvent" msprop:Generator_RowClassName="whOpeningStockReportDataTableRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ProductCode" msprop:Generator_ColumnVarNameInTable="columnProductCode" msprop:Generator_ColumnPropNameInRow="ProductCode" msprop:Generator_ColumnPropNameInTable="ProductCodeColumn" msprop:Generator_UserColumnName="ProductCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ProductName" msprop:Generator_ColumnVarNameInTable="columnProductName" msprop:Generator_ColumnPropNameInRow="ProductName" msprop:Generator_ColumnPropNameInTable="ProductNameColumn" msprop:Generator_UserColumnName="ProductName" type="xs:string" minOccurs="0" />
+              <xs:element name="PackSize" msprop:Generator_ColumnVarNameInTable="columnPackSize" msprop:Generator_ColumnPropNameInRow="PackSize" msprop:Generator_ColumnPropNameInTable="PackSizeColumn" msprop:Generator_UserColumnName="PackSize" type="xs:string" minOccurs="0" />
+              <xs:element name="BatchNo" msprop:Generator_ColumnVarNameInTable="columnBatchNo" msprop:Generator_ColumnPropNameInRow="BatchNo" msprop:Generator_ColumnPropNameInTable="BatchNoColumn" msprop:Generator_UserColumnName="BatchNo" type="xs:string" minOccurs="0" />
+              <xs:element name="MfgDate" msprop:Generator_ColumnVarNameInTable="columnMfgDate" msprop:Generator_ColumnPropNameInRow="MfgDate" msprop:Generator_ColumnPropNameInTable="MfgDateColumn" msprop:Generator_UserColumnName="MfgDate" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="ExpDate" msprop:Generator_ColumnVarNameInTable="columnExpDate" msprop:Generator_ColumnPropNameInRow="ExpDate" msprop:Generator_ColumnPropNameInTable="ExpDateColumn" msprop:Generator_UserColumnName="ExpDate" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="Quantity" msprop:Generator_ColumnVarNameInTable="columnQuantity" msprop:Generator_ColumnPropNameInRow="Quantity" msprop:Generator_ColumnPropNameInTable="QuantityColumn" msprop:Generator_UserColumnName="Quantity" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

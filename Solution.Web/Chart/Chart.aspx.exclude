@@ -1,0 +1,1486 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/NewMasterPage.master" AutoEventWireup="true" CodeFile="Chart.aspx.cs" Inherits="Chart_Chart" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
+<link href="../assets/plugins/highcharts/css/highcharts.css" rel="stylesheet" />
+<script src="../assets/plugins/highcharts/js/accessibility.js"></script>
+    <script src="../assets/plugins/highcharts/js/cylinder.js"></script>
+    <script src="../assets/plugins/highcharts/js/export-data.js"></script>
+    <script src="../assets/plugins/highcharts/js/exporting.js"></script>
+    <script src="../assets/plugins/highcharts/js/funnel3d.js"></script>
+    <script src="../assets/plugins/highcharts/js/highcharts-3d.js"></script>
+    <%--<script src="../assets/plugins/highcharts/js/highcharts-custom.script.js"></script>--%>
+    <script src="../assets/plugins/highcharts/js/highcharts-more.js"></script>
+    <script src="../assets/plugins/highcharts/js/highcharts.js"></script>
+    <script src="../assets/plugins/highcharts/js/solid-gauge.js"></script>
+    <script src="../assets/plugins/highcharts/js/variable-pie.js"></script>
+    		<div class="page-wrapper">
+			<div class="page-content">
+				<!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">Charts</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+								</li>
+								<li class="breadcrumb-item active" aria-current="page">Highcharts</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary">Settings</button>
+							<button type="button" class="btn btn-primary split-bg-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">	<span class="visually-hidden">Toggle Dropdown</span>
+							</button>
+							<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end">	<a class="dropdown-item" href="javascript:;">Action</a>
+								<a class="dropdown-item" href="javascript:;">Another action</a>
+								<a class="dropdown-item" href="javascript:;">Something else here</a>
+								<div class="dropdown-divider"></div>	<a class="dropdown-item" href="javascript:;">Separated link</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--end breadcrumb-->
+				<div class="row">
+					<div class="col-xl-12 mx-auto">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="salesfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="salestodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSavesales" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(1)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+                                <div id="saleschart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                 <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="orderfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="ordertodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSaveorder" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(2)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+
+                                <div id="orderchart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                
+                                                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="returnfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="returntodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSavereturn" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(3)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+
+
+
+                                <div id="returnchart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="customerfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="customertodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSavecustomer" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(4)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+
+                                <div id="customerchart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                
+                                                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="gmpfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="gmptodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSavegmp" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(5)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+
+
+                                <div id="gmpchart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                
+                                                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="nongmpfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="nongmptodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSavenongmp" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(6)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+
+
+                                <div id="nongmpchart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="gmprxfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="gmprxtodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSavegmprx" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(7)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+                                
+
+
+                                <div id="gmprxchart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                
+                                                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="nongmprxfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="nongmprxtodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSavenongmprx" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(8)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+
+                                <div id="nongmprxchart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="brandwisefromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="brandwisetodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSavebrandwise" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(9)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+                                <div id="brandwisechart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                
+                                                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="attfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="atttodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSaveatt" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(10)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+
+                                <div id="attchart"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                
+                                                                <div class="row">
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> From Date: </label>
+                                            <div class="col-sm-5">
+                                                <input type="date" id="totalexpfromdate" class="form-control"/>
+                                            </div>
+
+                                            
+                                        </div>
+
+                                        
+                                        
+                                    </div>
+                                    <div class="col-6"><div class="form-group row">
+                                            <label for="exampleInputUsername2" id="acttxt" class="col-sm-3 col-form-label"> To Date: </label>
+                                            <div class="col-sm-5">
+
+                                                <input type="date" id="totalexptodate" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-4" style="align-content:center">
+                                        <button type="button" id="btnSavetotalexp" class="btn btn-sm btn-primary mb-2" style="background-color: #00bcd4;color: #fff;" onclick="GetData(11)">
+                                            <i class="fas fa-search-plus"></i>&nbsp; Search
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+
+
+
+                                <div id="totalexpchart"></div>
+                            </div>
+                        </div>
+						<%--<div class="card">
+							<div class="card-body">
+								<div id="chart12"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart13"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart14"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart15"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart1"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart2"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart3"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart4"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart5"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart6"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart7"></div>
+							</div>
+						</div>--%>
+						
+						<%--<div class="card">
+							<div class="card-body">
+								<div id="chart9"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart10"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<div id="chart11"></div>
+							</div>
+						</div>--%>
+						
+					</div>
+				</div>
+				<!--end row-->
+			</div>
+		</div>
+	
+	<script>
+
+        $(document).ready(function () {
+            //GetData(1);
+            var currd = CurrentDate();
+            
+            $("input[type='date']").val(currd);
+            for (var i = 0; i < 11; i++) {
+                GetData(i + 1);
+            }
+
+        });
+
+        function CurrentDate() {
+            var d = new Date();
+
+            var month = d.getMonth() + 1;
+            var day = d.getDate();
+
+            var output = d.getFullYear() + '-' +
+                (('' + month).length < 2 ? '0' : '') + month + '-' +
+                (('' + day).length < 2 ? '0' : '') + day;
+
+            return output;
+        }
+
+
+		function GetData(type) {
+            var fromdate = "";
+            var todate = "";
+            var urlpath = '';
+            if (type=='1') {
+                fromdate = $('#salesfromdate').val();
+                todate = $('#salestodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '2') {
+                fromdate = $('#orderfromdate').val();
+                todate = $('#ordertodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '3') {
+                fromdate = $('#returnfromdate').val();
+                todate = $('#returntodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '4') {
+                fromdate = $('#customerfromdate').val();
+                todate = $('#customertodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '5') {
+                fromdate = $('#gmpfromdate').val();
+                todate = $('#gmptodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '6') {
+                fromdate = $('#nongmpfromdate').val();
+                todate = $('#nongmptodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '7') {
+                fromdate = $('#gmprxfromdate').val();
+                todate = $('#gmprxtodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '8') {
+                fromdate = $('#nongmprxfromdate').val();
+                todate = $('#nongmprxtodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '9') {
+                fromdate = $('#brandwisefromdate').val();
+                todate = $('#brandwisetodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '10') {
+                fromdate = $('#attfromdate').val();
+                todate = $('#atttodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            if (type == '11') {
+                fromdate = $('#totalexpfromdate').val();
+                todate = $('#totalexptodate').val();
+                urlpath = 'Chart.aspx/GetSalesChartData';
+            }
+            
+
+            //urlpath = 'Chart.aspx/GetSalesChartData';
+            $.ajax({
+                url: urlpath,
+                dataType: 'json',
+                data: JSON.stringify({ 'fromdt': fromdate ,'todt':todate}),
+                contentType: "application/json; charset=utf-8",
+                type: "POST",
+                async: true,
+                beforeSend: function () {
+
+                },
+                success: function (data) {
+                    //console.log(data);
+                    debugger;
+					var colname = [];
+					var rowname = [];
+					var xaxis = [];
+					var yaxis = [];
+					
+					var result = JSON.parse(data.d);
+					var newData = result[0];
+                    var status = false;
+                    for (i = 0; i < result.length;i++) {
+                        for (var key in result[i]) {
+							var ydata = {};
+							if (key == "Criteria") {
+                                xaxis.push(result[i][key]);
+							} else {
+								if (status==true) {
+                                    for (var ykeys in yaxis) {
+                                        if (yaxis[ykeys]["name"] == key) {
+                                            yaxis[ykeys]["data"].push(parseFloat(result[i][key]));
+                                        }
+                                    }
+                                } else {
+                                    ydata["name"] = key;
+                                    ydata["data"] = [];
+                                    ydata["data"].push(parseFloat(result[i][key]));
+									yaxis.push(ydata);
+                                    if (key =="Total") {
+                                        status = true;
+                                    }
+                                }
+                                
+                            }
+							
+                        }
+                    }
+
+                    if (type=='1') {
+                        SalesChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '2') {
+                        OrderChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '3') {
+                        ReturnChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '4') {
+                        CustomerChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '5') {
+                        GMPChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '6') {
+                        NongmpChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '7') {
+                        GMPRxChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '8') {
+                        NongmprxChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '9') {
+                        BrandChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '10') {
+                        AttChartAdd(xaxis, yaxis);
+                    }
+                    if (type == '11') {
+                        TotalExpChartAdd(xaxis, yaxis);
+                    }
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+
+
+                },
+                complete: function () {
+
+                    
+
+                }
+            });
+
+        }
+
+		function SalesChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('saleschart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'Sales Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+				series:yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+        function OrderChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('orderchart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'Order Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+        function ReturnChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('returnchart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'Return Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+        function CustomerChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('customerchart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'Customer Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+        function GMPChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('gmpchart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'GMP Visit Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+        function NongmpChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('nongmpchart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'Non-GMP Visit Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+        function GMPRxChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('gmprxchart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'GMP Rx Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+        function NongmprxChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('nongmprxchart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'Non-GMP Rx Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+        function BrandChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('brandwisechart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'Brand Wise Sales Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+        function AttChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('attchart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'Attendance Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+
+        function TotalExpChartAdd(xax, yax) {
+            debugger;
+            Highcharts.chart('totalexpchart', {
+                chart: {
+                    type: 'column',
+                    styledMode: true
+                },
+                credits: {
+                    enabled: false
+                },
+                title: {
+                    text: 'Total Expense Claim Report'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    categories: xax,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Amount'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: yax
+                //[{
+                //    name: 'Tokyo',
+                //    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+                //}, {
+                //    name: 'New York',
+                //    data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+                //}, {
+                //    name: 'London',
+                //    data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+                //}, {
+                //    name: 'Berlin',
+                //    data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+                //}]
+            });
+        }
+
+
+
+
+
+
+
+
+        
+
+    </script>
+
+</asp:Content>
+

@@ -1,0 +1,68 @@
+﻿/*button and gridview*/
+.savebutton
+{
+	border-left: 1px solid #006736;
+	border-right: 1px solid #004222;
+	border-top: 1px solid #86B59F;
+	border-bottom: 1px solid #004222;
+	padding: 1px 5px;
+	font-family: Arial;
+		font-size: 10px;
+		font-weight: bold;
+		color: #FFFFFF;
+		background-color: #006937;
+		text-decoration: none;
+		text-transform: uppercase;
+	/*background-image: url('../../Images/green_btn_bg_submit.gif');*/
+		margin-top: 1px;
+		height: 20px;
+}
+
+.gridpager, .gridpager td{    
+    text-align:center;
+    color:#990099;    
+    font-weight:bold;
+    text-decoration: none;
+}
+
+.Grid { border: solid 1px #9097A9;
+    margin-right: 2px;
+}
+.Grid td
+{
+border: solid 1px #9097A9;
+/*margin: 1px 1px 1px 1px;*/
+/*padding: 1px 1px 1px 1px;*/
+text-align: left;
+}
+.GridHeader
+{
+font-weight: bold;
+background-color:#57B700;
+color:#FFFFFF;
+text-align:center;
+opacity:70%;
+}
+.GridItem
+{
+background-color: #f2f2f2;
+}
+
+.GridAltItem
+{
+background-color: #fefefe;
+}
+
+	fieldset
+    {	
+	border: 1px solid #4f9d63;	
+	padding:2px;
+	width:910px;
+    }
+    legend
+    {	
+    	font-weight: bold;
+    	font-size:13px;
+	    color:#4f9d63;
+    }
+    

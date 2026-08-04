@@ -1,0 +1,211 @@
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	
+	background: #01133e;
+	font-family: 'Trebuchet Ms';
+	font-size: 12px;
+	overflow: hidden;
+	
+}
+
+
+
+
+
+a:link, a:visited, a:active {
+	text-decoration: none;
+	color: #fba100;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+.top {
+	display: block;
+	overflow: hidden;
+	background:  url(login/bg_top.gif)  repeat-x;
+	height: 234px;
+	width: 100%;
+	position: absolute;
+	left: 0;
+	top: 50%;
+	margin-top: -410px;
+}
+
+.bottom {
+	display: block;
+	overflow: hidden;
+	background: url(login/bg_bottom.gif) repeat-x;
+	height: 213px;
+	width: 100%;
+	position: absolute;
+	left: 0;
+	top: 50%;
+	margin-top: 177px;
+	
+}
+
+#login_wrapper {
+	width: 462px;
+	height: 353px;
+	background: url(login/login_box_bg.jpg) no-repeat;
+	margin: 0 auto;
+}
+
+.login #wrapper {
+	height: 353px;
+	width: 100%;
+	position: absolute;
+	top: 50%;
+	margin-top: -176px;
+	background: #010b27;
+	z-index: 1;
+	
+}
+
+#login_bg {
+	width: 363px;
+	margin:  0 auto;
+	padding: 51px 0 0;
+	
+	
+}
+
+#login_box {
+	background:url(login/login_middle.gif) repeat-y;
+}
+
+#login_top {
+	background:url(login/login_top.gif) no-repeat;
+	
+}
+
+#login_bottom {
+	background:url(login/login_bottom.gif) no-repeat left bottom;
+	height: 246px;
+}
+
+.title {
+	display: block;
+	line-height: 76px;
+	height: 76px;
+	background: url(login/title_bg.gif) no-repeat;
+	margin: 0 0 0 116px;
+	text-indent: -3000px;
+	overflow: hidden;
+	
+}
+
+#login_box form {
+	margin: 0;
+	padding: 0;
+}
+
+#login_box fieldset {
+	border: 0;
+	padding: 26px 0 0 35px;
+	margin: 0;
+	width: 284px;
+	overflow: hidden;
+	
+}
+
+#login_box label {
+	display: block;
+	float: left;
+	width: 100%;
+	padding: 0 0 8px;
+}
+
+#login_box label strong {
+	line-height: 23px;
+	display: block;
+	white-space: nowrap;
+	float: left;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+#login_box .input_wrapper {
+	display: block;
+	width: 194px;
+	
+	background:url(login/input_wrapper.gif) no-repeat;
+	
+	padding: 4px;
+}
+
+#login_box label.remember {
+	width: 202px;
+	float: right;
+	line-height: 23px;
+}
+
+ul.buttons {
+	margin: 0;
+	padding: 0;
+	float: right;
+	width: 202px;
+}
+
+ul.buttons   li {
+	list-style: none;
+	float: left;
+	padding: 0 9px 0 0;
+}
+
+#login_box .input_wrapper input.text {
+	display: block;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	background: transparent;
+	font-family: 'Trebuchet Ms';
+	font-size: 12px;
+}
+
+#login_box .input_wrapper {
+	float: right;
+}
+
+#login_box_menu {
+	width: 100%;
+	overflow: hidden;
+	margin: 0;
+	padding: 7px 0 0;
+}
+
+#login_box_menu li {
+	margin: 0;
+	padding: 0;
+	font-size: 11px;
+	color: #8093c5;
+	list-style: none;
+}
+
+#login_box_menu li.left {
+	float: left;
+	padding: 0 0 0 10px
+}
+
+#login_box_menu li.right {
+	float: right;
+	padding: 0 10px 0 0;
+}
+
+#login_box_menu li.left  a:link, #login_box_menu  li.left a:visited, #login_box_menu li.left a:hover, #login_box_menu li.left a:active {
+	color: #fba100;
+	
+} 
+
+#login_box_menu li.right  a:link, #login_box_menu  li.right a:visited, #login_box_menu li.right a:hover, #login_box_menu li.right a:active {
+	color: #8093c5;
+	
+} 
+
+
+

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dsMoneyReceipt" targetNamespace="http://tempuri.org/dsMoneyReceipt.xsd" xmlns:mstns="http://tempuri.org/dsMoneyReceipt.xsd" xmlns="http://tempuri.org/dsMoneyReceipt.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="dsMoneyReceipt" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_UserDSName="dsMoneyReceipt" msprop:Generator_DataSetName="dsMoneyReceipt">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="dtTPDetail" msprop:Generator_RowEvHandlerName="dtTPDetailRowChangeEventHandler" msprop:Generator_RowDeletedName="dtTPDetailRowDeleted" msprop:Generator_RowDeletingName="dtTPDetailRowDeleting" msprop:Generator_RowEvArgName="dtTPDetailRowChangeEvent" msprop:Generator_TablePropName="dtTPDetail" msprop:Generator_RowChangedName="dtTPDetailRowChanged" msprop:Generator_RowChangingName="dtTPDetailRowChanging" msprop:Generator_TableClassName="dtTPDetailDataTable" msprop:Generator_RowClassName="dtTPDetailRow" msprop:Generator_TableVarName="tabledtTPDetail" msprop:Generator_UserTableName="dtTPDetail">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ContactNo" msprop:Generator_ColumnPropNameInRow="ContactNo" msprop:Generator_ColumnPropNameInTable="ContactNoColumn" msprop:Generator_ColumnVarNameInTable="columnContactNo" msprop:Generator_UserColumnName="ContactNo" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="dtBal" msprop:Generator_RowEvHandlerName="dtBalRowChangeEventHandler" msprop:Generator_RowDeletedName="dtBalRowDeleted" msprop:Generator_RowDeletingName="dtBalRowDeleting" msprop:Generator_RowEvArgName="dtBalRowChangeEvent" msprop:Generator_TablePropName="dtBal" msprop:Generator_RowChangedName="dtBalRowChanged" msprop:Generator_RowChangingName="dtBalRowChanging" msprop:Generator_TableClassName="dtBalDataTable" msprop:Generator_RowClassName="dtBalRow" msprop:Generator_TableVarName="tabledtBal" msprop:Generator_UserTableName="dtBal">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="OrderNo" msprop:Generator_ColumnPropNameInRow="OrderNo" msprop:Generator_ColumnPropNameInTable="OrderNoColumn" msprop:Generator_ColumnVarNameInTable="columnOrderNo" msprop:Generator_UserColumnName="OrderNo" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

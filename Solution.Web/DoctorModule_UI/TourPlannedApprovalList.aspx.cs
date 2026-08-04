@@ -1,0 +1,135 @@
+﻿using SalesSolution.Web.DataLayer;
+using SalesSolution.Web.Models;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class DoctorModule_UI_TourPlannedApprovalList : System.Web.UI.Page
+{
+    private static TourTypeDal tourTypeDal = new TourTypeDal();
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+        {
+            LoadData();
+        }
+    }
+
+    protected void chkSelectAll_CheckedChanged(object sender, EventArgs e)
+    {
+        var chkBoxHeader = (CheckBox)loadGridView.HeaderRow.FindControl("chkSelectAll");
+
+        for (int i = 0; i < loadGridView.Rows.Count; i++)
+        {
+            var chkBoxRows = (CheckBox)loadGridView.Rows[i].Cells[0].FindControl("chkSelect");
+            chkBoxRows.Checked = chkBoxHeader.Checked;
+        }
+    }
+    protected void gv_DocumentUpload_PreRender(object sender, EventArgs e)
+    {
+        GridView gv = (GridView)sender;
+
+        if ((gv.ShowHeader == true && gv.Rows.Count > 0)
+            || (gv.ShowHeaderWhenEmpty == true))
+        {
+            //Force GridView to use <thead> instead of <tbody> - 11/03/2013 - MCR.
+            gv.HeaderRow.TableSection = TableRowSection.TableHeader;
+        }
+    }
+
+    protected void EmpCetegoryAddImageButton_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("CustomerEntry.aspx");
+    }
+
+    private void LoadData()
+    { 
+        DataTable aDataTable = tourTypeDal.GetTourPlanList("and mas.ApprovalStatus<>'2'");
+        loadGridView.DataSource = aDataTable;
+        loadGridView.DataBind();
+    }
+    protected void showMessageBox(string message)
+    {
+        string sScript;
+        message = message.Replace("'", "\'");
+        sScript = String.Format("alert('{0}');", message);
+        ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", sScript, true);
+    }
+    public bool Validation()
+    {
+
+
+
+
+        if (chkAction.SelectedValue == "")
+        {
+            showMessageBox("please fill out this field");
+
+            return false;
+        }
+
+        return true;
+    }
+    protected void btnSave_Click(object sender, EventArgs e)
+    {
+
+        if (Validation())
+        {
+
+            string MyArry = "";
+            ResultInfo Res = new ResultInfo();
+            string rbValue = chkAction.SelectedValue;
+
+            for (int i = 0; i < loadGridView.Rows.Count; i++)
+
+
+            {
+                HiddenField hfCustomerMasterId = (HiddenField)loadGridView.Rows[i].FindControl("hfCustomerMasterId");
+                CheckBox chkSelect = (CheckBox)loadGridView.Rows[i].FindControl("chkSelect");
+                if (chkSelect.Checked)
+                {
+
+
+                    Res = tourTypeDal.Approve_TourPlanList(hfCustomerMasterId.Value, rbValue, HttpContext.Current.Session["UserId"].ToString());
+                }
+
+
+            }
+
+
+
+
+
+            if (Res.isSuccess == true)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "successalert('" + "Operation successful!" + "','Success','TourPlannedApprovalList.aspx');", true);
+
+            }
+            else
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "faildalert('" + "Operation Faild!" + "','Faild');", true);
+
+            }
+
+        }
+    }
+    protected void loadGridView_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        if (e.CommandName == "EditData")
+        {
+            int rowindex = Convert.ToInt32(e.CommandArgument);
+            string unitPriceId = loadGridView.DataKeys[rowindex][0].ToString();
+
+            System.Web.UI.ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "openModal", "window.open('../DoctorModule_UI/TourPlanDetailsView.aspx?id=" + unitPriceId + "' ,'_blank');", true);
+
+            //Response.Redirect("../DoctorModule_UI/TourPlanDetailsView.aspx?id=" + unitPriceId);
+        }
+
+    }
+
+}

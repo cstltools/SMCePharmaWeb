@@ -1,0 +1,1210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{EF74CE07-81D6-4176-85B9-B7CD790E0C74}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Library.CrystalReports</RootNamespace>
+    <AssemblyName>Library.CrystalReports</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Http.Common, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Web.Http.Common.4.0.20126.16343\lib\net40\System.Web.Http.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SInventory_DS\AreaWiseMonthlyInventoryReport.cs">
+      <DependentUpon>AreaWiseMonthlyInventoryReport.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\AreaWiseMonthlyInventoryReport.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AreaWiseMonthlyInventoryReport.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\CWMonthlyInventoryReport.cs">
+      <DependentUpon>CWMonthlyInventoryReport.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\CWMonthlyInventoryReport.designer.cs">
+      <DependentUpon>CWMonthlyInventoryReport.xsd</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="SInventory_DS\DayWiseBusinessDataSet1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DayWiseBusinessDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\DcStockMonitoringDataSet.cs">
+      <DependentUpon>DcStockMonitoringDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\DcStockMonitoringDataSet.designer.cs">
+      <DependentUpon>DcStockMonitoringDataSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\DeleteOrderDataTable.cs">
+      <DependentUpon>DeleteOrderDataTable.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\DeleteOrderDataTable.designer.cs">
+      <DependentUpon>DeleteOrderDataTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsAllSalesReport.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsAllSalesReport.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsBusinessSummary.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsBusinessSummary.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsCompanySales.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsCompanySales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsComUnitSales.cs">
+      <DependentUpon>dsComUnitSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsComUnitSales.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsComUnitSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsCountryStock.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsCountryStock.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsCustomerLedger.cs">
+      <DependentUpon>dsCustomerLedger.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsCustomerLedger.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsCustomerLedger.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsCustomerMaster.cs">
+      <DependentUpon>dsCustomerMaster.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsCustomerMaster.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsCustomerMaster.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsCustomerPaymentReport.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsCustomerPaymentReport.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsCustomerSales.cs">
+      <DependentUpon>dsCustomerSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsCustomerSales.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsCustomerSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDCPicking.cs">
+      <DependentUpon>dsDCPicking.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDCPicking.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsDCPicking.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDCStock.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsDCStock.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDcStockOutReport.cs">
+      <DependentUpon>dsDcStockOutReport.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDcStockOutReport.designer.cs">
+      <DependentUpon>dsDcStockOutReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDCwiseCountryStock.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsDCwiseCountryStock.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDeliveryReturn.cs">
+      <DependentUpon>dsDeliveryReturn.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDeliveryReturn.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsDeliveryReturn.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDistrictSales.cs">
+      <DependentUpon>dsDistrictSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsDistrictSales.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsDistrictSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsEmployeewiseProductSales.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsEmployeewiseProductSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsInvoiceForCustomer.cs">
+      <DependentUpon>dsInvoiceForCustomer.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsInvoiceForCustomer.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsInvoiceForCustomer.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsLoadingReport.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsLoadingReport.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsMarketwisePicking.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsMarketwisePicking.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsMIASales.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsMIASales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsMIAWiseSales.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsMIAWiseSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsMigo.cs">
+      <DependentUpon>dsMigo.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsMigo.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsMigo.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsOrderInformation1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsOrderInformation.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsTourPlan.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsTourPlan.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsMonthlyExpense.cs">
+      <DependentUpon>dsMonthlyExpense.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsMonthlyExpense.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsMonthlyExpense.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsOrderInformation.Designer.cs" />
+    <Compile Include="SInventory_DS\dsProductCostPrice.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsProductCostPrice.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsProductTreadPrice.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsProductTreadPrice.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsProforma.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsProforma.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsRegionSales.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsRegionSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsSalesComparision.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsSalesComparision.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsSalesRejection.cs">
+      <DependentUpon>dsSalesRejection.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsSalesRejection.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsSalesRejection.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsSTO.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsSTO.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsStockTransfarOrder.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsStockTransfarOrder.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsTopSheet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsTopSheet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsTourPlanMonthy.cs">
+      <DependentUpon>dsTourPlanMonthy.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsTourPlanMonthy.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsTourPlanMonthy.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\dsZoneSales.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsZoneSales.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\FixedCustomerSalesReportDataSet.cs">
+      <DependentUpon>FixedCustomerSalesReportDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\FixedCustomerSalesReportDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FixedCustomerSalesReportDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\MarketwiseSummary.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MarketwiseSummary.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\ProductWiseNationalSalesReportDataSet.cs">
+      <DependentUpon>ProductWiseNationalSalesReportDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\ProductWiseNationalSalesReportDataSet.designer.cs">
+      <DependentUpon>ProductWiseNationalSalesReportDataSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\ProductWiseNationalSalesZoneWiseDataSet.Designer.cs" />
+    <Compile Include="SInventory_DS\SalesTrendDataSet1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SalesTrendDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\WHStockInReportData.cs">
+      <DependentUpon>WHStockInReportData.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_DS\WHStockInReportData.designer.cs">
+      <DependentUpon>WHStockInReportData.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SInventory_RPT\crpCustomerMaster.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>crpCustomerMaster.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\crpDeliveryReturnReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>crpDeliveryReturnReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\crpMigoDetailsReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>crpMigoDetailsReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\crpOrderDetailsReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>crpOrderDetailsReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptChalanDCToDC.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptChalanDCToDC.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptChalanForWarehouse1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptChalanForWarehouse.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptChalanReceive.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptChalanReceive.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptCompanySales.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCompanySales.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptComUnitSales.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptComUnitSales.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptCountryStock.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCountryStock.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptCustMaster.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustMaster.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptCustomerSales.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustomerSales.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptDcPickingSlip.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptDcPickingSlip.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptDCStock.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptDCStock.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptDcToDcChalan.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptDcToDcChalan.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptDCwiseCountryStock.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptDCwiseCountryStock.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptDistrictWiseSales.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptDistrictWiseSales.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptMarketwiseBusinessSummary.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptMarketwiseBusinessSummary.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptMarketwisePicking.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptMarketwisePicking.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptMiaSales.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptMiaSales.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptMiaWiseSales.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptMiaWiseSales.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptMigoDetail.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptMigoDetail.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptOrderDetails.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptOrderDetails.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptPickingForWarehouse.cs">
+      <DependentUpon>rptPickingForWarehouse.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptInvoiceForCustomer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptInvoiceForCustomer.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptProductCostPrice.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptProductCostPrice.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptProductTradePrice.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptProductTradePrice.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptProformaReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptProformaReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptRegionSales.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptRegionSales.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptSpecialDiscount.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptSpecialDiscount.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptStockTransfarOrder.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptStockTransfarOrder.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptAllProductCountryStock.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptAllProductCountryStock.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptTopSheet.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptTopSheet.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SInventory_RPT\rptZoneSales.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptZoneSales.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SInventory_RPT\crpCustomerMaster.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>crpCustomerMaster.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\crpDeliveryReturnReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>crpDeliveryReturnReport.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\crpMigoDetailsReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>crpMigoDetailsReport.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\crpOrderDetailsReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>crpOrderDetailsReport.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptChalanDCToDC.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptChalanDCToDC.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptChalanForWarehouse.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptChalanForWarehouse1.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptChalanReceive.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptChalanReceive.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptCompanySales.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCompanySales.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptComUnitSales.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptComUnitSales.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptCountryStock.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCountryStock.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptCustMaster.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustMaster.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptCustomerSales.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustomerSales.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptDcPickingSlip.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptDcPickingSlip.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptDCStock.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptDCStock.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptDcToDcChalan.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptDcToDcChalan.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptDCwiseCountryStock.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptDCwiseCountryStock.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptDistrictWiseSales.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptDistrictWiseSales.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptMarketwiseBusinessSummary.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptMarketwiseBusinessSummary.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptMarketwisePicking.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptMarketwisePicking.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptMiaSales.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptMiaSales.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptMiaWiseSales.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptMiaWiseSales.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptMigoDetail.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptMigoDetail.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptOrderDetails.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptOrderDetails.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptPickingForWarehouse.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptPickingForWarehouse.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptInvoiceForCustomer.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptInvoiceForCustomer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptProductCostPrice.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptProductCostPrice.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptProductTradePrice.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptProductTradePrice.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptProformaReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptProformaReport.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptRegionSales.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptRegionSales.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptSpecialDiscount.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptSpecialDiscount.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptStockTransfarOrder.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptStockTransfarOrder.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptAllProductCountryStock.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptAllProductCountryStock.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptTopSheet.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptTopSheet.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SInventory_RPT\rptZoneSales.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptZoneSales.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="SInventory_DS\AreaWiseMonthlyInventoryReport.xsc">
+      <DependentUpon>AreaWiseMonthlyInventoryReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\AreaWiseMonthlyInventoryReport.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>AreaWiseMonthlyInventoryReport.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SInventory_DS\AreaWiseMonthlyInventoryReport.xss">
+      <DependentUpon>AreaWiseMonthlyInventoryReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\CWMonthlyInventoryReport.xsc">
+      <DependentUpon>CWMonthlyInventoryReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\CWMonthlyInventoryReport.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>CWMonthlyInventoryReport.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SInventory_DS\CWMonthlyInventoryReport.xss">
+      <DependentUpon>CWMonthlyInventoryReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\DayWiseBusinessDataSet.xsc">
+      <DependentUpon>DayWiseBusinessDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\DayWiseBusinessDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DayWiseBusinessDataSet1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SInventory_DS\DayWiseBusinessDataSet.xss">
+      <DependentUpon>DayWiseBusinessDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\DcStockMonitoringDataSet.xsc">
+      <DependentUpon>DcStockMonitoringDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\DcStockMonitoringDataSet.xsd" />
+    <None Include="SInventory_DS\DcStockMonitoringDataSet.xss">
+      <DependentUpon>DcStockMonitoringDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\DeleteOrderDataTable.xsc">
+      <DependentUpon>DeleteOrderDataTable.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\DeleteOrderDataTable.xsd" />
+    <None Include="SInventory_DS\DeleteOrderDataTable.xss">
+      <DependentUpon>DeleteOrderDataTable.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsAllSalesReport.xsc">
+      <DependentUpon>dsAllSalesReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsAllSalesReport.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsAllSalesReport.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsAllSalesReport.xss">
+      <DependentUpon>dsAllSalesReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsBatchWiseCollection.xsd" />
+    <None Include="SInventory_DS\dsBusinessSummary.xsc">
+      <DependentUpon>dsBusinessSummary.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsBusinessSummary.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsBusinessSummary.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsBusinessSummary.xss">
+      <DependentUpon>dsBusinessSummary.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCompanySales.xsc">
+      <DependentUpon>dsCompanySales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCompanySales.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsCompanySales.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsCompanySales.xss">
+      <DependentUpon>dsCompanySales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsComUnitSales.xsc">
+      <DependentUpon>dsComUnitSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsComUnitSales.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsComUnitSales.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsComUnitSales.xss">
+      <DependentUpon>dsComUnitSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCountryStock.xsc">
+      <DependentUpon>dsCountryStock.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCountryStock.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsCountryStock.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsCountryStock.xss">
+      <DependentUpon>dsCountryStock.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCustomerLedger.xsc">
+      <DependentUpon>dsCustomerLedger.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCustomerLedger.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsCustomerLedger.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsCustomerLedger.xss">
+      <DependentUpon>dsCustomerLedger.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCustomerMaster.xsc">
+      <DependentUpon>dsCustomerMaster.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCustomerMaster.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsCustomerMaster.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsCustomerMaster.xss">
+      <DependentUpon>dsCustomerMaster.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCustomerPaymentReport.xsc">
+      <DependentUpon>dsCustomerPaymentReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCustomerPaymentReport.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsCustomerPaymentReport.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsCustomerPaymentReport.xss">
+      <DependentUpon>dsCustomerPaymentReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCustomerSales.xsc">
+      <DependentUpon>dsCustomerSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsCustomerSales.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsCustomerSales.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsCustomerSales.xss">
+      <DependentUpon>dsCustomerSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDCPicking.xsc">
+      <DependentUpon>dsDCPicking.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDCPicking.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsDCPicking.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsDCPicking.xss">
+      <DependentUpon>dsDCPicking.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDCStock.xsc">
+      <DependentUpon>dsDCStock.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDCStock.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsDCStock.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsDCStock.xss">
+      <DependentUpon>dsDCStock.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDcStockOutReport.xsc">
+      <DependentUpon>dsDcStockOutReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDcStockOutReport.xsd" />
+    <None Include="SInventory_DS\dsDcStockOutReport.xss">
+      <DependentUpon>dsDcStockOutReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDCwiseCountryStock.xsc">
+      <DependentUpon>dsDCwiseCountryStock.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDCwiseCountryStock.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsDCwiseCountryStock.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsDCwiseCountryStock.xss">
+      <DependentUpon>dsDCwiseCountryStock.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDeliveryReturn.xsc">
+      <DependentUpon>dsDeliveryReturn.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDeliveryReturn.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsDeliveryReturn.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsDeliveryReturn.xss">
+      <DependentUpon>dsDeliveryReturn.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDistrictSales.xsc">
+      <DependentUpon>dsDistrictSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsDistrictSales.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsDistrictSales.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsDistrictSales.xss">
+      <DependentUpon>dsDistrictSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsEmployeewiseProductSales.xsc">
+      <DependentUpon>dsEmployeewiseProductSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsEmployeewiseProductSales.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsEmployeewiseProductSales.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsEmployeewiseProductSales.xss">
+      <DependentUpon>dsEmployeewiseProductSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsInvoiceForCustomer.xsc">
+      <DependentUpon>dsInvoiceForCustomer.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsInvoiceForCustomer.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsInvoiceForCustomer.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsInvoiceForCustomer.xss">
+      <DependentUpon>dsInvoiceForCustomer.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsLoadingReport.xsc">
+      <DependentUpon>dsLoadingReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsLoadingReport.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsLoadingReport.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsLoadingReport.xss">
+      <DependentUpon>dsLoadingReport.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMarketwisePicking.xsc">
+      <DependentUpon>dsMarketwisePicking.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMarketwisePicking.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsMarketwisePicking.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsMarketwisePicking.xss">
+      <DependentUpon>dsMarketwisePicking.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMIASales.xsc">
+      <DependentUpon>dsMIASales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMIASales.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsMIASales.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsMIASales.xss">
+      <DependentUpon>dsMIASales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMIAWiseSales.xsc">
+      <DependentUpon>dsMIAWiseSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMIAWiseSales.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsMIAWiseSales.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsMIAWiseSales.xss">
+      <DependentUpon>dsMIAWiseSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMigo.xsc">
+      <DependentUpon>dsMigo.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMigo.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsMigo.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsMigo.xss">
+      <DependentUpon>dsMigo.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsTourPlan.xsc">
+      <DependentUpon>dsTourPlan.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsTourPlan.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsTourPlan.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SInventory_DS\dsTourPlan.xss">
+      <DependentUpon>dsTourPlan.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMoneyReceipt.xsc">
+      <DependentUpon>dsMoneyReceipt.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMoneyReceipt.xsd" />
+    <None Include="SInventory_DS\dsMoneyReceipt.xss">
+      <DependentUpon>dsMoneyReceipt.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMonthlyExpense.xsc">
+      <DependentUpon>dsMonthlyExpense.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsMonthlyExpense.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsMonthlyExpense.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsMonthlyExpense.xss">
+      <DependentUpon>dsMonthlyExpense.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsOrderInformation.xsc">
+      <DependentUpon>dsOrderInformation.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsOrderInformation.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsOrderInformation1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SInventory_DS\dsOrderInformation.xss">
+      <DependentUpon>dsOrderInformation.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsProductCostPrice.xsc">
+      <DependentUpon>dsProductCostPrice.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsProductCostPrice.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsProductCostPrice.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsProductCostPrice.xss">
+      <DependentUpon>dsProductCostPrice.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsProductTreadPrice.xsc">
+      <DependentUpon>dsProductTreadPrice.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsProductTreadPrice.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsProductTreadPrice.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsProductTreadPrice.xss">
+      <DependentUpon>dsProductTreadPrice.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsProforma.xsc">
+      <DependentUpon>dsProforma.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsProforma.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsProforma.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsProforma.xss">
+      <DependentUpon>dsProforma.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsRegionSales.xsc">
+      <DependentUpon>dsRegionSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsRegionSales.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsRegionSales.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsRegionSales.xss">
+      <DependentUpon>dsRegionSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsSalesComparision.xsc">
+      <DependentUpon>dsSalesComparision.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsSalesComparision.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsSalesComparision.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsSalesComparision.xss">
+      <DependentUpon>dsSalesComparision.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsSalesRejection.xsc">
+      <DependentUpon>dsSalesRejection.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsSalesRejection.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsSalesRejection.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsSalesRejection.xss">
+      <DependentUpon>dsSalesRejection.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsSTO.xsc">
+      <DependentUpon>dsSTO.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsSTO.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsSTO.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsSTO.xss">
+      <DependentUpon>dsSTO.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsStockTransfarOrder.xsc">
+      <DependentUpon>dsStockTransfarOrder.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsStockTransfarOrder.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsStockTransfarOrder.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsStockTransfarOrder.xss">
+      <DependentUpon>dsStockTransfarOrder.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsTopSheet.xsc">
+      <DependentUpon>dsTopSheet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsTopSheet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsTopSheet.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsTopSheet.xss">
+      <DependentUpon>dsTopSheet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsTourPlanMonthy.xsc">
+      <DependentUpon>dsTourPlanMonthy.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsTourPlanMonthy.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsTourPlanMonthy.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsTourPlanMonthy.xss">
+      <DependentUpon>dsTourPlanMonthy.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsZoneSales.xsc">
+      <DependentUpon>dsZoneSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\dsZoneSales.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsZoneSales.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\dsZoneSales.xss">
+      <DependentUpon>dsZoneSales.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\FixedCustomerSalesReportDataSet.xsc">
+      <DependentUpon>FixedCustomerSalesReportDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\FixedCustomerSalesReportDataSet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>FixedCustomerSalesReportDataSet.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\FixedCustomerSalesReportDataSet.xss">
+      <DependentUpon>FixedCustomerSalesReportDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\MarketwiseSummary.xsc">
+      <DependentUpon>MarketwiseSummary.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\MarketwiseSummary.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>MarketwiseSummary.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="SInventory_DS\MarketwiseSummary.xss">
+      <DependentUpon>MarketwiseSummary.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\ProductWiseNationalSalesReportDataSet.xsc">
+      <DependentUpon>ProductWiseNationalSalesReportDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\ProductWiseNationalSalesReportDataSet.xsd" />
+    <None Include="SInventory_DS\ProductWiseNationalSalesReportDataSet.xss">
+      <DependentUpon>ProductWiseNationalSalesReportDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\ProductWiseNationalSalesZoneWiseDataSet.xsc">
+      <DependentUpon>ProductWiseNationalSalesZoneWiseDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\ProductWiseNationalSalesZoneWiseDataSet.xsd" />
+    <None Include="SInventory_DS\ProductWiseNationalSalesZoneWiseDataSet.xss">
+      <DependentUpon>ProductWiseNationalSalesZoneWiseDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\SalesTrendDataSet.xsc">
+      <DependentUpon>SalesTrendDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\SalesTrendDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>SalesTrendDataSet1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SInventory_DS\SalesTrendDataSet.xss">
+      <DependentUpon>SalesTrendDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\WHStockInReportData.xsc">
+      <DependentUpon>WHStockInReportData.xsd</DependentUpon>
+    </None>
+    <None Include="SInventory_DS\WHStockInReportData.xsd" />
+    <None Include="SInventory_DS\WHStockInReportData.xss">
+      <DependentUpon>WHStockInReportData.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

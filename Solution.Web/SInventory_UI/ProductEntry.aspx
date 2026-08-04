@@ -1,0 +1,428 @@
+<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/NewMasterPage.master" AutoEventWireup="true" CodeFile="ProductEntry.aspx.cs" Inherits="SInventory_UI_ProductEntry" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server"> 
+
+    
+    <style>
+       
+        .imgshadow{
+
+            width:100%;
+            height:300px;
+        
+/* border: 1px solid #ddd;*/
+  border-radius: 4px;
+  padding: 5px;
+ box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+ border: 3px #1c87c9;
+        border-style: dashed;
+        }
+         .imgshadow:hover {
+  box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+}
+    </style>
+       <div class="page-wrapper">
+        <div class="page-content">
+            <!--breadcrumb-->
+            <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+                <div class="breadcrumb-title pe-3"> <i class="bx bx-customize"></i> Product Entry</div>
+                
+                <div class="ms-auto">
+                    <div class="btn-group">
+
+
+
+                        <asp:LinkButton ID="detailsViewButton" CssClass="btn btn-sm btn-sm btn-outline-info" runat="server" OnClick="detailsViewButton_Click"> <i class="fa fa-backward"></i>&nbsp;Back to List</asp:LinkButton>
+
+
+                    </div>
+                </div>
+            </div>
+            <!--end breadcrumb-->
+            <div class="row">
+                <div class="col">
+
+                    <div class="card border-top border-0 border-4 border-success">
+                        <div class="card-body">
+                            <asp:UpdatePanel ID="UpdatePanel2" runat="server">
+                                <ContentTemplate>
+                                       <asp:UpdateProgress ID="progress" runat="server" ClientIDMode="Static" DisplayAfter="0" DynamicLayout="true">
+                    <ProgressTemplate>
+                       
+                        <div class="divWaiting">
+                            <asp:Image ID="imgWait" CssClass="position-set" runat="server" ImageAlign="Middle" ImageUrl="../images/Spinner.gif" Width="180px" Height="180px" />
+                        </div>
+                    </ProgressTemplate>
+                </asp:UpdateProgress>
+                                   <%-- <asp:UpdateProgress ID="UpdateProgress1" runat="server" ClientIDMode="Static" DisplayAfter="0" DynamicLayout="true">
+                                        <ProgressTemplate>
+                                            <div class="divWaiting">
+                                                <asp:Image ID="imgWait7" CssClass="position-set" runat="server" ImageAlign="Middle" ImageUrl="../images/Pulse45.gif" Width="150px" Height="150px" />
+                                            </div>
+
+                                        </ProgressTemplate>
+                                    </asp:UpdateProgress>--%>
+
+                                    <asp:HiddenField ID="productIdHiddenField" runat="server" />
+                                      <div class="form-body mt-4">
+					    <div class="row">
+						   <div class="col-lg-8">
+                           <div class="border border-3 p-4 rounded">
+							<div class="mb-3">
+								<label for="inputProductTitle" class="form-label">Product Code <span class="text-danger">*</span></label>
+								 <asp:TextBox ID="productCodeTextBox"   runat="server" CssClass="form-control form-control-sm mb-3"></asp:TextBox>
+							  </div>
+
+                               <div class="mb-3">
+								<label for="inputProductTitle" class="form-label">Product Name <span class="text-danger">*</span></label>
+								<asp:TextBox ID="productNameTextBox"    runat="server" CssClass="form-control form-control-sm mb-3"></asp:TextBox>
+							  </div>
+							  <div class="mb-3">
+								<label for="inputProductDescription" class="form-label">Description <span class="text-danger">*</span></label>
+
+                                    <asp:TextBox ID="descriptionTextBox"    runat="server" TextMode="MultiLine" Rows="2" CssClass="form-control form-control-sm mb-3"></asp:TextBox>
+						 
+							  </div>
+							
+
+                                <div class="mb-3">
+								<label for="inputProductTitle" class="form-label">Distribution Center</label>
+								 <asp:ListBox runat="server" ID="ddlDistributionCenter" SelectionMode="Multiple" class="form-select form-select-sm mb-3 multiple-select" name="BrandSelect"></asp:ListBox>
+
+							  </div>
+
+
+                                 <div class="mb-3">
+								<label for="inputProductDescription" class="form-label">Product Images</label>
+                                  <br />
+                                   <asp:Image ID="img_emp" runat="server"  CssClass="imgshadow" />
+                                   <br />
+                                   <br />
+								<input id="image-uploadify" onchange="return fileValidation()"  class="form-control form-control-sm mb-3"  name="postedFile"  type="file" accept="image/*" >
+                                  <button type="button" id="btnUpload" class="btn btn-success btn-block" > select file to upload</button>
+
+                                  
+                                      <asp:HiddenField runat="server" ID="hfDocFileName"/>
+                                            <asp:HiddenField runat="server" ID="hfDocFile"/>
+                                    <div style="display:none">
+                                         <progress id="fileProgress"    style="display: none;height: 40px;width: 400px;"></progress>
+                                                            
+                                             <span id="lblMessage" style="color: Green"></span>
+                                    </div>
+							  </div>
+                            </div>
+						   </div>
+						   <div class="col-lg-4">
+							<div class="border border-3 p-4 rounded">
+                              <div class="row g-3">
+
+
+                                    <div class="col-12">
+									<label for="inputProductType" class="form-label"><a href="../DoctorModule_UI/GenericGroupView.aspx" title="Go to this Page" target="_blank">Generic Group</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                                <asp:DropDownList   ID="ddlGenericGroup" runat="server" 
+                                 CssClass="form-select form-select-sm mb-3 mySelect2" >
+                            </asp:DropDownList>
+                                                        <script type="text/javascript">
+                                                            function pageLoad() {
+                                                                $('.multiple-select').select2({
+                                                                    includeSelectAllOption: true,
+                                                                    theme: 'bootstrap4',
+                                                                    width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                                                                    placeholder: $(this).data('placeholder'),
+                                                                    allowClear: Boolean($(this).data('allow-clear')),
+                                                                });
+
+                                                                $('.mySelect2').select2({
+                                                                    theme: 'bootstrap4',
+                                                                    width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                                                                    placeholder: $(this).data('placeholder'),
+                                                                    allowClear: Boolean($(this).data('allow-clear')),
+                                                                });
+
+                                                                var roleType = '<%= Session["RoleTypeName"] != null ? Session["RoleTypeName"].ToString() : "" %>';
+                                                                var dicUnitId = '<%= Session["DICUnitId"] != null ? Session["DICUnitId"].ToString() : "" %>';
+
+                                                                if (roleType === 'DIC') {
+                                                                    $('.multiple-select').on('select2:unselecting', function (e) {
+                                                                        if (e.params.args.data.id !== dicUnitId) {
+                                                                            e.preventDefault();
+                                                                        }
+                                                                    });
+                                                                    $('.multiple-select').on('select2:selecting', function (e) {
+                                                                        if (e.params.args.data.id !== dicUnitId) {
+                                                                            e.preventDefault();
+                                                                        }
+                                                                    });
+                                                                }
+
+
+                                                                $('#image-uploadify').imageuploadify();
+                                                                function fileValidation() {
+                                                                    var fileInput =
+                                                                        document.getElementById('image-uploadify');
+
+                                                                    var filePath = fileInput.value;
+
+                                                                    // Allowing file type 
+                                                                    var allowedExtensions =
+                                                                        /(\.PNG|\.png|\.JPG|\.JPEG|\.jpg|\.jpeg)$/i;
+
+
+                                                                    if (filePath == "") {
+                                                                        alert('Please Select a file');
+                                                                        $('#ContentPlaceHolder1_img_emp').prop('');
+
+                                                                        return false;
+                                                                    }
+
+                                                                    if (!allowedExtensions.exec(filePath)) {
+                                                                        alert('Invalid file type');
+                                                                        fileInput.value = '';
+                                                                        $('#ContentPlaceHolder1_img_emp').prop('');
+                                                                        return false;
+                                                                    }
+                                                                    return true;
+
+
+                                                                };
+                                                                $("body").on("click", "#btnUpload", function () {
+                                                                    debugger;
+                                                                    if (fileValidation()) {
+
+
+
+
+
+                                                                        $.ajax({
+                                                                            url: 'HandlerDocCV.ashx',
+                                                                            type: 'POST',
+                                                                            data: new FormData($('form')[0]),
+                                                                            cache: false,
+                                                                            contentType: false,
+                                                                            processData: false,
+                                                                            success: function (file) {
+                                                                                $("#fileProgress").hide();
+                                                                                $("#ContentPlaceHolder1_hfDocFile").val('');
+                                                                                $("#ContentPlaceHolder1_hfDocFileName").val('');
+
+                                                                                $('#ContentPlaceHolder1_img_emp').prop({ src: '../UploadFile/' + file.dbfilename });
+
+                                                                                $("#lblMessage").html("<b>" + file.name + "</b> has been uploaded.");
+                                                                                $("#ContentPlaceHolder1_hfDocFile").val(file.dbfilename);
+                                                                                $("#ContentPlaceHolder1_hfDocFileName").val(file.name);
+
+
+                                                                            },
+                                                                            xhr: function () {
+                                                                                var fileXhr = $.ajaxSettings.xhr();
+                                                                                if (fileXhr.upload) {
+                                                                                    $("progress").show();
+                                                                                    fileXhr.upload.addEventListener("progress", function (e) {
+                                                                                        if (e.lengthComputable) {
+                                                                                            $("#fileProgress").attr({
+                                                                                                value: e.loaded,
+                                                                                                max: e.total
+                                                                                            });
+                                                                                        }
+                                                                                    }, false);
+                                                                                }
+                                                                                return fileXhr;
+                                                                            }
+
+                                                                        });
+
+                                                                    }
+                                                                });
+                                                            }
+                                                        </script>
+
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="loadGenericGroup" OnClick="loadGenericGroup_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+								 
+
+                                    <div class="col-12">
+									<label for="inputProductType" class="form-label"><a href="../DoctorModule_UI/TharapeuticGroupView.aspx" title="Go to this Page" target="_blank">Therapeutic Group</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                                <asp:DropDownList    ID="ddlTherapeutic" runat="server" 
+                                 CssClass="form-select form-select-sm mb-3 mySelect2" >
+                            </asp:DropDownList>
+                                                        
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="loadTherapeutic" OnClick="loadTherapeutic_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+
+                                        <div class="col-12">
+									<label for="inputProductType" class="form-label"> Product Group <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                                <asp:DropDownList    ID="ddlProTypeNew" runat="server" 
+                                 CssClass="form-select form-select-sm mb-3 mySelect2" AutoPostBack="true" OnSelectedIndexChanged="ddlProTypeNew_SelectedIndexChanged" >
+                            </asp:DropDownList>
+                                                        
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="loadp_Group" OnClick="loadp_Group_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+
+                                       <div class="col-12">
+									<label for="inputProductType" class="form-label"><a href="../DoctorModule_UI/ProductLineEntry.aspx" title="Go to this Page" target="_blank">Product Line</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                                <asp:DropDownList    ID="ddlProLine" runat="server" 
+                                 CssClass="form-select form-select-sm mb-3 mySelect2" >
+                            </asp:DropDownList>
+                                                        
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="load_ProLine" OnClick="load_ProLine_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+								  <div class="col-12">
+									<label for="inputProductType" class="form-label"><a href="ProCategoryEntry.aspx" title="Go to this Page" target="_blank">Category</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                                <asp:DropDownList    ID="categoryNameDropDownList" runat="server" 
+                                 CssClass="form-select form-select-sm mb-3 mySelect2" >
+                            </asp:DropDownList>
+                                                        
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="catLoad" OnClick="catLoad_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+
+                                    <div class="col-12">
+									<label for="inputProductType" class="form-label"><a href="ManufacturerEntry.aspx" title="Go to this Page" target="_blank">Manufacturer</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                     <asp:DropDownList    ID="manufacDropDownList" runat="server" 
+                                CssClass="form-select form-select-sm mb-3 mySelect2">
+                            </asp:DropDownList>
+                                                       
+
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="ManufacturerLoad" OnClick="ManufacturerLoad_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+
+
+                                        <div class="col-12">
+									<label for="inputProductType" class="form-label"><a href="PackSizeEntry.aspx" title="Go to this Page" target="_blank">Pack Size</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                       <asp:DropDownList     ID="packSizeDropDownList" runat="server" 
+                                CssClass="form-select form-select-sm mb-3 mySelect2">
+                            </asp:DropDownList>
+                                                       
+
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="packSizeLoad" OnClick="packSizeLoad_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+
+
+                                        <div class="col-12">
+									<label for="inputProductType" class="form-label"><a href="StockUOMEntry.aspx" title="Go to this Page" target="_blank">UOM</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                <asp:DropDownList    ID="stockUOMDropDownList" runat="server" 
+                                CssClass="form-select form-select-sm mb-3 mySelect2">
+                            </asp:DropDownList>
+                                                       
+
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="UOMLoad" OnClick="UOMLoad_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+
+
+
+                                        <div class="col-12">
+									<label for="inputProductType" class="form-label"> <a href="../SInventory_UI/ProTypeEntry.aspx" title="Go to this Page" target="_blank">Product Type</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                           <asp:DropDownList    ID="typeDropDownList" runat="server" 
+                                CssClass="form-select form-select-sm mb-3 mySelect2">
+                            </asp:DropDownList>
+                                                       
+
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="ProtypeLoad" OnClick="ProtypeLoad_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+
+
+
+                                        <div class="col-12">
+									<label for="inputProductType" class="form-label"><a href="ProductSQEntry.aspx" title="Go to this Page" target="_blank">Product Brand</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                          <asp:DropDownList    ID="productSQDropDownList" runat="server" 
+                                CssClass="form-select form-select-sm mb-3 mySelect2">
+                            </asp:DropDownList>
+                                                       
+
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="productBrandLoad" OnClick="productBrandLoad_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+
+                                      <div class="col-12">
+									<label for="inputProductType" class="form-label"><a href="../SInventory_UI/ShippingCartonSizeEntry.aspx" title="Go to this Page" target="_blank">Shipping Carton</a> <span class="text-danger">*</span></label>
+									 <div class="input-group">
+                                                          <asp:DropDownList    ID="shippingCartonSizeDropDownList" runat="server" 
+                                CssClass="form-select form-select-sm mb-3 mySelect2">
+                            </asp:DropDownList>
+                                                       
+
+                                                                <span class="input-group-text text_Link"><asp:LinkButton runat="server" ID="ShippingLoad" OnClick="ShippingLoad_Click"><i class="fa fa-refresh"></i></asp:LinkButton></span>
+                                                            </div>
+
+								  </div>
+
+
+                                      <div class="col-12" runat="server" visible="true">
+									<label for="inputProductType" class="form-label"> Active Status</label>
+									 <div class="input-group">
+                                                        
+                                                      <div class="form-check form-switch" style="padding-left: 35px !important;">
+													<input    class="form-check-input"   runat="server" type="checkbox" id="chkIsActive" checked>
+													 <label  class="custom-control-label" for="chkIsActive">Active</label>
+												</div>      
+                                                       
+
+                                                               
+                                                            </div>
+
+								  </div>
+								 
+								  <div class="col-12">
+									  <div class="d-grid">
+                                        <asp:LinkButton ID="submitButton" Visible="false"  OnClientClick="return sweetAlertConfirm_Submit(this);"   CssClass="btn btnMyDesignSearch   btn-sm " runat="server"  OnClick="submitButton_Click1"><i class="fa fa-check"></i>Submit</asp:LinkButton>
+                                            <asp:LinkButton ID="updateButton"   OnClientClick="return sweetAlertConfirm_Update(this);"  Visible="false"  CssClass="btn btnMyDesignSearch   btn-sm " runat="server"  OnClick="updateButton_Click"><i class="fa fa-check"></i>Update</asp:LinkButton>
+
+                                                                <asp:LinkButton ID="ResetBtn" CssClass="btn btnMyDesignReset   btn-sm" runat="server" OnClick="ResetBtn_Click"><i class="fa fa-retweet"></i> Reset</asp:LinkButton>
+									  </div>
+								  </div>
+							  </div> 
+						  </div>
+						  </div>
+					   </div><!--end row-->
+					</div>
+
+                                    
+                                 
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                 
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+      <script type="text/javascript">
+
+
+</script>
+
+
+</asp:Content>

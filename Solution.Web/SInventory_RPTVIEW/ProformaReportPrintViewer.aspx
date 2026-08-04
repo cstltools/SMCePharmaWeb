@@ -1,0 +1,110 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="ProformaReportPrintViewer.aspx.cs" Inherits="SInventory_RPTVIEW_InvoiceReportViewer" %>
+<%@ Register assembly="CrystalDecisions.Web, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304" namespace="CrystalDecisions.Web" tagprefix="CR" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title>Edit</title>
+    <link href="../css/custom.css" rel="stylesheet" type="text/css" />
+     <link rel="stylesheet" href="../css/style.css" type="text/css">
+    <link rel="stylesheet" href="../css/colors/blue.css" id="colors" type="text/css">
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div>
+        <div>
+            <asp:ScriptManager ID="ScriptManager1" runat="server">
+        </asp:ScriptManager>
+    <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+        <ContentTemplate>
+            <div>
+                <table width="100%" class="TableWorkArea">
+                    <tr>
+                        <td colspan="6" class="TableHeading">
+                            Invoice Report
+                        </td>
+                    </tr>
+                     <tr>
+                        <td width="13%" class="TDLeft">
+                            &nbsp;
+                        </td>
+                        <td width="20%" class="TDRight">
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            <input id="btnPrint" type="button" value="Print" onclick="Print()" />
+                        </td>
+                        <td width="20%" class="TDRight">
+                            <asp:Button ID="Button1" runat="server"  
+                                Text="Close" onclick="closeButton_Click" />
+                        </td>
+                        <td width="13%" class="TDLeft">
+                        </td>
+                        <td width="20%" class="TDRight">
+                        </td>
+                    </tr>
+                 
+                    <tr>
+                        <td width="13%" class="TDLeft" colspan="6">
+                           <div style="overflow: scroll; height: auto;"  id="dvReport">
+
+
+                               <CR:CrystalReportViewer ID="crvInvoiceReport" runat="server" 
+                                   AutoDataBind="true" EnableDatabaseLogonPrompt="False" 
+                                   EnableParameterPrompt="False" ReuseParameterValuesOnRefresh="True" 
+                                   ToolPanelView="None" ondisposed="crvInvoiceReport_Disposed" 
+                                   onunload="crvInvoiceReport_Unload" />
+
+                            </div>
+                        </td>
+                       
+                    </tr>
+                   
+                    <tr>
+                        <td width="13%" class="TDLeft">
+                            &nbsp;
+                        </td>
+                        <td width="20%" class="TDRight">
+                            &nbsp;
+                        </td>
+                        <td width="13%" class="TDLeft" >
+                            &nbsp;
+                        </td>
+                         <td width="20%" class="TDRight">
+                            &nbsp;
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            &nbsp;
+                        </td>
+                        <td width="20%" class="TDRight">
+                            &nbsp;
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+
+    </div>
+
+    </div>
+    </form>
+</body>
+<script type="text/javascript">
+    function Print() {
+        var dvReport = document.getElementById("dvReport");
+        var frame1 = dvReport.getElementsByTagName("iframe")[0];
+        if (navigator.appName.indexOf("Internet Explorer") != -1 || navigator.appVersion.indexOf("Trident") != -1) {
+            frame1.name = frame1.id;
+            window.frames[frame1.id].focus();
+            window.frames[frame1.id].print();
+        } else {
+            var frameDoc = frame1.contentWindow ? frame1.contentWindow : frame1.contentDocument.document ? frame1.contentDocument.document : frame1.contentDocument;
+            frameDoc.print();
+        }
+    }  
+</script> 
+</html>
+
+

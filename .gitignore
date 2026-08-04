@@ -1,0 +1,17 @@
+# Visual Studio / Temporary files
+.vs/
+.vscode/
+*.suo
+*.user
+*.userprefs
+*.TMP
+*.tmp
+
+# Build outputs
+bin/
+obj/
+PrecompiledWeb/
+_ReSharper*/
+
+# Environment & local secrets
+.env

@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dsMarketwisePicking" targetNamespace="http://tempuri.org/dsMarketwisePicking.xsd" xmlns:mstns="http://tempuri.org/dsMarketwisePicking.xsd" xmlns="http://tempuri.org/dsMarketwisePicking.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="dsMarketwisePicking" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="dsMarketwisePicking" msprop:Generator_UserDSName="dsMarketwisePicking">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="companyInfoDataTable" msprop:Generator_TableClassName="companyInfoDataTableDataTable" msprop:Generator_TableVarName="tablecompanyInfoDataTable" msprop:Generator_RowChangedName="companyInfoDataTableRowChanged" msprop:Generator_TablePropName="companyInfoDataTable" msprop:Generator_RowDeletingName="companyInfoDataTableRowDeleting" msprop:Generator_RowChangingName="companyInfoDataTableRowChanging" msprop:Generator_RowEvHandlerName="companyInfoDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="companyInfoDataTableRowDeleted" msprop:Generator_RowClassName="companyInfoDataTableRow" msprop:Generator_UserTableName="companyInfoDataTable" msprop:Generator_RowEvArgName="companyInfoDataTableRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="CompanyName" msprop:Generator_ColumnVarNameInTable="columnCompanyName" msprop:Generator_ColumnPropNameInRow="CompanyName" msprop:Generator_ColumnPropNameInTable="CompanyNameColumn" msprop:Generator_UserColumnName="CompanyName" type="xs:string" minOccurs="0" />
+              <xs:element name="Address" msprop:Generator_ColumnVarNameInTable="columnAddress" msprop:Generator_ColumnPropNameInRow="Address" msprop:Generator_ColumnPropNameInTable="AddressColumn" msprop:Generator_UserColumnName="Address" type="xs:string" minOccurs="0" />
+              <xs:element name="ContactNo" msprop:Generator_ColumnVarNameInTable="columnContactNo" msprop:Generator_ColumnPropNameInRow="ContactNo" msprop:Generator_ColumnPropNameInTable="ContactNoColumn" msprop:Generator_UserColumnName="ContactNo" type="xs:string" minOccurs="0" />
+              <xs:element name="FaxNo" msprop:Generator_ColumnVarNameInTable="columnFaxNo" msprop:Generator_ColumnPropNameInRow="FaxNo" msprop:Generator_ColumnPropNameInTable="FaxNoColumn" msprop:Generator_UserColumnName="FaxNo" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="marketwisepickingDataTable" msprop:Generator_TableClassName="marketwisepickingDataTableDataTable" msprop:Generator_TableVarName="tablemarketwisepickingDataTable" msprop:Generator_RowChangedName="marketwisepickingDataTableRowChanged" msprop:Generator_TablePropName="marketwisepickingDataTable" msprop:Generator_RowDeletingName="marketwisepickingDataTableRowDeleting" msprop:Generator_RowChangingName="marketwisepickingDataTableRowChanging" msprop:Generator_RowEvHandlerName="marketwisepickingDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="marketwisepickingDataTableRowDeleted" msprop:Generator_RowClassName="marketwisepickingDataTableRow" msprop:Generator_UserTableName="marketwisepickingDataTable" msprop:Generator_RowEvArgName="marketwisepickingDataTableRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="MarketName" msprop:Generator_ColumnVarNameInTable="columnMarketName" msprop:Generator_ColumnPropNameInRow="MarketName" msprop:Generator_ColumnPropNameInTable="MarketNameColumn" msprop:Generator_UserColumnName="MarketName" type="xs:string" minOccurs="0" />
+              <xs:element name="InvoiceDate" msprop:Generator_ColumnVarNameInTable="columnInvoiceDate" msprop:Generator_ColumnPropNameInRow="InvoiceDate" msprop:Generator_ColumnPropNameInTable="InvoiceDateColumn" msprop:Generator_UserColumnName="InvoiceDate" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="ProductCode" msprop:Generator_ColumnVarNameInTable="columnProductCode" msprop:Generator_ColumnPropNameInRow="ProductCode" msprop:Generator_ColumnPropNameInTable="ProductCodeColumn" msprop:Generator_UserColumnName="ProductCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ProductName" msprop:Generator_ColumnVarNameInTable="columnProductName" msprop:Generator_ColumnPropNameInRow="ProductName" msprop:Generator_ColumnPropNameInTable="ProductNameColumn" msprop:Generator_UserColumnName="ProductName" type="xs:string" minOccurs="0" />
+              <xs:element name="BatchNo" msprop:Generator_ColumnVarNameInTable="columnBatchNo" msprop:Generator_ColumnPropNameInRow="BatchNo" msprop:Generator_ColumnPropNameInTable="BatchNoColumn" msprop:Generator_UserColumnName="BatchNo" type="xs:string" minOccurs="0" />
+              <xs:element name="PackSize" msprop:Generator_ColumnVarNameInTable="columnPackSize" msprop:Generator_ColumnPropNameInRow="PackSize" msprop:Generator_ColumnPropNameInTable="PackSizeColumn" msprop:Generator_UserColumnName="PackSize" type="xs:string" minOccurs="0" />
+              <xs:element name="Quantity" msprop:Generator_ColumnVarNameInTable="columnQuantity" msprop:Generator_ColumnPropNameInRow="Quantity" msprop:Generator_ColumnPropNameInTable="QuantityColumn" msprop:Generator_UserColumnName="Quantity" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

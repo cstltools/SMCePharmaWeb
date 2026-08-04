@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{046D3DDD-3ED1-4271-B1F2-2D7DDFA064C9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Library.DAL</RootNamespace>
+    <AssemblyName>Library.DAL</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\DLL\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Data, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\DLL\Microsoft.Practices.EnterpriseLibrary.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ObjectBuilder2, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\DLL\Microsoft.Practices.ObjectBuilder2.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Dapper.2.1.35\lib\net461\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Http.Common, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Web.Http.Common.4.0.20126.16343\lib\net40\System.Web.Http.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChartDAL\ChartDAL.cs" />
+    <Compile Include="DataManager\DataAccessManager.cs" />
+    <Compile Include="DataManager\DataAccessManagerOld.cs" />
+    <Compile Include="DataManager\DataAccessManager_daaw.cs" />
+    <Compile Include="DataManager\DataBase.cs" />
+    <Compile Include="DataManager\EncryptDecrypt.cs" />
+    <Compile Include="DataManager\SqlUserAccess.cs" />
+    <Compile Include="DoctorInfo_DAL\DoctorInfoReportDal.cs" />
+    <Compile Include="DoctorMaster_DAL\DoctorCategoryDal.cs" />
+    <Compile Include="DoctorMaster_DAL\DoctorChamberDal.cs" />
+    <Compile Include="DoctorMaster_DAL\DoctorDegreeDal.cs" />
+    <Compile Include="DoctorMaster_DAL\DoctorDesignationDal.cs" />
+    <Compile Include="DoctorMaster_DAL\DoctorInformationDal.cs" />
+    <Compile Include="DoctorMaster_DAL\DoctorSpecailDayDal.cs" />
+    <Compile Include="DoctorMaster_DAL\DoctorSpecialityDal.cs" />
+    <Compile Include="DoctorMaster_DAL\PatientTypeDal.cs" />
+    <Compile Include="DoctorMaster_DAL\PrescriptionTypeDal.cs" />
+    <Compile Include="DoctorModule_DAL\AppPrimaryDAL.cs" />
+    <Compile Include="DoctorModule_DAL\AttendanceDAL.cs" />
+    <Compile Include="DoctorModule_DAL\CommonDataLoad.cs" />
+    <Compile Include="DoctorModule_DAL\CommonDataLoad_daaw.cs" />
+    <Compile Include="DoctorModule_DAL\DepartmentDal.cs" />
+    <Compile Include="DoctorModule_DAL\DepotWiseAreaSetupDal.cs" />
+    <Compile Include="DoctorModule_DAL\DesignationDal.cs" />
+    <Compile Include="DoctorModule_DAL\FinancialYearDal.cs" />
+    <Compile Include="DoctorModule_DAL\FinancialYearDeleteTableDAL.cs" />
+    <Compile Include="DoctorModule_DAL\GenericGroupDal.cs" />
+    <Compile Include="DoctorModule_DAL\GroupSetupDal.cs" />
+    <Compile Include="DoctorModule_DAL\HolidayDal.cs" />
+    <Compile Include="DoctorModule_DAL\iSeedData.cs" />
+    <Compile Include="DoctorModule_DAL\LeaveDal.cs" />
+    <Compile Include="DoctorModule_DAL\RouterSetup.cs" />
+    <Compile Include="DoctorModule_DAL\RSMSetupDal.cs" />
+    <Compile Include="DoctorModule_DAL\SeedDataDAL.cs" />
+    <Compile Include="DoctorModule_DAL\SeedDataDAL_daaw.cs" />
+    <Compile Include="DoctorModule_DAL\Setup2DAL.cs" />
+    <Compile Include="DoctorModule_DAL\SetupDAL.cs" />
+    <Compile Include="DoctorModule_DAL\SetupDAL_daaw.cs" />
+    <Compile Include="DoctorModule_DAL\TherapueticGroupDal.cs" />
+    <Compile Include="DoctorModule_DAL\TourTypeDal.cs" />
+    <Compile Include="DoctorModule_DAL\UserInfoDAL.cs" />
+    <Compile Include="DoctorModule_DAL\ZoneSetupDAL.cs" />
+    <Compile Include="DoctorVisit_DAL\DoctorVisitDAL.cs" />
+    <Compile Include="DoctorVisit_DAL\NoticeDal.cs" />
+    <Compile Include="Doctor_Monitoring_DAL\DoctorMonitoringDAL.cs" />
+    <Compile Include="DWSP_DAL\AreaWiseTargetSetupDal.cs" />
+    <Compile Include="DWSP_DAL\CommonDal.cs" />
+    <Compile Include="DWSP_DAL\NationalTargetSetupDal.cs" />
+    <Compile Include="DWSP_DAL\ZoneWiseTargetSetupDal.cs" />
+    <Compile Include="InternalCls\clsNum2Word.cs" />
+    <Compile Include="MAIN_FUNCTION\DB_Authentication.cs" />
+    <Compile Include="MAIN_FUNCTION\DB_Connection.cs" />
+    <Compile Include="MAIN_FUNCTION\DB_Manager.cs" />
+    <Compile Include="MarketUpload_DAL\MarketUploadDAL.cs" />
+    <Compile Include="MasterSetup_DAL\CustomerInvoiceLimitRepository.cs" />
+    <Compile Include="MasterSetup_DAL\BonusCampaignNewDAL.cs" />
+    <Compile Include="MasterSetup_DAL\BonusCampaignNewDAL_daaw.cs" />
+    <Compile Include="MasterSetup_DAL\CmnCrystaltoView.cs" />
+    <Compile Include="MasterSetup_DAL\dadtlsBonusCampaignNewDAL.cs" />
+    <Compile Include="MasterSetup_DAL\ExpenseDal.cs" />
+    <Compile Include="MasterSetup_DAL\RouteInformationDAL_daaw.cs" />
+    <Compile Include="MasterSetup_DAL\TourSetupForEmployeeDAL.cs" />
+    <Compile Include="MasterSetup_DAL\LeaveApplicationDal.cs" />
+    <Compile Include="MasterSetup_DAL\OrderTrackingDAL.cs" />
+    <Compile Include="MasterSetup_DAL\Customer_Doctor_Transfer_DAL.cs" />
+    <Compile Include="MasterSetup_DAL\DAInfoDal.cs" />
+    <Compile Include="MasterSetup_DAL\DoctorDAL.cs" />
+    <Compile Include="MasterSetup_DAL\CustomerInfoDAL.cs" />
+    <Compile Include="MasterSetup_DAL\CustomerTypeDal.cs" />
+    <Compile Include="MasterSetup_DAL\EmployeeInformationDaL.cs" />
+    <Compile Include="MasterSetup_DAL\ProgramDal.cs" />
+    <Compile Include="MasterSetup_DAL\QuotedPriceSetupDAL.cs" />
+    <Compile Include="MasterSetup_DAL\RouteInformationDAL.cs" />
+    <Compile Include="MasterSetup_DAL\StationDal.cs" />
+    <Compile Include="MasterSetup_DAL\TerritoryWiseDepotSetupDAL.cs" />
+    <Compile Include="MasterSetup_DAL\YearlyLeaveprocessDal.cs" />
+    <Compile Include="PromoAllocDAL\GroupWisePromoQtyDAL.cs" />
+    <Compile Include="PromoAllocDAL\PromoGroupDAL.cs" />
+    <Compile Include="PromoAllocDAL\PromoMITagDAL.cs" />
+    <Compile Include="SAP_IntegrationDAL\SAP_IntrigationPointDAL.cs" />
+    <Compile Include="SettingPanel_DAL\UserSettingPanelDal.cs" />
+    <Compile Include="SInventory_DAL\AccountSettingsDal.cs" />
+    <Compile Include="SInventory_DAL\AppSetupDAL.cs" />
+    <Compile Include="SInventory_DAL\AreaWiseMonthlyInventoryReportDal.cs" />
+    <Compile Include="SInventory_DAL\AuditReportOneDal.cs" />
+    <Compile Include="SInventory_DAL\B2BTransferViewDal.cs" />
+    <Compile Include="SInventory_DAL\BatchWiseCollectionReportDal.cs" />
+    <Compile Include="SInventory_DAL\ChalanDAL.cs" />
+    <Compile Include="SInventory_DAL\ChallanReportViewDAL.cs" />
+    <Compile Include="SInventory_DAL\CompanySalesReportDAL.cs" />
+    <Compile Include="SInventory_DAL\CompanywisebranchDal.cs" />
+    <Compile Include="SInventory_DAL\ComUnitSalesReportDAL.cs" />
+    <Compile Include="SInventory_DAL\ConditionalPurposeDal.cs" />
+    <Compile Include="SInventory_DAL\CustomerPaymentDeleteDAL.cs" />
+    <Compile Include="SInventory_DAL\CustPaymentDAL_daaw.cs" />
+    <Compile Include="SInventory_DAL\dadtlsCustPaymentDAL.cs" />
+    <Compile Include="SInventory_DAL\dadtlsInvoiceDAL.cs" />
+    <Compile Include="SInventory_DAL\dadtlsOrderInfoDAL.cs" />
+    <Compile Include="SInventory_DAL\dadtlsRequisitionDAL.cs" />
+    <Compile Include="SInventory_DAL\DeleteInvoiceReportDAL.cs" />
+    <Compile Include="SInventory_DAL\DeStockOutDal.cs" />
+    <Compile Include="SInventory_DAL\InvoiceDAL_daaw.cs" />
+    <Compile Include="SInventory_DAL\OrderInfoDALSalesReturn.cs" />
+    <Compile Include="SInventory_DAL\OrderInfoDAL_daaw.cs" />
+    <Compile Include="SInventory_DAL\SalesReturnNewDAL.cs" />
+    <Compile Include="SInventory_DAL\SalesReturnDAL.cs" />
+    <Compile Include="SInventory_DAL\MIOTotalSummaryDAL.cs" />
+    <Compile Include="SInventory_DAL\CWMonthlyInventoryReportDal.cs" />
+    <Compile Include="SInventory_DAL\DayWiseBusinessReportDal.cs" />
+    <Compile Include="SInventory_DAL\DcOpeningStockReportDal.cs" />
+    <Compile Include="SInventory_DAL\DCUserPermissionDal.cs" />
+    <Compile Include="SInventory_DAL\FixedCustomerUploadDal.cs" />
+    <Compile Include="SInventory_DAL\HistoricalReportDal.cs" />
+    <Compile Include="SInventory_DAL\PaymentReverseDal.cs" />
+    <Compile Include="SInventory_DAL\ProductWiseNationalSalesReportDal.cs" />
+    <Compile Include="SInventory_DAL\ProformaPrintListDal.cs" />
+    <Compile Include="SInventory_DAL\ReturnInvoiceDAL.cs" />
+    <Compile Include="SInventory_DAL\SalesComparisoneReportDal.cs" />
+    <Compile Include="SInventory_DAL\CustomerLedgerDAL.cs" />
+    <Compile Include="SInventory_DAL\CustomerMasterInfoDal.cs" />
+    <Compile Include="SInventory_DAL\DeleteOrderReportDal.cs" />
+    <Compile Include="SInventory_DAL\DistributionCenterStockMonitoringDal.cs" />
+    <Compile Include="SInventory_DAL\ExcelUpForCustTagChangeDAL.cs" />
+    <Compile Include="SInventory_DAL\ImportedApiCustomerDal.cs" />
+    <Compile Include="SInventory_DAL\MultiCustomerEditDAL.cs" />
+    <Compile Include="SInventory_DAL\OrderListDAL.cs" />
+    <Compile Include="SInventory_DAL\OrderStatusDal.cs" />
+    <Compile Include="SInventory_DAL\PendingOrderDal.cs" />
+    <Compile Include="SInventory_DAL\RollBackDAL.cs" />
+    <Compile Include="SInventory_DAL\SalesTrendReportDal.cs" />
+    <Compile Include="SInventory_DAL\SampleStockForWHDal.cs" />
+    <Compile Include="SInventory_DAL\SampleTypeConventionDal.cs" />
+    <Compile Include="SInventory_DAL\SCtoWHTransferDal.cs" />
+    <Compile Include="SInventory_DAL\StockBatchUpdateDal.cs" />
+    <Compile Include="SInventory_DAL\StockConditionPermissionDal.cs" />
+    <Compile Include="SInventory_DAL\StockRcvByWhDal.cs" />
+    <Compile Include="SInventory_DAL\StockTransportOrderReportDAL_daaw.cs" />
+    <Compile Include="SInventory_DAL\SupplierInfoDal.cs" />
+    <Compile Include="SInventory_DAL\TotalSummaryDAL.cs" />
+    <Compile Include="SInventory_DAL\CustPaymentDAL.cs" />
+    <Compile Include="SInventory_DAL\ExcelUpForMIGODAL.cs" />
+    <Compile Include="SInventory_DAL\ExcelUpForOrderListDAL.cs" />
+    <Compile Include="SInventory_DAL\OrderInfoDAL.cs" />
+    <Compile Include="SInventory_DAL\OtherStockActionDAL.cs" />
+    <Compile Include="SInventory_DAL\ProductDiscountDAL.cs" />
+    <Compile Include="SInventory_DAL\ProductSQDAL.cs" />
+    <Compile Include="SInventory_DAL\IngridentsDAL.cs" />
+    <Compile Include="SInventory_DAL\ManufacturerDAL.cs" />
+    <Compile Include="SInventory_DAL\PackSizeDAL.cs" />
+    <Compile Include="SInventory_DAL\ProformaOrInvoiceReturn.cs" />
+    <Compile Include="SInventory_DAL\ProTypeDAL.cs" />
+    <Compile Include="SInventory_DAL\RegionSalesReportDAL.cs" />
+    <Compile Include="SInventory_DAL\DCStockReportDAL.cs" />
+    <Compile Include="SInventory_DAL\CountryStockReportDAL.cs" />
+    <Compile Include="SInventory_DAL\CustomerSalesReportDAL.cs" />
+    <Compile Include="SInventory_DAL\DCStoreDAL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SInventory_DAL\DistrictSalesReportDAL.cs" />
+    <Compile Include="SInventory_DAL\EmpGeneralInfoDAL.cs" />
+    <Compile Include="SInventory_DAL\InvoiceDAL.cs" />
+    <Compile Include="SInventory_DAL\MiaInformationDAL.cs" />
+    <Compile Include="SInventory_DAL\CentralStoreDAL.cs" />
+    <Compile Include="SInventory_DAL\MiaSalesReportDAL.cs" />
+    <Compile Include="SInventory_DAL\RequisitionDAL.cs" />
+    <Compile Include="SInventory_DAL\ShippingCartonSizeDAL.cs" />
+    <Compile Include="SInventory_DAL\ShortExpProductDAL.cs" />
+    <Compile Include="SInventory_DAL\StockConditionFreezeDAL.cs" />
+    <Compile Include="SInventory_DAL\StockTransportOrderReportDAL.cs" />
+    <Compile Include="SInventory_DAL\StockUOMDAL.cs" />
+    <Compile Include="SInventory_DAL\UserDAL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InternalCls\ClsCommonInternalDAL.cs" />
+    <Compile Include="InternalCls\ClsPrimaryKeyFind.cs" />
+    <Compile Include="PanalCls\PanalClsDAL.cs" />
+    <Compile Include="Panal_DAL\PanalDAL.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SInventory_DAL\AreaDAL.cs" />
+    <Compile Include="SInventory_DAL\CompanyInfoDAL.cs" />
+    <Compile Include="SInventory_DAL\CustomerCategoryDAL.cs" />
+    <Compile Include="SInventory_DAL\CustomerMasterDAL.cs" />
+    <Compile Include="SInventory_DAL\DepartmentDAL.cs" />
+    <Compile Include="SInventory_DAL\DistrictDAL.cs" />
+    <Compile Include="SInventory_DAL\MarketInfoDAL.cs" />
+    <Compile Include="SInventory_DAL\MiaTargetDAL.cs" />
+    <Compile Include="SInventory_DAL\ProductCategoryDAL.cs" />
+    <Compile Include="SInventory_DAL\ProductDAL.cs" />
+    <Compile Include="SInventory_DAL\SInventorySql.cs" />
+    <Compile Include="SInventory_DAL\ProductUnitPriceDAL.cs" />
+    <Compile Include="SInventory_DAL\RegionDAL.cs" />
+    <Compile Include="SInventory_DAL\CompanyUnitDAL.cs" />
+    <Compile Include="SInventory_DAL\WarehousePickingDAL.cs" />
+    <Compile Include="SInventory_DAL\WarehouseStockInApprovalDal.cs" />
+    <Compile Include="SInventory_DAL\WarehouseStockInDal.cs" />
+    <Compile Include="SInventory_DAL\WhFreezeStockReleaseDal.cs" />
+    <Compile Include="SInventory_DAL\WhOpeningStockReportDal.cs" />
+    <Compile Include="SInventory_DAL\WHStockAdjDAL.cs" />
+    <Compile Include="SInventory_DAL\WhStockConditionFreezeDal.cs" />
+    <Compile Include="SInventory_DAL\WHStockInReportDal.cs" />
+    <Compile Include="SInventory_DAL\WHStockListDAL.cs" />
+    <Compile Include="SInventory_DAL\WhStockMonitoringReportDal.cs" />
+    <Compile Include="SInventory_DAL\ZoneInfoDAL.cs" />
+    <Compile Include="SInventory_DAL\ZoneSalesReportDAL.cs" />
+    <Compile Include="SubDepot_DAL\SubDepotChalanReturnDAL.cs" />
+    <Compile Include="SubDepot_DAL\SubDepoAdjustDAL.cs" />
+    <Compile Include="SubDepot_DAL\SubDepotStockAdjustmentsVoucherDal.cs" />
+    <Compile Include="SubDepot_DAL\Sub_InvoiceDAL.cs" />
+    <Compile Include="SubDepot_DAL\SubDepotChalanDAL.cs" />
+    <Compile Include="SubDepot_DAL\SubDepotDAL.cs" />
+    <Compile Include="TargetDAL\ProuctWiseSalesDAL.cs" />
+    <Compile Include="TargetDAL\TargetDAL.cs" />
+    <Compile Include="Thana_DAL\ThanaDal.cs" />
+    <Compile Include="Transfer_DAL\MarketStructureTransferDAL.cs" />
+    <Compile Include="UserProfileDAL\ChangePasswordDAL.cs" />
+    <Compile Include="UserRoleDAL\ApprovalMapDAL.cs" />
+    <Compile Include="UserRoleDAL\MenuDAL.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Library.DAO\Library.DAO.csproj">
+      <Project>{41D64757-EE79-4D94-8162-FA9B70785771}</Project>
+      <Name>Library.DAO</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

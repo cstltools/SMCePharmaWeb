@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="WhStockMonitoringReportDataTable" targetNamespace="http://tempuri.org/WhStockMonitoringReportDataTable.xsd" xmlns:mstns="http://tempuri.org/WhStockMonitoringReportDataTable.xsd" xmlns="http://tempuri.org/WhStockMonitoringReportDataTable.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="WhStockMonitoringReportDataTable" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="WhStockMonitoringReportDataTable" msprop:Generator_UserDSName="WhStockMonitoringReportDataTable">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="WhStockMonitoringDataTable" msprop:Generator_TableClassName="WhStockMonitoringDataTableDataTable" msprop:Generator_TableVarName="tableWhStockMonitoringDataTable" msprop:Generator_RowChangedName="WhStockMonitoringDataTableRowChanged" msprop:Generator_TablePropName="WhStockMonitoringDataTable" msprop:Generator_RowDeletingName="WhStockMonitoringDataTableRowDeleting" msprop:Generator_RowChangingName="WhStockMonitoringDataTableRowChanging" msprop:Generator_RowEvHandlerName="WhStockMonitoringDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="WhStockMonitoringDataTableRowDeleted" msprop:Generator_RowClassName="WhStockMonitoringDataTableRow" msprop:Generator_UserTableName="WhStockMonitoringDataTable" msprop:Generator_RowEvArgName="WhStockMonitoringDataTableRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ProductCode" msprop:Generator_ColumnVarNameInTable="columnProductCode" msprop:Generator_ColumnPropNameInRow="ProductCode" msprop:Generator_ColumnPropNameInTable="ProductCodeColumn" msprop:Generator_UserColumnName="ProductCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ProductName" msprop:Generator_ColumnVarNameInTable="columnProductName" msprop:Generator_ColumnPropNameInRow="ProductName" msprop:Generator_ColumnPropNameInTable="ProductNameColumn" msprop:Generator_UserColumnName="ProductName" type="xs:string" minOccurs="0" />
+              <xs:element name="StockInQty" msprop:Generator_ColumnVarNameInTable="columnStockInQty" msprop:Generator_ColumnPropNameInRow="StockInQty" msprop:Generator_ColumnPropNameInTable="StockInQtyColumn" msprop:Generator_UserColumnName="StockInQty" type="xs:string" minOccurs="0" />
+              <xs:element name="OpeningStockQty" msprop:Generator_ColumnVarNameInTable="columnOpeningStockQty" msprop:Generator_ColumnPropNameInRow="OpeningStockQty" msprop:Generator_ColumnPropNameInTable="OpeningStockQtyColumn" msprop:Generator_UserColumnName="OpeningStockQty" type="xs:string" minOccurs="0" />
+              <xs:element name="OpAmount" msprop:Generator_ColumnVarNameInTable="columnOpAmount" msprop:Generator_ColumnPropNameInRow="OpAmount" msprop:Generator_ColumnPropNameInTable="OpAmountColumn" msprop:Generator_UserColumnName="OpAmount" type="xs:string" minOccurs="0" />
+              <xs:element name="IssueQty" msprop:Generator_ColumnVarNameInTable="columnIssueQty" msprop:Generator_ColumnPropNameInRow="IssueQty" msprop:Generator_ColumnPropNameInTable="IssueQtyColumn" msprop:Generator_UserColumnName="IssueQty" type="xs:string" minOccurs="0" />
+              <xs:element name="ClosingBal" msprop:Generator_ColumnVarNameInTable="columnClosingBal" msprop:Generator_ColumnPropNameInRow="ClosingBal" msprop:Generator_ColumnPropNameInTable="ClosingBalColumn" msprop:Generator_UserColumnName="ClosingBal" type="xs:string" minOccurs="0" />
+              <xs:element name="saleQty" msprop:Generator_ColumnVarNameInTable="columnsaleQty" msprop:Generator_ColumnPropNameInRow="saleQty" msprop:Generator_ColumnPropNameInTable="saleQtyColumn" msprop:Generator_UserColumnName="saleQty" type="xs:string" minOccurs="0" />
+              <xs:element name="saleAmount" msprop:Generator_ColumnVarNameInTable="columnsaleAmount" msprop:Generator_ColumnPropNameInRow="saleAmount" msprop:Generator_ColumnPropNameInTable="saleAmountColumn" msprop:Generator_UserColumnName="saleAmount" type="xs:string" minOccurs="0" />
+              <xs:element name="ClosingAmount" msprop:Generator_ColumnVarNameInTable="columnClosingAmount" msprop:Generator_ColumnPropNameInRow="ClosingAmount" msprop:Generator_ColumnPropNameInTable="ClosingAmountColumn" msprop:Generator_UserColumnName="ClosingAmount" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

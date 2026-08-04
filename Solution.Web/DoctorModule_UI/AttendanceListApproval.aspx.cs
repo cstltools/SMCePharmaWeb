@@ -1,0 +1,490 @@
+﻿using Library.DAL.MasterSetup_DAL;
+using Library.DAO.MasterSetup_DAO;
+using Newtonsoft.Json;
+using SalesSolution.Web.DataLayer;
+using SalesSolution.Web.Models;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Web;
+using System.Web.Services;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class DoctorModule_UI_AttendanceListApproval : System.Web.UI.Page
+{
+
+    private CommonDataLoad _CmnLoad = new CommonDataLoad();
+
+    string RoleTypeName = "";
+    string EmpInfoId = "";
+    string ToRoleTypeId = "";
+    string ApprovalStatus = "";
+    private static SeedDataDAL _seedRepo = new SeedDataDAL();
+    static Setup2DAL _setupDAL = new Setup2DAL();
+
+    private static CustomerInfoDAL _DAL = new CustomerInfoDAL();
+    private CommonDataLoad _dataLoad = new CommonDataLoad();
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        try
+        {
+
+            RoleTypeName = Session["RoleTypeName"].ToString();
+            EmpInfoId = Session["EmpInfoId"].ToString();
+            ToRoleTypeId = Session["RoleTypeId"].ToString();
+
+            if (!IsPostBack)
+            {
+                UserPersmissionValidation();
+                FromDate.Text = DateTime.Now.ToString("dd MMMM, yyyy");
+                ToDate.Text = DateTime.Now.ToString("dd MMMM, yyyy");
+
+                try
+                {
+                    using (DataTable dt = _dataLoad.GetEmployeeList_Active())
+                    {
+                        EmployeeIdSelect.DataSource = dt;
+                        EmployeeIdSelect.DataValueField = "EmpInfoId";
+                        EmployeeIdSelect.DataTextField = "EmpName";
+                        EmployeeIdSelect.DataBind();
+                        EmployeeIdSelect.Items.Insert(0, new ListItem("Please Select From List", String.Empty));
+                        EmployeeIdSelect.SelectedIndex = 0;
+                    }
+
+
+                }
+                catch (Exception ex) { }
+
+                try
+                {
+                    using (DataTable dt = _setupDAL.Get_UserRoleInfo())
+                    {
+                        UserRoleSelect.DataSource = dt;
+                        UserRoleSelect.DataValueField = "UserRoleID";
+                        UserRoleSelect.DataTextField = "RoleName";
+                        UserRoleSelect.DataBind();
+                        UserRoleSelect.Items.Insert(0, new ListItem("Please Select From List", String.Empty));
+                        UserRoleSelect.SelectedIndex = 0;
+                    }
+
+
+                }
+                catch (Exception ex) { }
+
+
+                try
+                {
+                    using (DataTable dt = _seedRepo.GetApprovalStatusList())
+                    {
+                        ApprovalStatusSelect.DataSource = dt;
+                        ApprovalStatusSelect.DataValueField = "SoftwareUseId";
+                        ApprovalStatusSelect.DataTextField = "WebShow";
+                        ApprovalStatusSelect.DataBind();
+                        ApprovalStatusSelect.Items.Insert(0, new ListItem("Please Select From List", String.Empty));
+                        ApprovalStatusSelect.SelectedIndex = 0;
+                    }
+
+
+                }
+                catch (Exception ex) { }
+
+
+                try
+                {
+                    using (DataTable dt = _seedRepo.GetDistributionCenterDataTableList())
+                    {
+                        ddlDistributionCenter.DataSource = dt;
+                        ddlDistributionCenter.DataValueField = "ComUnitId";
+                        ddlDistributionCenter.DataTextField = "ComUnitName";
+                        ddlDistributionCenter.DataBind();
+                        ddlDistributionCenter.Items.Insert(0, new ListItem("Please Select From List", String.Empty));
+                        ddlDistributionCenter.SelectedIndex = 0;
+
+                        if (Session["RoleTypeName"].ToString() == "DIC")
+                        {
+                            ddlDistributionCenter.SelectedValue = Session["DICCompanyUnitId"].ToString();
+                            ddlDistributionCenter.Enabled = false;
+                        }
+                    }
+
+
+                }
+                catch (Exception ex) { }
+                LoadData();
+            }
+        }
+        catch (Exception ex)
+        {
+            Response.Redirect("../Dashboard_UI/DashboardOne.aspx");
+        }
+
+    }
+
+    private void LoadData()
+    {
+
+        string pram = "", Role = "";
+        //   EmpMarketAccess( pram,  Role);
+
+        if (EmpInfoId != "" || EmpInfoId != null)
+        {
+            DataTable dtMarket = _dataLoad.GetEmpMarketStructure_Active(EmpInfoId);
+            try
+            {
+                hfEmpGroupId.Value = dtMarket.Rows[0]["EmpGroupId"].ToString();
+                hfEmpRegionId.Value = dtMarket.Rows[0]["EmpRegionId"].ToString();
+                hfEmpAreaId.Value = dtMarket.Rows[0]["EmpAreaId"].ToString();
+                hfEmpTerrId.Value = dtMarket.Rows[0]["EmpTerrId"].ToString();
+            }
+            catch { }
+            string FFID = "";
+            switch (RoleTypeName)
+            {
+                case "AM":
+                    FFID = dtMarket.Rows[0]["EmpAreaId"].ToString();
+                    pram = " AND View_Webapi_EmployeeFieldForceInfo.EmpAreaId=" + FFID + "  and (DATEDIFF(DAY,CONVERT(DATE,tblMarketAttendance_Master_webapi.AttendanceDate),CONVERT(DATE,GETDATE())))<=7   ";
+                    Role = "AM";
+
+                    break;
+                case "DZSM":
+                    FFID = dtMarket.Rows[0]["EmpRegionId"].ToString();
+                    pram = " AND  View_Webapi_EmployeeFieldForceInfo.EmpRegionId=" + FFID + "   and (DATEDIFF(DAY,CONVERT(DATE,tblMarketAttendance_Master_webapi.AttendanceDate),CONVERT(DATE,GETDATE())))<=7  ";
+                    Role = "DZSM";
+                    break;
+                case "NSM":
+                    FFID = dtMarket.Rows[0]["EmpGroupId"].ToString();
+                    pram = " AND  View_Webapi_EmployeeFieldForceInfo.EmpGroupId=" + FFID + "   and (DATEDIFF(DAY,CONVERT(DATE,tblMarketAttendance_Master_webapi.AttendanceDate),CONVERT(DATE,GETDATE())))<=7  ";
+                    Role = "NSM";
+                    break;
+
+                //case "DIC":
+                //    FFID = dtMarket.Rows[0]["EmpGroupId"].ToString();
+                //    pram = " AND  dcMas.DCId=" + ddlDistributionCenter.SelectedValue;
+                //    Role = "DIC";
+                //    break;
+                default:
+                    pram = "";
+                    Role = "";
+                    break;
+            }
+        }
+
+
+        if (FromDate.Text != "" && ToDate.Text != "")
+        {
+            pram = pram + " AND CONVERT(date,tblMarketAttendance_Master_webapi.AttendanceDate)  BETWEEN '" + FromDate.Text + "' AND '" + ToDate.Text + "' ";
+        }
+        if (FromDate.Text != "" && ToDate.Text == "")
+        {
+            pram = pram + " AND CONVERT(date,tblMarketAttendance_Master_webapi.AttendanceDate)  BETWEEN '" + FromDate.Text + "' AND '" + DateTime.Now.ToString("dd-MMM-yyyy") + "' ";
+        }
+
+
+        if (ApprovalStatusSelect.SelectedValue != "")
+        {
+
+            pram = pram + " AND tblMarketAttendance_Master_webapi.ApprovalStatus='" + ApprovalStatusSelect.SelectedValue + "'";
+
+
+        }
+
+        if (ddlType.SelectedValue != "")
+        {
+
+            pram = pram + " AND tblMarketAttendance_Master_webapi.AttType='" + ddlType.SelectedValue + "'";
+
+
+        }
+
+        if (UserRoleSelect.SelectedValue != "")
+        {
+
+            pram = pram + " AND us.UserRoleID='" + UserRoleSelect.SelectedValue + "'";
+
+        }
+
+        if (EmployeeIdSelect.SelectedValue != "")
+        {
+
+            pram = pram + " AND tblMarketAttendance_Master_webapi.EmpInfoId='" + EmployeeIdSelect.SelectedValue + "'";
+
+        }
+
+
+        string AppStatus = null;
+        int? EmpId = null; ;
+        DateTime? FromDt = null;
+        DateTime? ToDt = null;
+
+        DataTable aDataTable = _DAL.GetAttendence_Applog(pram, Role, AppStatus, FromDt, ToDt, EmpId);
+
+
+        loadGridView.DataSource = aDataTable;
+        loadGridView.DataBind();
+
+        //for (int i = 0; i < loadGridView.Rows.Count; i++)
+        //{
+
+        //    Image imgShow = ((Image)loadGridView.Rows[i].Cells[1].FindControl("imgShow"));
+        //    HyperLink hpImg = ((HyperLink)loadGridView.Rows[i].Cells[1].FindControl("hpImg"));
+
+        //    try
+        //    {
+        //        string imagefullpath = aDataTable.Rows[i]["ImagePreName"].ToString();
+
+
+        //        try
+        //        {
+        //            byte[] imageArray = System.IO.File.ReadAllBytes(@imagefullpath);
+        //            var src = "data:image/jpeg;base64,";
+
+        //            imgShow.ImageUrl = src + Convert.ToBase64String(imageArray);
+
+        //            hpImg.NavigateUrl = src + Convert.ToBase64String(imageArray);
+        //        }
+        //        catch (Exception ex)
+        //        {
+
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //    }
+        //}
+
+        if (ToRoleTypeId == "5" || ToRoleTypeId == "4" || ToRoleTypeId == "14")
+        {
+
+        }
+        else
+        {
+            for (int i = 0; i < loadGridView.Rows.Count; i++)
+            {
+                HiddenField hfToEmpId = (HiddenField)loadGridView.Rows[i].FindControl("hfToEmpId");
+                LinkButton lbEdit = (LinkButton)loadGridView.Rows[i].FindControl("lbEdit");
+                LinkButton lbApprove = (LinkButton)loadGridView.Rows[i].FindControl("lbApprove");
+                LinkButton lbReject = (LinkButton)loadGridView.Rows[i].FindControl("lbReject");
+                HiddenField hfToRoleTypeId = (HiddenField)loadGridView.Rows[i].FindControl("hfToRoleTypeId");
+                Label lbMsg = (Label)loadGridView.Rows[i].FindControl("lbMsg");
+
+                if (hfToRoleTypeId.Value == ToRoleTypeId)
+                {
+
+                }
+                else
+                {
+                    lbEdit.Visible = false;
+                    lbApprove.Visible = false;
+                    lbReject.Visible = false;
+                    lbMsg.Text = "Waiting for Another Approver";
+                    lbMsg.CssClass = "badge bg-warning";
+                }
+
+            }
+        }
+
+
+    }
+
+
+    public void UserPersmissionValidation()
+    {
+        if (Session["UserRoleID"].ToString() != "2")
+        {
+            try
+            {
+                string filepath = Path.GetDirectoryName(Request.Path);
+                filepath = filepath.TrimStart('\\');
+                string text = Path.GetExtension(Request.Path);
+                filepath = "../" + filepath + "/" + Path.GetFileName(Request.Path);
+                DataTable dtuserpermission = _CmnLoad.GetPermissionForUserRole(filepath);
+                if (dtuserpermission.Rows.Count > 0)
+                {
+                    if (Session["UserRoleID"].ToString() != "2")
+                    {
+                        //btnEntry.Visible = Convert.ToBoolean(dtuserpermission.Rows[0]["RAdd"].ToString());
+                        //loadGridView.Columns[loadGridView.Columns.Count - 1].Visible =
+                        //    Convert.ToBoolean(dtuserpermission.Rows[0]["REdit"].ToString());
+
+
+                    }
+                }
+                else
+                {
+                    Response.Redirect("../Dashboard_UI/DashboardOne.aspx");
+                }
+            }
+            catch (Exception ex)
+            {
+                Response.Redirect("../Dashboard_UI/DashboardOne.aspx");
+            }
+        }
+    }
+    static AttendanceDAL _AttendanceDAL = new AttendanceDAL();
+    protected void loadGridView_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+
+        if (e.CommandName == "EditData")
+        {
+
+
+            int rowindex = Convert.ToInt32(e.CommandArgument);
+            HiddenField hfExpenseClaimID = ((HiddenField)loadGridView.Rows[rowindex].Cells[1].FindControl("hfExpenseClaimID"));
+
+            System.Web.UI.ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "openModal", "window.open('../DoctorModule_UI/ExpenseClaim.aspx?id=" + hfExpenseClaimID.Value + "&Rid=" + ToRoleTypeId + "' ,'_blank');", true);
+
+            //   Response.Redirect("CustomerEntry.aspx?MID=" + unitPriceId);
+        }
+
+        if (e.CommandName == "ApproveData")
+        {
+
+            if (ToRoleTypeId == "5")
+            {
+                ApprovalStatus = "Accepted";
+            }
+            else
+            {
+                ApprovalStatus = "Verified";
+            }
+
+            int rowindex = Convert.ToInt32(e.CommandArgument);
+
+            HiddenField hfCustomerApprovalId = ((HiddenField)loadGridView.Rows[rowindex].Cells[1].FindControl("hfCustomerApprovalId"));
+            HiddenField hfToEmpId = ((HiddenField)loadGridView.Rows[rowindex].Cells[1].FindControl("hfToEmpId"));
+            HiddenField hfStep = ((HiddenField)loadGridView.Rows[rowindex].Cells[1].FindControl("hfStep"));
+            HiddenField hfCustomerMasterId = ((HiddenField)loadGridView.Rows[rowindex].Cells[1].FindControl("hfCustomerMasterId"));
+
+
+            AttendanceLog aMaster = new AttendanceLog();
+            aMaster.ApprovalId = 0;
+
+            aMaster.TableId = hfCustomerMasterId.Value == "" ? 0 : Convert.ToInt32(hfCustomerMasterId.Value);
+
+            aMaster.GroupId = hfEmpGroupId.Value == "" ? 0 : Convert.ToInt32(hfEmpGroupId.Value);
+            aMaster.RegionId = hfEmpRegionId.Value == "" ? 0 : Convert.ToInt32(hfEmpRegionId.Value);
+            aMaster.AreaId = hfEmpAreaId.Value == "" ? 0 : Convert.ToInt32(hfEmpAreaId.Value);
+            aMaster.TerritoryId = hfEmpTerrId.Value == "" ? 0 : Convert.ToInt32(hfEmpTerrId.Value);
+
+            aMaster.FromEmpId = EmpInfoId == "" ? 0 : Convert.ToInt32(EmpInfoId);
+            aMaster.ToEmpId = hfToEmpId.Value == "" ? 0 : Convert.ToInt32(hfToEmpId.Value);
+            int InStep = hfStep.Value == "" ? 0 : Convert.ToInt32(hfStep.Value);
+            aMaster.Step = InStep + 1;
+            aMaster.Type = "Expense";
+            aMaster.Status = ApprovalStatus;
+            aMaster.Date = DateTime.Now;
+            aMaster.EntryDateS = DateTime.Now;
+            aMaster.ApproveDateS = DateTime.Now;
+            aMaster.EntryByS =  (Session["UserId"].ToString());
+            aMaster.EntryByApp =  (Session["UserId"].ToString());
+            aMaster.MenuId = 356;
+            ResultInfo Res = _DAL.SaveAttandaceAppLog(aMaster);
+            if (Res.isSuccess == true)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "ShowSuccesalert('" + "Operation successful!" + "','Success');", true);
+                LoadData();
+            }
+            else
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "faildalert('" + "Already Exist!" + "','Faild');", true);
+
+            }
+
+        }
+
+
+
+        if (e.CommandName == "RejectData")
+        {
+            ApprovalStatus = "Rejected";
+
+            int rowindex = Convert.ToInt32(e.CommandArgument);
+
+            HiddenField hfCustomerApprovalId = ((HiddenField)loadGridView.Rows[rowindex].Cells[1].FindControl("hfCustomerApprovalId"));
+            HiddenField hfToEmpId = ((HiddenField)loadGridView.Rows[rowindex].Cells[1].FindControl("hfToEmpId"));
+            HiddenField hfStep = ((HiddenField)loadGridView.Rows[rowindex].Cells[1].FindControl("hfStep"));
+            HiddenField hfCustomerMasterId = ((HiddenField)loadGridView.Rows[rowindex].Cells[1].FindControl("hfCustomerMasterId"));
+
+
+            OrderSaveApprovalLogDAO aMaster = new OrderSaveApprovalLogDAO();
+            aMaster.OrderApprovalId = 0;
+            aMaster.TableId = hfCustomerMasterId.Value == "" ? 0 : Convert.ToInt32(hfCustomerMasterId.Value);
+            aMaster.GroupId = hfEmpGroupId.Value == "" ? 0 : Convert.ToInt32(hfEmpGroupId.Value);
+            aMaster.RegionId = hfEmpRegionId.Value == "" ? 0 : Convert.ToInt32(hfEmpRegionId.Value);
+            aMaster.AreaId = hfEmpAreaId.Value == "" ? 0 : Convert.ToInt32(hfEmpAreaId.Value);
+            aMaster.TerritoryId = hfEmpTerrId.Value == "" ? 0 : Convert.ToInt32(hfEmpTerrId.Value);
+
+            aMaster.FromEmpId = EmpInfoId == "" ? 0 : Convert.ToInt32(EmpInfoId);
+            aMaster.ToEmpId = hfToEmpId.Value == "" ? 0 : Convert.ToInt32(hfToEmpId.Value);
+            int InStep = hfStep.Value == "" ? 0 : Convert.ToInt32(hfStep.Value);
+            aMaster.Step = InStep + 1;
+            aMaster.Type = "Expense";
+            aMaster.Status = ApprovalStatus;
+            aMaster.Date = DateTime.Now;
+            aMaster.EntryDateS = DateTime.Now;
+            aMaster.ApproveDateS = DateTime.Now;
+            aMaster.EntryByS = Convert.ToInt32(Session["UserId"].ToString());
+            aMaster.EntryByApp = Convert.ToInt32(Session["UserId"].ToString());
+            aMaster.MenuId = 356;
+            ResultInfo Res = _DAL.SaveExpenseClaim_ApplogDAL(aMaster);
+            if (Res.isSuccess == true)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "ShowSuccesalert('" + "Operation successful!" + "','Success');", true);
+                LoadData();
+            }
+            else
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "faildalert('" + "Already Exist!" + "','Faild');", true);
+
+            }
+
+        }
+
+    }
+    protected void gv_DocumentUpload_PreRender(object sender, EventArgs e)
+    {
+        GridView gv = (GridView)sender;
+
+        if ((gv.ShowHeader == true && gv.Rows.Count > 0)
+            || (gv.ShowHeaderWhenEmpty == true))
+        {
+            //Force GridView to use <thead> instead of <tbody> - 11/03/2013 - MCR.
+            gv.HeaderRow.TableSection = TableRowSection.TableHeader;
+        }
+    }
+
+    [WebMethod]
+    public static string Get_AttendanceList_Approval()
+    {
+        DataTable dt = _AttendanceDAL.Get_AttendanceList_Approval();
+        string JSONresult;
+        JSONresult = JsonConvert.SerializeObject(dt);
+        return  (JSONresult);
+    }
+
+
+    [WebMethod]
+    public static ResultInfo Approve_AttendanceList(string MyArry, bool? rbValue)
+    {
+
+        return  (_AttendanceDAL.ApprovalAttendanceListInfo(MyArry, rbValue, HttpContext.Current.Session["UserId"].ToString()));
+
+
+
+    }
+
+    protected void btnSearch_Click(object sender, EventArgs e)
+    {
+        LoadData();
+
+    }
+
+    protected void resetBtn_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("ExpenseApprovalList.aspx");
+    }
+}

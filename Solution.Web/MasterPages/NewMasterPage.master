@@ -1,0 +1,1746 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeFile="NewMasterPage.master.cs" Inherits="MasterPages_NewMasterPage" %>
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head runat="server">
+
+    <meta charset="UTF-8">
+    <%--<globalization uiCulture="en-GB" culture="en-GB"/>--%>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ePharma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="../VerticalAsset/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+    <link href="../VerticalAsset/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
+    <link href="../VerticalAsset/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+    <!-- loader-->
+
+    <%--<link href="../VerticalAsset/css/pace.min.css" rel="stylesheet" />--%>
+
+    <%--<link href="../VerticalAsset/plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet" />--%>
+    <%--<script src="../VerticalAsset/js/pace.min.js"></script>--%>
+    <!-- Bootstrap CSS -->
+    <link href="../VerticalAsset/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../VerticalAsset/css/bootstrap-extended.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap" rel="stylesheet">
+    <link href="../VerticalAsset/css/app.css" rel="stylesheet">
+    <link href="../VerticalAsset/css/icons.css" rel="stylesheet">
+    <!-- Theme Style CSS -->
+    <link rel="stylesheet" href="../VerticalAsset/css/dark-theme.css" />
+    <link rel="stylesheet" href="../VerticalAsset/css/semi-dark.css" />
+    <link rel="stylesheet" href="../VerticalAsset/css/header-colors.css" />
+
+    <link href="../VerticalAsset/plugins/select2/css/select2.min.css" rel="stylesheet" />
+    <link href="../VerticalAsset/plugins/select2/css/select2-bootstrap4.css" rel="stylesheet" />
+
+    <%--Date Picker--%>
+
+    <link href="../VerticalAsset/plugins/datetimepicker/css/classic.css" rel="stylesheet" />
+    <link href="../VerticalAsset/plugins/datetimepicker/css/classic.time.css" rel="stylesheet" />
+    <link href="../VerticalAsset/plugins/datetimepicker/css/classic.date.css" rel="stylesheet" />
+
+
+    <link rel="stylesheet" href="../VerticalAsset/css/header-colors.css" />
+    <link rel="stylesheet" href="../VerticalAsset/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <link href="../VerticalAsset/plugins/Drag-And-Drop/dist/imageuploadify.min.css" rel="stylesheet" />
+
+    <script src="../VerticalAsset/js/bootstrap.bundle.min.js"></script>
+ 
+    <script src="../VerticalAsset/jquery-3.5.1.js"></script>
+    <script src="../VerticalAsset/plugins/simplebar/js/simplebar.min.js"></script>
+    <script src="../VerticalAsset/plugins/metismenu/js/metisMenu.min.js"></script>
+    <script src="../VerticalAsset/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+
+
+    <script src="../VerticalAsset/plugins/datetimepicker/js/legacy.js"></script>
+    <script src="../VerticalAsset/plugins/datetimepicker/js/picker.js"></script>
+    <script src="../VerticalAsset/plugins/datetimepicker/js/picker.time.js"></script>
+    <script src="../VerticalAsset/plugins/datetimepicker/js/picker.date.js"></script>
+    <script src="../VerticalAsset/plugins/bootstrap-material-datetimepicker/js/moment.min.js"></script>
+    <script src="../VerticalAsset/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.min.js"></script>
+
+    <script src="../VerticalAsset/plugins/select2/js/select2.min.js"></script>
+
+  <%-- dataTables--%>
+ <%--   css--%>
+    <link href="../VerticalAsset/MyDt/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="../VerticalAsset/MyDt/buttons.dataTables.min.css" rel="stylesheet" />
+
+    <%--js--%>
+    <script src="../VerticalAsset/MyDt/jquery.dataTables.min.js"></script>
+    <script src="../VerticalAsset/MyDt/dataTables.buttons.min.js"></script>
+    <script src="../VerticalAsset/MyDt/jszip.min.js"></script>
+    <script src="../VerticalAsset/MyDt/pdfmake.min.js"></script>
+    <script src="../VerticalAsset/MyDt/vfs_fonts.js"></script>
+    <script src="../VerticalAsset/MyDt/buttons.html5.min.js"></script>
+    <script src="../VerticalAsset/MyDt/buttons.print.min.js"></script>
+
+  <%--  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css" />
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>--%>
+    <link href="../VerticalAsset/Other/sweetalert.min.css" rel="stylesheet" />
+     <script src="../VerticalAsset/Other/sweetalert.min.js"></script>
+   <%--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">--%>
+   
+<%--<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>--%>
+
+    <script src="../VerticalAsset/plugins/Drag-And-Drop/dist/imageuploadify.min.js"></script>
+
+    <link href="../VerticalAsset/Other/toastr.css" rel="stylesheet" />
+    <script src="../VerticalAsset/Other/toastr.js"></script>
+    <%--<link media="screen" rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>--%>
+  <%--  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>--%>
+ <%--   <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha512-uURl+ZXMBrF4AwGaWmEetzrd+J5/8NRkWAvJx5sbPSSuOb0bZLqf+tOzniObO00BjHa/dD7gub9oCGMLPQHtQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha512-H9jrZiiopUdsLpg94A333EfumgUBpO9MdbxStdeITo+KEIMaNfHNvwyjjDJb+ERPaRS6DpyRlKbvPUasNItRyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />--%>
+    <link href="../VerticalAsset/Other/jquery.fancybox.min.css" rel="stylesheet" />
+    <script src="../VerticalAsset/Other/jquery.fancybox.min.js"></script>
+   <%-- <link href="../VerticalAsset/Other/jquery.fancybox.min.css" rel="stylesheet" />
+    <script src="../VerticalAsset/Other/jquery.fancybox.min.js"></script>--%>
+    <script src="../assets/jquery-ui.min.js"></script>
+    <link href="../assets/jquery-ui.min.css" rel="stylesheet" />
+    <script src="../CustomScript/_myCusGen_Func.js"></script>
+    <script src="../CustomScript/_QuickDataAccess.js"></script>
+
+    <script src="../VerticalAsset/js/app.js"></script>
+      <%-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>--%>
+  <%--  <script src="../VerticalAsset/Other/jspdf.umd.min.js"></script>
+    <script src="../VerticalAsset/Other/jspdf.min.js"></script>--%>
+ <%--   <style>
+        .btnexcel {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+    </style>--%>
+
+
+
+                                                    <style>
+                                                    .btnMyyNew {
+   margin: 10px;
+            padding: 8px 15px;
+            text-align: center;
+            text-transform: uppercase;
+            transition: 0.5s;
+            background-size: 200% auto;
+            color: white;            
+            box-shadow: 0 0 20px #eee;
+            border-radius: 10px;
+            
+ }
+
+/* Demo Stuff End -> */
+
+/* <- Magic Stuff Start */
+
+.btnMyyNew:hover {
+    background-position: right center; /* change the direction of the change here */
+            color: #fff;
+            text-decoration: none;
+}
+
+.btnMyyNew-1 {
+  background-image: linear-gradient(to right, #f6d365 0%, #fda085 51%, #f6d365 100%);
+}
+
+.btnMyyNew-2 {
+  background-image: linear-gradient(to right, #fbc2eb 0%, #a6c1ee 51%, #fbc2eb 100%);
+}
+
+.btnMyyNew-3 {
+  background-image: linear-gradient(to right, #84fab0 0%, #8fd3f4 51%, #84fab0 100%);
+}
+
+.btnMyyNew-4 {
+  background-image: linear-gradient(to right, #a1c4fd 0%, #c2e9fb 51%, #a1c4fd 100%);
+}
+
+.btnMyyNew-5 {
+  background-image: linear-gradient(to right, #ffecd2 0%, #fcb69f 51%, #ffecd2 100%);
+}.btnMyyNew-6 {
+   background-image: linear-gradient(to right, #1A2980 0%, #26D0CE  51%, #1A2980  100%);
+}
+                                                </style>
+    <style>
+        .page-content {
+            padding: 0.2rem !important;
+        }
+        .force-password-modal .modal-content {
+            border: 0;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 28px 70px rgba(15, 23, 42, .28);
+        }
+        .force-password-modal .modal-header {
+            border: 0;
+            color: #fff;
+            padding: 24px 26px;
+            background: linear-gradient(135deg, #0f766e 0%, #0284c7 48%, #4f46e5 100%);
+        }
+        .force-password-modal .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .force-password-modal .modal-body {
+            padding: 26px;
+            background: linear-gradient(135deg, #f8fbff 0%, #eef7ff 52%, #f7fff9 100%);
+        }
+        .force-password-modal .security-icon {
+            width: 58px;
+            height: 58px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: #0f766e;
+            background: #ecfdf5;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 12px 24px rgba(15, 118, 110, .18);
+            font-size: 26px;
+            margin-bottom: 14px;
+        }
+        .force-password-modal p {
+            color: #475569;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+        .force-password-modal .btn-change-password {
+            width: 100%;
+            height: 44px;
+            border: 0;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0f766e 0%, #0284c7 48%, #4f46e5 100%);
+            box-shadow: 0 14px 28px rgba(37, 99, 235, .25), inset 0 1px 0 rgba(255,255,255,.38);
+        }
+        .force-password-modal .btn-change-password:hover,
+        .force-password-modal .btn-change-password:focus {
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .imgCSS {
+            border-radius: 50%;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
+        }
+         .GridPager a,
+            .GridPager span {
+                display: inline-block;
+                padding: 3px 14px;
+                margin-right: 8px;
+                border-radius: 3px;
+              /*  height: 20px;*/
+                border: solid 1px #c0c0c0;
+                background: #e9e9e9;
+                box-shadow: inset 0px 1px 0px rgba(255,255,255, .8), 0px 1px 3px rgba(0,0,0, .1);
+                font-size: 14px;
+                font-weight: bold;
+                text-decoration: none;
+                color: #717171;
+                text-shadow: 0px 1px 0px rgba(255,255,255, 1);
+            }
+
+            .GridPager a {
+                background-color: #f5f5f5;
+                color: #969696;
+                border: 1px solid #969696;
+            }
+
+            .GridPager span {
+                background: #616161;
+                box-shadow: inset 0px 0px 8px rgba(0,0,0, .5), 0px 1px 0px rgba(255,255,255, .8);
+                color: #f0f0f0;
+                text-shadow: 0px 0px 3px rgba(0,0,0, .5);
+                border: 1px solid #3AC0F2;
+            }
+
+
+    </style>
+    <script type="text/javascript">
+
+        function showpop6(msg, title) {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": true,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "3000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+            // toastr['success'](msg, title);
+            var d = Date();
+            toastr.error(msg, title);
+            return false;
+        }
+        function showpop5(msg, title) {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": true,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "3000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+            // toastr['success'](msg, title);
+            var d = Date();
+            toastr.success(msg, title);
+            return false;
+        }
+        //$(document).ready(function () {
+        //    debugger;
+        //    var a = 'aa';
+        //    var st = sessionStorage.data;
+        //    if (st != null) {
+        //        //$("#mCSB_1_container").css(st);
+        //        $("#mCSB_1_container").attr("style", st);
+        //    }
+
+
+        //    setInterval(function () {
+
+        //        var styl = $("#mCSB_1_container").attr("style");
+        //        sessionStorage.data = styl;
+        //    }, 1);
+        //});
+
+        function successalert(msg1, type, url) {
+
+           
+            swal({
+                icon: 'success',
+                title: 'Congratulations!',
+                text: msg1,
+                type: 'success',
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                }
+            }).then((willDelete) => {
+                if (type == 'Success') {
+
+
+                    window.location.href = url; //replace ID value-->
+                }
+                else {
+                    alert("Operation Faild!!!")
+                }
+
+                //swal({
+                //    title: "Congratulations!",
+                //    text: msg2,
+                //    type: 'success'
+                //}).then((willDelete) => {
+                //    swal({
+                //        title: "Congratulations!",
+                //        text: msg3,
+                //        type: 'success'
+                //    })
+                //})
+            })
+        }
+
+
+        function ShowSuccesalert(msg1, type) {
+
+
+            swal({
+                icon: 'success',
+                title: 'Congratulations!',
+                text: msg1,
+
+                type: 'success'
+            }).then((willDelete) => {
+                if (type == 'success') {
+
+
+
+                }
+                else {
+
+                }
+
+                //swal({
+                //    title: "Congratulations!",
+                //    text: msg2,
+                //    type: 'success'
+                //}).then((willDelete) => {
+                //    swal({
+                //        title: "Congratulations!",
+                //        text: msg3,
+                //        type: 'success'
+                //    })
+                //})
+            })
+        }
+
+        function faildalert(msg1, type) {
+
+
+            swal({
+                icon: 'error',
+                title: 'Oops...',
+                text: msg1,
+
+                type: 'faild'
+            }).then((willDelete) => {
+                if (type == 'Faild') {
+
+
+
+                }
+                else {
+
+                }
+
+                //swal({
+                //    title: "Congratulations!",
+                //    text: msg2,
+                //    type: 'success'
+                //}).then((willDelete) => {
+                //    swal({
+                //        title: "Congratulations!",
+                //        text: msg3,
+                //        type: 'success'
+                //    })
+                //})
+            })
+        }
+
+
+        function sweetAlertConfirm_Submit(btnSave) {
+            if (btnSave.dataset.confirmed) {
+                // The action was already confirmed by the user, proceed with server event
+                btnSave.dataset.confirmed = false;
+                return true;
+            } else {
+                // Ask the user to confirm/cancel the action
+                event.preventDefault();
+                swal({
+                    title: 'Are You Sure ?',
+                    text: 'You are about to submit the data!',
+                    type: 'info',
+                    icon: 'warning',
+                    buttons: {
+                        yes: {
+                            text: "Confirm",
+                            value: "yes"
+                        },
+                        no: {
+                            text: "Cancel",
+                            value: "no",
+                            className: "",
+                            closeModal: true,
+                        }
+                    }
+                }
+                )
+
+                    .then((value) => {
+                        if (value === "yes") {
+                            btnSave.dataset.confirmed = true;
+                            // Trigger button click programmatically
+                            btnSave.click();
+                        }
+                        return false;
+                        // Set data-confirmed attribute to indicate that the action was confirmed
+
+                    }).catch(function (reason) {
+                        // The action was canceled by the user
+                    });
+
+            }
+        }
+
+
+        function sweetAlertConfirm_Update(btnUpdate) {
+            if (btnUpdate.dataset.confirmed) {
+                // The action was already confirmed by the user, proceed with server event
+                btnUpdate.dataset.confirmed = false;
+                return true;
+            } else {
+                // Ask the user to confirm/cancel the action
+                event.preventDefault();
+                swal({
+                    title: 'Are You Sure ?',
+                    text: 'You are about to submit the data!',
+                    type: 'green',
+                    icon: 'warning',
+                    buttons: {
+                        yes: {
+                            text: "Confirm",
+                            value: "yes"
+                        },
+                        no: {
+                            text: "Cancel",
+                            value: "no",
+                            className: "",
+                            closeModal: true,
+                        }
+                    }
+                }
+                )
+
+                    .then((value) => {
+                        if (value === "yes") {
+                            btnUpdate.dataset.confirmed = true;
+                            // Trigger button click programmatically
+                            btnUpdate.click();
+                        }
+                        return false;
+                        // Set data-confirmed attribute to indicate that the action was confirmed
+
+                    }).catch(function (reason) {
+                        // The action was canceled by the user
+                    });
+
+            }
+        }
+
+
+
+
+
+        function sweetAlertConfirm_Delete(btnUpdate) {
+            if (btnUpdate.dataset.confirmed) {
+                // The action was already confirmed by the user, proceed with server event
+                btnUpdate.dataset.confirmed = false;
+                return true;
+            } else {
+                // Ask the user to confirm/cancel the action
+                event.preventDefault();
+                swal({
+                    title: 'Are You Sure ?',
+                    text: 'You are about to Remove the data!',
+                    type: 'green',
+                    icon: 'warning',
+                    buttons: {
+                        yes: {
+                            text: "Confirm",
+                            value: "yes"
+                        },
+                        no: {
+                            text: "Cancel",
+                            value: "no",
+                            className: "",
+                            closeModal: true,
+                        }
+                    }
+                }
+                )
+
+                    .then((value) => {
+                        if (value === "yes") {
+                            btnUpdate.dataset.confirmed = true;
+                            // Trigger button click programmatically
+                            btnUpdate.click();
+                        }
+                        return false;
+                        // Set data-confirmed attribute to indicate that the action was confirmed
+
+                    }).catch(function (reason) {
+                        // The action was canceled by the user
+                    });
+
+            }
+        }
+    </script>
+
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+
+    <style>
+        .swal-button.swal-button--no {
+            background-color: #DD6B55;
+        }
+        /*form progress bar*/
+        .divWaiting {
+            background-color: #262424;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            z-index: 2147483647;
+            width: 100%;
+            height: 2215px;
+            opacity: 0.8;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .divWaitingJquery {
+            background-color: #262424;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            z-index: 2147483647;
+            width: 100%;
+            height: 2215px;
+            opacity: 0.8;
+            overflow: hidden;
+            text-align: center;
+        }
+
+
+
+        .position-set {
+            margin: 300px auto;
+        }
+
+        .sidebar-wrapper .metismenu ul a i {
+            margin-right: 5px !important;
+        }
+
+        .sidebar-wrapper .metismenu a .parent-icon {
+            font-size: 20px !important;
+            line-height: 1;
+        }
+
+       
+
+        .sidebar-wrapper .metismenu a .menu-title {
+            margin-left: 0px !important;
+        }
+
+        div.dataTables_wrapper div.dataTables_filter {
+            text-align: right !important;
+            margin-top: 0px !important;
+        }
+
+        table.table-bordered.dataTable th {
+            /* border-right-width: 0; */
+            text-align: center !important;
+        }
+
+        .btnMyDesignSave {
+            background-color: #2EAF5A !important;
+            color: white !important;
+            font-style: normal !important;
+            font-weight: bold;
+            margin: 2px 1px !important;
+            cursor: pointer !important;
+            -webkit-transition-duration: 0.4s !important;
+            transition-duration: 0.4s !important;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 3px 10px 0 rgba(0,0,0,0.19) !important;
+        }
+
+
+        .btnMyDesignDraft {
+            background-color: #051937 !important;
+            color: white !important;
+            font-style: normal !important;
+            font-weight: bold;
+            margin: 2px 1px !important;
+            cursor: pointer !important;
+            -webkit-transition-duration: 0.4s !important;
+            transition-duration: 0.4s !important;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 3px 10px 0 rgba(0,0,0,0.19) !important;
+        }
+
+        .btnMyDesignAddtoList {
+            background-color: #00A8C5 !important;
+            color: white !important;
+            font-style: normal !important;
+            font-weight: bold;
+            margin: 2px 1px !important;
+            cursor: pointer !important;
+            -webkit-transition-duration: 0.4s !important;
+            transition-duration: 0.4s !important;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 3px 10px 0 rgba(0,0,0,0.19) !important;
+        }
+
+        .btnMyDesignSearch {
+            background-image: linear-gradient(to right, #7474BF 0%, #348AC7 51%, #7474BF 100%);
+            color: white !important;
+            font-style: normal !important;
+            margin: 2px 1px !important;
+            cursor: pointer !important;
+            -webkit-transition-duration: 0.4s !important;
+            transition-duration: 0.4s !important;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 3px 10px 0 rgba(0,0,0,0.19) !important;
+        }
+
+
+         .btnMyDesignSaveNew {
+           background-image: linear-gradient(to right, #f6d365 0%, #fda085 51%, #f6d365 100%);
+            color: black !important;
+            font-style: normal !important;
+            margin: 2px 1px !important;
+            cursor: pointer !important;
+            -webkit-transition-duration: 0.4s !important;
+            transition-duration: 0.4s !important;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 3px 10px 0 rgba(0,0,0,0.19) !important;
+        }
+
+
+        .btnMyDesignOne {
+            background-color: #0ba360 !important;
+            color: white !important;
+            font-style: normal !important;
+            font-weight: bold;
+            margin: 2px 1px !important;
+            cursor: pointer !important;
+            -webkit-transition-duration: 0.4s !important;
+            transition-duration: 0.4s !important;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 3px 10px 0 rgba(0,0,0,0.19) !important;
+        }
+
+
+        .btnMyDesignGrid {
+            background-image: linear-gradient(to right, #DD5E89 0%, #DD5E89 51%, #DD5E89 100%);
+            color: white !important;
+            font-style: normal !important;
+            font-weight: bold;
+            margin: 2px 1px !important;
+            cursor: pointer !important;
+            -webkit-transition-duration: 0.4s !important;
+            transition-duration: 0.4s !important;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 3px 10px 0 rgba(0,0,0,0.19) !important;
+        }
+
+        .btnMyDesignReset {
+            background-color: #FF7D00 !important;
+            color: white !important;
+            font-style: normal !important;
+            margin: 2px 1px !important;
+            cursor: pointer !important;
+            -webkit-transition-duration: 0.4s !important;
+            transition-duration: 0.4s !important;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 3px 10px 0 rgba(0,0,0,0.19) !important;
+        }
+
+        .btnMyDesignEdit {
+            color: #FF7D00 !important;
+            font-style: normal !important;
+            font-weight: bold;
+            margin: 1px 1px !important;
+            padding: 8px, 8px;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            -webkit-transition-duration: 0.4s !important;
+            transition-duration: 0.4s !important;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 3px 10px 0 rgba(0,0,0,0.19) !important;
+        }
+
+        .btn-smm {
+            padding: .3rem .1rem !important;
+            font-size: .375rem !important;
+            border-radius: .2rem !important;
+        }
+
+        .btnGridSize {
+            color: #ffc107 !important;
+            border-color: #ffc107 !important;
+            display: inline-block;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            text-align: center;
+            text-decoration: none;
+            vertical-align: middle;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+            background-color: transparent;
+            border: 1px solid transparent;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+            border-left-color: transparent;
+            padding: 2px 2px;
+            font-size: 1rem;
+            border-radius: .25rem;
+            transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        }
+
+            .btnGridSize:hover {
+                color: black !important;
+            }
+
+        .border-myinfo {
+            border-color: #0d6efd;
+        }
+
+        table.blueTable {
+            font-family: Verdana, Geneva, sans-serif;
+            width: 100%;
+            text-align: center;
+            border-collapse: collapse;
+            border-style: none !important;
+        }
+
+            table.blueTable td, table.blueTable th {
+                padding: 3px 2px;
+                border-style: none !important;
+            }
+
+            table.blueTable tbody td {
+                font-size: 12px;
+                color: #000000;
+            }
+
+            table.blueTable tr:nth-child(even) {
+                background: #D0E4F5;
+            }
+
+            table.blueTable thead {
+                background: #52A8E6;
+                background: -moz-linear-gradient(top, #7dbeec 0%, #63b0e8 66%, #52A8E6 100%);
+                background: -webkit-linear-gradient(top, #7dbeec 0%, #63b0e8 66%, #52A8E6 100%);
+                background: linear-gradient(to bottom, #7dbeec 0%, #63b0e8 66%, #52A8E6 100%);
+                border-style: none !important;
+            }
+
+                table.blueTable thead th {
+                    font-size: 14px;
+                    font-weight: bold;
+                    color: #ffffff;
+                    text-align: center;
+                    padding: 8px;
+                    border-style: none !important;
+                }
+
+        .text-c-red {
+            color: red !important;
+            background-color: white;
+            border-style: none;
+            margin-top: 7px !important;
+            height: 10px !important;
+            width: 2px !important;
+        }
+
+
+        .text_Link {
+            height: 30px !important;
+        }
+
+
+
+        .select2-container--bootstrap4 .select2-selection--single {
+            height: calc(1.2em + 0.75rem + 2px) !important;
+        }
+
+        .btn.btn-outline-secondary.buttons-excel.buttons-html5 {
+            /* margin-top: -43px!important;
+    margin-left: 50px!important;*/
+            /*  text-align: center !important;
+    margin-left: 500px!important;*/
+            /*	height: 35px !important;*/
+            /* background-color: #1D6F42!important;
+	color:white!important;*/
+            /*font-size: 14px!important;*/
+        }
+
+        .form-switch {
+            padding-left: 0.8em !important;
+        }
+
+        .col-form-label {
+            padding-top: calc(.375rem + 1px) !important;
+            padding-bottom: calc(.375rem + 1px) !important;
+            margin-bottom: 0 !important;
+            font-size: inherit !important;
+            line-height: 1.5 !important;
+            text-align: right !important;
+            font-weight: bold !important;
+        }
+
+        .dt-buttons.btn-group {
+            margin-left: 450px !important;
+            margin-top: -45px !important;
+        }
+
+        #ContentPlaceHolder1_loadGridView_filter {
+            margin-top:0px !important;
+        }
+
+        div.dt-buttons {
+    float: left;
+    margin-left: 20%;
+}
+
+        .chkRadioChoice label {
+            padding-left: 5px;
+            padding-right: 10px;
+            font-weight: bold;
+        }
+
+        /* --- Professional Gradient & Glossy Effect --- */
+        
+        /* Sidebar Glossy Gradient */
+        .sidebar-wrapper {
+            background: linear-gradient(145deg, #ffffff 0%, #f3f6fa 45%, #e6eff7 100%) !important;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.05), inset -1px 0 2px rgba(255,255,255,0.8) !important;
+            border-right: 1px solid rgba(220, 230, 240, 0.8) !important;
+        }
+        
+        .sidebar-wrapper .sidebar-header {
+            background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(243,246,250,0.85) 100%) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.8) !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
+        }
+
+        .sidebar-wrapper .metismenu a {
+            transition: all 0.3s ease-in-out !important;
+        }
+        
+        .sidebar-wrapper .metismenu a:hover,
+        .sidebar-wrapper .metismenu .mm-active > a {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(215, 232, 250, 0.6) 100%) !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05), inset 1px 1px 2px rgba(255,255,255,0.9) !important;
+            color: #0b5ed7 !important; /* Professional Blue Accent */
+            border-radius: 8px;
+            margin: 2px 10px;
+        }
+
+        /* Topbar Glossy Gradient */
+        header .topbar {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 45%, #e2eafc 100%) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05), inset 0 -1px 2px rgba(255,255,255,0.8) !important;
+            border-bottom: 1px solid rgba(220, 230, 240, 0.6) !important;
+        }
+        
+        /* Topbar Icons Hover effect for more glossy look */
+        header .topbar .nav-link {
+            transition: all 0.3s ease;
+        }
+        header .topbar .nav-link:hover {
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08), inset 1px 1px 2px rgba(255,255,255,1);
+        }
+        /* ------------------------------------------- */
+
+    </style>
+</head>
+
+<body>
+    <!--wrapper-->
+    <div class="wrapper" >
+        <!--sidebar wrapper -->
+        <div class="sidebar-wrapper" data-simplebar="true">
+            <div class="sidebar-header">
+                <div>
+
+                    <img src="../images/smc-logo-(horizontal).png" class="logo-icon" alt="logo icon">
+                </div>
+                <div>
+                    <h4 class="logo-text">ePharma</h4>
+                </div>
+                <div class="toggle-icon ms-auto">
+                    <i class='bx bx-first-page'></i>
+                </div>
+            </div>
+            <!--navigation-->
+            <div id="menu" class="metismenu" runat="server" style="margin-top: -4px;">
+            </div>
+            <%--			<ul class="metismenu" id="menu">
+				<li>
+					<a href="javascript:;" class="has-arrow">
+						<div class="parent-icon"><i class='bx bx-home'></i>
+						</div>
+						<div class="menu-title">Dashboard</div>
+					</a>
+					<ul>
+						<li> <a href="index.html"><i class="bx bx-right-arrow-alt"></i>Analytics</a>
+						</li>
+						<li> <a href="index2.html"><i class="bx bx-right-arrow-alt"></i>Sales</a>
+						</li>
+						<li> <a href="index3.html"><i class="bx bx-right-arrow-alt"></i>eCommerce</a>
+						</li>
+						<li> <a href="index4.html"><i class="bx bx-right-arrow-alt"></i>Alternate</a>
+						</li>
+						<li> <a href="index5.html"><i class="bx bx-right-arrow-alt"></i>Hospitality</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="javascript:;" class="has-arrow">
+						<div class="parent-icon"><i class='bx bx-spa' ></i>
+						</div>
+						<div class="menu-title">Application</div>
+					</a>
+					<ul>
+						<li> <a href="app-emailbox.html"><i class="bx bx-right-arrow-alt"></i>Email</a>
+						</li>
+						<li> <a href="app-chat-box.html"><i class="bx bx-right-arrow-alt"></i>Chat Box</a>
+						</li>
+						<li> <a href="app-file-manager.html"><i class="bx bx-right-arrow-alt"></i>File Manager</a>
+						</li>
+						<li> <a href="app-contact-list.html"><i class="bx bx-right-arrow-alt"></i>Contatcs</a>
+						</li>
+						<li> <a href="app-to-do.html"><i class="bx bx-right-arrow-alt"></i>Todo List</a>
+						</li>
+						<li> <a href="app-invoice.html"><i class="bx bx-right-arrow-alt"></i>Invoice</a>
+						</li>
+						<li> <a href="app-fullcalender.html"><i class="bx bx-right-arrow-alt"></i>Calendar</a>
+						</li>
+					</ul>
+				</li>
+				<li class="menu-label">UI Elements</li>
+				<li>
+					<a href="widgets.html">
+						<div class="parent-icon"><i class='bx bx-briefcase-alt-2'></i>
+						</div>
+						<div class="menu-title">Widgets</div>
+					</a>
+				</li>
+				<li>
+					<a href="javascript:;" class="has-arrow">
+						<div class="parent-icon"><i class='bx bx-cart-alt' ></i>
+						</div>
+						<div class="menu-title">eCommerce</div>
+					</a>
+					<ul>
+						<li> <a href="ecommerce-products.html"><i class="bx bx-right-arrow-alt"></i>Products</a>
+						</li>
+						<li> <a href="ecommerce-products-details.html"><i class="bx bx-right-arrow-alt"></i>Product Details</a>
+						</li>
+						<li> <a href="ecommerce-add-new-products.html"><i class="bx bx-right-arrow-alt"></i>Add New Products</a>
+						</li>
+						<li> <a href="ecommerce-orders.html"><i class="bx bx-right-arrow-alt"></i>Orders</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"><i class='bx bx-gift'></i>
+						</div>
+						<div class="menu-title">Components</div>
+					</a>
+					<ul>
+						<li> <a href="component-alerts.html"><i class="bx bx-right-arrow-alt"></i>Alerts</a>
+						</li>
+						<li> <a href="component-accordions.html"><i class="bx bx-right-arrow-alt"></i>Accordions</a>
+						</li>
+						<li> <a href="component-badges.html"><i class="bx bx-right-arrow-alt"></i>Badges</a>
+						</li>
+						<li> <a href="component-buttons.html"><i class="bx bx-right-arrow-alt"></i>Buttons</a>
+						</li>
+						<li> <a href="component-cards.html"><i class="bx bx-right-arrow-alt"></i>Cards</a>
+						</li>
+						<li> <a href="component-carousels.html"><i class="bx bx-right-arrow-alt"></i>Carousels</a>
+						</li>
+						<li> <a href="component-list-groups.html"><i class="bx bx-right-arrow-alt"></i>List Groups</a>
+						</li>
+						<li> <a href="component-media-object.html"><i class="bx bx-right-arrow-alt"></i>Media Objects</a>
+						</li>
+						<li> <a href="component-modals.html"><i class="bx bx-right-arrow-alt"></i>Modals</a>
+						</li>
+						<li> <a href="component-navs-tabs.html"><i class="bx bx-right-arrow-alt"></i>Navs & Tabs</a>
+						</li>
+						<li> <a href="component-navbar.html"><i class="bx bx-right-arrow-alt"></i>Navbar</a>
+						</li>
+						<li> <a href="component-paginations.html"><i class="bx bx-right-arrow-alt"></i>Pagination</a>
+						</li>
+						<li> <a href="component-popovers-tooltips.html"><i class="bx bx-right-arrow-alt"></i>Popovers & Tooltips</a>
+						</li>
+						<li> <a href="component-progress-bars.html"><i class="bx bx-right-arrow-alt"></i>Progress</a>
+						</li>
+						<li> <a href="component-spinners.html"><i class="bx bx-right-arrow-alt"></i>Spinners</a>
+						</li>
+						<li> <a href="component-notifications.html"><i class="bx bx-right-arrow-alt"></i>Notifications</a>
+						</li>
+						<li> <a href="component-avtars-chips.html"><i class="bx bx-right-arrow-alt"></i>Avatrs & Chips</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"><i class='bx bx-command' ></i>
+						</div>
+						<div class="menu-title">Content</div>
+					</a>
+					<ul>
+						<li> <a href="content-grid-system.html"><i class="bx bx-right-arrow-alt"></i>Grid System</a>
+						</li>
+						<li> <a href="content-typography.html"><i class="bx bx-right-arrow-alt"></i>Typography</a>
+						</li>
+						<li> <a href="content-text-utilities.html"><i class="bx bx-right-arrow-alt"></i>Text Utilities</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"> <i class='bx bx-atom'></i>
+						</div>
+						<div class="menu-title">Icons</div>
+					</a>
+					<ul>
+						<li> <a href="icons-line-icons.html"><i class="bx bx-right-arrow-alt"></i>Line Icons</a>
+						</li>
+						<li> <a href="icons-boxicons.html"><i class="bx bx-right-arrow-alt"></i>Boxicons</a>
+						</li>
+						<li> <a href="icons-feather-icons.html"><i class="bx bx-right-arrow-alt"></i>Feather Icons</a>
+						</li>
+					</ul>
+				</li>
+				<li class="menu-label">Forms & Tables</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"><i class='bx bx-hourglass' ></i>
+						</div>
+						<div class="menu-title">Forms</div>
+					</a>
+					<ul>
+						<li> <a href="form-elements.html"><i class="bx bx-right-arrow-alt"></i>Form Elements</a>
+						</li>
+						<li> <a href="form-input-group.html"><i class="bx bx-right-arrow-alt"></i>Input Groups</a>
+						</li>
+						<li> <a href="form-layouts.html"><i class="bx bx-right-arrow-alt"></i>Forms Layouts</a>
+						</li>
+						<li> <a href="form-validations.html"><i class="bx bx-right-arrow-alt"></i>Form Validation</a>
+						</li>
+						<li> <a href="form-wizard.html"><i class="bx bx-right-arrow-alt"></i>Form Wizard</a>
+						</li>
+						<li> <a href="form-text-editor.html"><i class="bx bx-right-arrow-alt"></i>Text Editor</a>
+						</li>
+						<li> <a href="form-file-upload.html"><i class="bx bx-right-arrow-alt"></i>File Upload</a>
+						</li>
+						<li> <a href="form-date-time-pickes.html"><i class="bx bx-right-arrow-alt"></i>Date Pickers</a>
+						</li>
+						<li> <a href="form-select2.html"><i class="bx bx-right-arrow-alt"></i>Select2</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"><i class="bx bx-grid-alt"></i>
+						</div>
+						<div class="menu-title">Tables</div>
+					</a>
+					<ul>
+						<li> <a href="table-basic-table.html"><i class="bx bx-right-arrow-alt"></i>Basic Table</a>
+						</li>
+						<li> <a href="table-datatable.html"><i class="bx bx-right-arrow-alt"></i>Data Table</a>
+						</li>
+					</ul>
+				</li>
+				<li class="menu-label">Pages</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"><i class='bx bx-lock-open-alt'></i>
+						</div>
+						<div class="menu-title">Authentication</div>
+					</a>
+					<ul>
+						<li> <a href="authentication-signin.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>Sign In</a>
+						</li>
+						<li> <a href="authentication-signup.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>Sign Up</a>
+						</li>
+						<li> <a href="authentication-signin-with-header-footer.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>Sign In with Header & Footer</a>
+						</li>
+						<li> <a href="authentication-signup-with-header-footer.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>Sign Up with Header & Footer</a>
+						</li>
+						<li> <a href="authentication-forgot-password.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>Forgot Password</a>
+						</li>
+						<li> <a href="authentication-reset-password.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>Reset Password</a>
+						</li>
+						<li> <a href="authentication-lock-screen.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>Lock Screen</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="user-profile.html">
+						<div class="parent-icon"><i class='bx bx-user-pin' ></i>
+						</div>
+						<div class="menu-title">User Profile</div>
+					</a>
+				</li>
+				<li>
+					<a href="timeline.html">
+						<div class="parent-icon"> <i class="bx bx-video-recording"></i>
+						</div>
+						<div class="menu-title">Timeline</div>
+					</a>
+				</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"><i class="bx bx-error"></i>
+						</div>
+						<div class="menu-title">Errors</div>
+					</a>
+					<ul>
+						<li> <a href="errors-404-error.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>404 Error</a>
+						</li>
+						<li> <a href="errors-500-error.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>500 Error</a>
+						</li>
+						<li> <a href="errors-coming-soon.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>Coming Soon</a>
+						</li>
+						<li> <a href="error-blank-page.html" target="_blank"><i class="bx bx-right-arrow-alt"></i>Blank Page</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="faq.html">
+						<div class="parent-icon"><i class="bx bx-help-circle"></i>
+						</div>
+						<div class="menu-title">FAQ</div>
+					</a>
+				</li>
+				<li>
+					<a href="pricing-table.html">
+						<div class="parent-icon"><i class='bx bx-dollar-circle'></i>
+						</div>
+						<div class="menu-title">Pricing</div>
+					</a>
+				</li>
+				<li class="menu-label">Charts & Maps</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"><i class="bx bx-line-chart"></i>
+						</div>
+						<div class="menu-title">Charts</div>
+					</a>
+					<ul>
+						<li> <a href="charts-apex-chart.html"><i class="bx bx-right-arrow-alt"></i>Apex</a>
+						</li>
+						<li> <a href="charts-chartjs.html"><i class="bx bx-right-arrow-alt"></i>Chartjs</a>
+						</li>
+						<li> <a href="charts-highcharts.html"><i class="bx bx-right-arrow-alt"></i>Highcharts</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"><i class='bx bx-map-pin' ></i>
+						</div>
+						<div class="menu-title">Maps</div>
+					</a>
+					<ul>
+						<li> <a href="map-google-maps.html"><i class="bx bx-right-arrow-alt"></i>Google Maps</a>
+						</li>
+						<li> <a href="map-vector-maps.html"><i class="bx bx-right-arrow-alt"></i>Vector Maps</a>
+						</li>
+					</ul>
+				</li>
+				<li class="menu-label">Others</li>
+				<li>
+					<a class="has-arrow" href="javascript:;">
+						<div class="parent-icon"><i class="bx bx-menu"></i>
+						</div>
+						<div class="menu-title">Menu Levels</div>
+					</a>
+					<ul>
+						<li> <a class="has-arrow" href="javascript:;"><i class="bx bx-right-arrow-alt"></i>Level One</a>
+							<ul>
+								<li> <a class="has-arrow" href="javascript:;"><i class="bx bx-right-arrow-alt"></i>Level Two</a>
+									<ul>
+										<li> <a href="javascript:;"><i class="bx bx-right-arrow-alt"></i>Level Three</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="https://codervent.com/synadmin/documentation/index.html" target="_blank">
+						<div class="parent-icon"><i class='bx bx-file' ></i>
+						</div>
+						<div class="menu-title">Documentation</div>
+					</a>
+				</li>
+				<li>
+					<a href="https://themeforest.net/user/codervent" target="_blank">
+						<div class="parent-icon"><i class='bx bx-headphone' ></i>
+						</div>
+						<div class="menu-title">Support</div>
+					</a>
+				</li>
+			</ul>--%>
+            <!--end navigation-->
+        </div>
+
+        <form id="form1" runat="server">
+            <!--end sidebar wrapper -->
+            <!--start header -->
+            <header>
+                <div class="topbar d-flex align-items-center">
+                    <nav class="navbar navbar-expand">
+                        <div class="mobile-toggle-menu">
+                            <i class='bx bx-menu'></i>
+                        </div>
+                        <div class="top-menu-left d-none d-lg-block">
+                            <ul class="nav">
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class='bx bx-calendar'></i></a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class='bx bx-check-square'></i></a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="top-menu ms-auto">
+                            <ul class="navbar-nav align-items-center" style="display:none">
+
+                                <li class="nav-item dropdown dropdown-large">
+                                    <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class='bx bx-category'></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <div class="row row-cols-3 g-3 p-3">
+                                            <div class="col text-center">
+                                                <div class="app-box mx-auto bg-gradient-cosmic text-white">
+                                                    <i class='bx bx-group'></i>
+                                                </div>
+                                                <div class="app-title">Teams</div>
+                                            </div>
+                                            <div class="col text-center">
+                                                <div class="app-box mx-auto bg-gradient-burning text-white">
+                                                    <i class='bx bx-atom'></i>
+                                                </div>
+                                                <div class="app-title">Projects</div>
+                                            </div>
+                                            <div class="col text-center">
+                                                <div class="app-box mx-auto bg-gradient-lush text-white">
+                                                    <i class='bx bx-shield'></i>
+                                                </div>
+                                                <div class="app-title">Tasks</div>
+                                            </div>
+                                            <div class="col text-center">
+                                                <div class="app-box mx-auto bg-gradient-kyoto text-dark">
+                                                    <i class='bx bx-notification'></i>
+                                                </div>
+                                                <div class="app-title">Feeds</div>
+                                            </div>
+                                            <div class="col text-center">
+                                                <div class="app-box mx-auto bg-gradient-blues text-dark">
+                                                    <i class='bx bx-file'></i>
+                                                </div>
+                                                <div class="app-title">Files</div>
+                                            </div>
+                                            <div class="col text-center">
+                                                <div class="app-box mx-auto bg-gradient-moonlit text-white">
+                                                    <i class='bx bx-filter-alt'></i>
+                                                </div>
+                                                <div class="app-title">Alerts</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="nav-item dropdown dropdown-large">
+                                    <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><span class="alert-count">7</span>
+                                        <i class='bx bx-bell'></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a href="javascript:;">
+                                            <div class="msg-header">
+                                                <p class="msg-header-title">Notifications</p>
+                                                <p class="msg-header-clear ms-auto">Marks all as read</p>
+                                            </div>
+                                        </a>
+                                        <div class="header-notifications-list">
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notify bg-light-primary text-primary">
+                                                        <i class="bx bx-group"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">New Customers<span class="msg-time float-end">14 Sec
+												ago</span></h6>
+                                                        <p class="msg-info">5 new user registered</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notify bg-light-danger text-danger">
+                                                        <i class="bx bx-cart-alt"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">New Orders <span class="msg-time float-end">2 min
+												ago</span></h6>
+                                                        <p class="msg-info">You have recived new orders</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notify bg-light-success text-success">
+                                                        <i class="bx bx-file"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">24 PDF File<span class="msg-time float-end">19 min
+												ago</span></h6>
+                                                        <p class="msg-info">The pdf files generated</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notify bg-light-warning text-warning">
+                                                        <i class="bx bx-send"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Time Response <span class="msg-time float-end">28 min
+												ago</span></h6>
+                                                        <p class="msg-info">5.1 min avarage time response</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notify bg-light-info text-info">
+                                                        <i class="bx bx-home-circle"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">New Product Approved <span
+                                                            class="msg-time float-end">2 hrs ago</span></h6>
+                                                        <p class="msg-info">Your new product has approved</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notify bg-light-danger text-danger">
+                                                        <i class="bx bx-message-detail"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">New Comments <span class="msg-time float-end">4 hrs
+												ago</span></h6>
+                                                        <p class="msg-info">New customer comments recived</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notify bg-light-success text-success">
+                                                        <i class='bx bx-check-square'></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Your item is shipped <span class="msg-time float-end">5 hrs
+												ago</span></h6>
+                                                        <p class="msg-info">Successfully shipped your item</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notify bg-light-primary text-primary">
+                                                        <i class='bx bx-user-pin'></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">New 24 authors<span class="msg-time float-end">1 day
+												ago</span></h6>
+                                                        <p class="msg-info">24 new authors joined last week</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notify bg-light-warning text-warning">
+                                                        <i class='bx bx-door-open'></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Defense Alerts <span class="msg-time float-end">2 weeks
+												ago</span></h6>
+                                                        <p class="msg-info">45% less alerts last 4 weeks</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <a href="javascript:;">
+                                            <div class="text-center msg-footer">View All Notifications</div>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="nav-item dropdown dropdown-large">
+                                    <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><span class="alert-count">8</span>
+                                        <i class='bx bx-comment'></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a href="javascript:;">
+                                            <div class="msg-header">
+                                                <p class="msg-header-title">Messages</p>
+                                                <p class="msg-header-clear ms-auto">Marks all as read</p>
+                                            </div>
+                                        </a>
+                                        <div class="header-message-list">
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                         
+                                                        <img src="../VerticalAsset/images/avatars/avatar-1.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Daisy Anderson <span class="msg-time float-end">5 sec
+												ago</span></h6>
+                                                        <p class="msg-info">The standard chunk of lorem</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-2.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Althea Cabardo <span class="msg-time float-end">14
+												sec ago</span></h6>
+                                                        <p class="msg-info">Many desktop publishing packages</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-3.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Oscar Garner <span class="msg-time float-end">8 min
+												ago</span></h6>
+                                                        <p class="msg-info">Various versions have evolved over</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-4.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Katherine Pechon <span class="msg-time float-end">15
+												min ago</span></h6>
+                                                        <p class="msg-info">Making this the first true generator</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-5.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Amelia Doe <span class="msg-time float-end">22 min
+												ago</span></h6>
+                                                        <p class="msg-info">Duis aute irure dolor in reprehenderit</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-6.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Cristina Jhons <span class="msg-time float-end">2 hrs
+												ago</span></h6>
+                                                        <p class="msg-info">The passage is attributed to an unknown</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-7.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">James Caviness <span class="msg-time float-end">4 hrs
+												ago</span></h6>
+                                                        <p class="msg-info">The point of using Lorem</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-8.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Peter Costanzo <span class="msg-time float-end">6 hrs
+												ago</span></h6>
+                                                        <p class="msg-info">It was popularised in the 1960s</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-9.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">David Buckley <span class="msg-time float-end">2 hrs
+												ago</span></h6>
+                                                        <p class="msg-info">Various versions have evolved over</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-10.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Thomas Wheeler <span class="msg-time float-end">2 days
+												ago</span></h6>
+                                                        <p class="msg-info">If you are going to use a passage</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-online">
+                                                        <img src="../VerticalAsset/images/avatars/avatar-11.png" class="msg-avatar" alt="user avatar">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="msg-name">Johnny Seitz <span class="msg-time float-end">5 days
+												ago</span></h6>
+                                                        <p class="msg-info">All the Lorem Ipsum generators</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <a href="javascript:;">
+                                            <div class="text-center msg-footer">View All Messages</div>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="user-box dropdown">
+                            <a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="../images/man.png" class="user-img" alt="user avatar">
+                                <div class="user-info ps-3">
+                                    <p class="user-name mb-0">
+                                        <asp:Label ID="lblName" runat="server"></asp:Label></p>
+                                    <p class="designattion mb-0">
+                                        <asp:Label ID="lblDgs" runat="server"></asp:Label></p>
+                                </div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="../UserProfile_UI/UserProfile.aspx"><i class="bx bx-user"></i><span>Profile</span></a>
+                                </li>
+                                <li><a class="dropdown-item" href="../UserProfile_UI/ChangePassword.aspx"><i class="bx bx-cog"></i><span>Change Password</span></a>
+                                </li>
+                                <%--	<li><a class="dropdown-item" href="javascript:;"><i class='bx bx-home-circle'></i><span>Dashboard</span></a>
+							</li>--%>
+
+                                <li>
+                                    <div class="dropdown-divider mb-0"></div>
+                                </li>
+                                <li>
+                                    <asp:LinkButton class="dropdown-item" runat="server" ID="logOut" OnClick="logOut_Click"><i class='bx bx-log-out-circle'></i><span>Logout</span></asp:LinkButton>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+            </header>
+            <!--end header -->
+            <!--start page wrapper -->
+
+
+            <asp:ScriptManager ID="ScriptManager1" runat="server">
+            </asp:ScriptManager>
+
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+
+                <!--plugins-->
+
+
+            </asp:ContentPlaceHolder>
+
+            <% if (ShowForcePasswordChangeModal) { %>
+            <div class="modal fade force-password-modal" id="forcePasswordChangeModal" tabindex="-1" aria-labelledby="forcePasswordChangeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="forcePasswordChangeModalLabel">
+                                <i class="fa fa-lock me-2"></i> Password Change Required
+                            </h5>
+                        </div>
+                        <div class="modal-body text-center">
+                            <div class="security-icon">
+                                <i class="fa fa-shield"></i>
+                            </div>
+                            <h5 class="mb-2 fw-bold">Please update your password</h5>
+                            <p>Your account requires a password update before continuing. This window cannot be closed until the password is changed.</p>
+                            <a href="../UserProfile_UI/ChangePassword.aspx" class="btn btn-change-password">
+                                <i class="fa fa-refresh me-1"></i> Change Password Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function () {
+                    var modalElement = document.getElementById('forcePasswordChangeModal');
+                    if (!modalElement || typeof bootstrap === 'undefined') {
+                        return;
+                    }
+
+                    var modal = new bootstrap.Modal(modalElement, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+
+                    modalElement.addEventListener('hide.bs.modal', function (event) {
+                        event.preventDefault();
+                    });
+
+                    modal.show();
+                });
+            </script>
+            <% } %>
+
+        </form>
+
+        <!--end page wrapper -->
+        <!--start overlay-->
+        <div class="overlay toggle-icon"></div>
+        <!--end overlay-->
+        <!--Start Back To Top Button-->
+        <a href="javaScript:;" class="back-to-top"><i class='bx bxs-up-arrow-alt'></i></a>
+        <!--End Back To Top Button-->
+     <footer class="page-footer">
+    <p class="mb-0">
+        Copyright © <span id="year"></span>. All right reserved. |
+     <%--   <a href="http://103.244.247.179:191/" target="_blank" rel="noopener noreferrer">Data Archive</a>--%>
+    </p>
+</footer>
+
+<script id="jsyr1">
+    document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+    </div>
+    <!--end wrapper-->
+    <!--start switcher-->
+
+
+</body>
+
+ 
+<!--app JS-->
+</html>

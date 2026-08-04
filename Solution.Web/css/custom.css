@@ -1,0 +1,165 @@
+﻿.forDiv {
+     BACKGROUND:#7C201E; 
+}
+.TableHeading /*Table / form heading*/
+            { 
+            VERTICAL-ALIGN: MIDDLE; 
+            TEXT-ALIGN: CENTER; 
+            FONT-WEIGHT: BOLD; 
+            FONT-SIZE: 14pt; 
+            COLOR: #FFFFFF; 
+            FONT-FAMILY: Estrangelo Edessa,Arial,Times New Roman; 
+            TEXT-DECORATION:NONE;
+            BACKGROUND: #169fe6; /*#1E90FF*/
+            }
+                    
+    .TDLeft /*to label the left TD*/
+            { 
+            VERTICAL-ALIGN: TOP; 
+            TEXT-ALIGN: LEFT; 
+            FONT-WEIGHT: BOLD; 
+            FONT-SIZE: 7pt; 
+            COLOR: #2E2E2E; 
+            FONT-FAMILY: Verdana,Arial,Times New Roman; 
+            TEXT-DECORATION:NONE; 	   
+            BACKGROUND:#F2F2F2; 
+            }
+
+    .TDRight  /* for input of the form at right side*/
+            { 
+            VERTICAL-ALIGN: TOP; 
+            TEXT-ALIGN: LEFT; 
+            FONT-WEIGHT: NONE; 
+            FONT-SIZE: 9pt; 
+            COLOR: #000000; 
+            FONT-FAMILY:Estrangelo Edessa,Arial,Times New Roman; 
+            TEXT-DECORATION:NONE;
+            BACKGROUND:#F2F2F2; /*C0C0C0*/
+            }
+            
+            .TextBoxMicroMini
+        { FONT-WEIGHT: NONE; 
+           
+          PADDING-LEFT:1px; 
+          PADDING-RIGHT:1px; 
+          PADDING-TOP:1px; 
+          PADDING-BOTTOM:1px; 
+          BACKGROUND-COLOR:#FFFFF3; 
+          FONT-SIZE: 7pt; 
+          COLOR: #000000; 
+          FONT-FAMILY: Verdana,Arial,Times New Roman; 
+          TEXT-ALIGN: LEFT;
+          width:45px;
+               
+        }
+            .TextBoxMini
+        { FONT-WEIGHT: NONE; 
+           
+          PADDING-LEFT:3px; 
+          PADDING-RIGHT:3px; 
+          PADDING-TOP:1px; 
+          PADDING-BOTTOM:1px; 
+          BACKGROUND-COLOR:#FFFFF3; 
+          FONT-SIZE: 7pt; 
+          COLOR: #000000; 
+          FONT-FAMILY: Verdana,Arial,Times New Roman; 
+          TEXT-ALIGN: LEFT;
+          width:60px;
+        }
+        
+    .TextBox
+        { FONT-WEIGHT: NONE; 
+           
+          PADDING-LEFT:3px; 
+          PADDING-RIGHT:3px; 
+          PADDING-TOP:1px; 
+          PADDING-BOTTOM:1px; 
+          BACKGROUND-COLOR:#FFFFF3; 
+          FONT-SIZE: 9pt; 
+          COLOR: #000000; 
+          FONT-FAMILY: Verdana,Arial,Times New Roman; 
+          TEXT-ALIGN: LEFT;
+          width:155px;
+        }
+        .TextBoxCalander
+        { padding: 1px 2px;
+          FONT-WEIGHT: NONE;
+          width:90px;
+          BACKGROUND-COLOR:#FFFFF3; 
+          FONT-SIZE: 9pt; 
+          COLOR: #000000; 
+          FONT-FAMILY: Verdana,Arial,Times New Roman; 
+          TEXT-ALIGN: LEFT;
+          }
+        
+         .DropDown
+         { 
+           padding: 0px 0px;
+	       FONT-WEIGHT: NONE; 
+           BACKGROUND-COLOR:#FFFFF3; 
+           FONT-SIZE: 9pt; 
+           COLOR: #000000; 
+           FONT-FAMILY: Verdana,Arial,Times New Roman; 
+           TEXT-ALIGN: LEFT;
+           width:165px;
+	       margin-left: 0px;
+        
+         }
+         .TableWorkArea
+         { 
+            FONT-WEIGHT: none; 
+            COLOR: #F5F5F5; 
+            FONT-FAMILY: Verdana,Arial,Times New Roman; 
+            FONT-SIZE: 9pt; 
+            BACKGROUND-COLOR:lightblue;
+            BORDER-COLOR:#F5F5F5; 
+            width:970px;
+             padding: 0px 0px;
+           
+            box-shadow:  3px 3px 8px 3px rgba(1, 1, 1, 0.3);
+         }
+            
+            
+            
+.logout {
+  /* normal button style */
+  background:url(../images/logout-button11.jpg);
+}
+
+.logout:hover {
+  background:url(../images/logout-button1144.jpg);
+}
+
+/*AutoComplete flyout */
+.autocomplete_completionListElement 
+{  
+	margin : 0px!important;
+	background-color : inherit;
+	color : windowtext;
+	border : buttonshadow;
+	border-width : 1px;
+	border-style : solid;
+	cursor : 'default';
+	overflow : auto;
+	height : 200px;
+    text-align : left; 
+    list-style-type : none;
+}
+
+/* AutoComplete highlighted item */
+
+.autocomplete_highlightedListItem
+{
+	background-color: lightblue;
+	color: black;
+	padding: 1px;
+}
+
+/* AutoComplete item */
+
+.autocomplete_listItem 
+{
+	background-color : window;
+	color : windowtext;
+	padding : 1px;
+}

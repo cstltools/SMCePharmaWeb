@@ -1,0 +1,61 @@
+﻿.gridview
+    {
+    border: none;
+        width:100%;
+         
+    }
+    
+    .gridview td
+    {
+    border: none;
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    text-align: center;
+        width: 100px;
+    }
+        
+    .gridview tr th
+    {
+       background:#1E90FF;
+       color:#fff;
+       height:22px;
+       font-weight:bold;
+       text-align:center;
+       
+     
+        
+    }
+    
+    .gridview tr,
+    .gridview tr td,
+    .gridview tr th
+    {
+        padding:1px;
+        
+    }
+        
+  .gridview tr:nth-child(even)
+  {
+      background:#CCC;
+      color:#333;
+      }  
+      
+  .gridview tr:nth-child(odd)
+  {
+      background:#FFF;
+       color:#333;
+  }  
+      
+      
+  .gridview tr:nth-child(even):hover
+  {    
+      background:#F5D0A9;
+       color:#333;
+  }
+  
+  .gridview tr:nth-child(odd):hover
+  {    
+      background:#F6E3CE;
+       color:#fff;
+  }
+ 

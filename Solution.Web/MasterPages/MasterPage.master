@@ -1,0 +1,1739 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPages_MasterPage" %>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>ePharma</title>
+
+    <link href="../assets/MyPerfectCalender.css" rel="stylesheet" />
+    <!-- core:css -->
+    <link rel="stylesheet" href="../assets/vendors/core/core.css" />
+    <link href="../assets/css/demo_1/style.css" rel="stylesheet" type="text/css" />
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <!-- end plugin css for this page -->
+    <!-- inject:css -->
+<%--    <link rel="stylesheet" href="../assets/fonts/feather-font/css/iconfont.css" />
+    <link rel="stylesheet" href="../assets/vendors/flag-icon-css/css/flag-icon.min.css" />
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="../assets/vendors/select2/select2.min.css">
+    <link rel="stylesheet" href="../assets/vendors/jquery-steps/jquery.steps.css">
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="../assets/css/demo_1/style.css" />
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="../assets/images/favicon.ico" />--%>
+
+
+
+    <link rel="stylesheet" href="../assets/vendors/core/core.css">
+    <link rel="stylesheet" href="../assets/vendors/select2/select2.min.css">
+    <link rel="stylesheet" href="../assets/vendors/jquery-tags-input/jquery.tagsinput.min.css">
+    <link rel="stylesheet" href="../assets/vendors/dropzone/dropzone.min.css">
+    <link rel="stylesheet" href="../assets/vendors/dropify/dist/dropify.min.css">
+    <link rel="stylesheet" href="../assets/vendors/bootstrap-colorpicker/bootstrap-colorpicker.min.css">
+    <link rel="stylesheet" href="../assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="../assets/vendors/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="../assets/vendors/flag-icon-css/css/flag-icon.min.css">
+    <link rel="stylesheet" href="../assets/css/demo_1/style.css">
+    <link rel="shortcut icon" href="../assets/images/favicon.png" />
+    <link href="../assets/css/jquery-confirm.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
+
+    <link rel="stylesheet" href="../assets/vendors/jquery-steps/jquery.steps.css">
+    <link rel="stylesheet" href="../assets/vendors/dropzone/dropzone.min.css">
+    <link rel="stylesheet" href="../assets/vendors/dropify/dist/dropify.min.css">
+    <link rel="stylesheet" href="../assets/fonts/feather-font/css/iconfont.css">
+     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css' /> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+
+
+    <style>
+        
+        
+             .divWaiting {
+            background-color: #262626;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            z-index: 2147483647;
+            width: 100%;
+            height: 2215px;
+            opacity: 1.7;
+            overflow: hidden;
+            text-align: center;
+        }
+
+
+        .position-set {
+            margin: 300px auto;
+        }
+         .page-item.active .page-link {
+             z-index: 3;
+             color: #fff;
+             background-color: #046CB5 !important;
+             border-color: #046CB5 !important;
+         }
+
+        .main-wrapper .page-wrapper .page-content {
+            flex-grow: 1;
+            padding: 20px !important;
+            margin-top: 50px !important;
+        }
+
+        .cfBelowPading {
+            padding-bottom: 10px;
+        }
+
+        .tableHeadDesign-teal-shadow {
+            background-color: aliceblue;
+            box-shadow: 7px 10px 20px 5px #888888;
+            text-align: center;
+        }
+
+        .card-body {
+            min-height: 430px !important;
+        }
+
+
+        .form-control, select, .email-compose-fields .select2-container--default .select2-selection--multiple, .select2-container--default .select2-selection--single, .select2-container--default .select2-selection--single .select2-search__field, .typeahead, .tt-query, .tt-hint {
+            border: 1px solid #6e9af363;
+        }
+
+        select.form-control, select, .email-compose-fields .select2-container--default select.select2-selection--multiple, .select2-container--default select.select2-selection--single, .select2-container--default .select2-selection--single select.select2-search__field, select.typeahead, select.tt-query, select.tt-hint {
+            border: 1px solid #6e9af363;
+        }
+
+        .baseTxtWeight {
+            color: seagreen;
+            font-weight: 500;
+        }
+
+        .bxShadow {
+            box-shadow: 0px 0px 2px 0px #888888;
+        }
+
+
+
+
+        .select2-container--default .select2-results > .select2-results__options {
+            background-color: #f7f7f7;
+            box-shadow: 0px 0px 4px 0px #888888;
+        }
+
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            background-image: url(https://cdn4.iconfinder.com/data/icons/user-interface-174/32/UIF-76-512.png);
+            background-color: transparent;
+            background-size: contain;
+            border: none !important;
+            height: 20px !important;
+            width: 20px !important;
+            margin: auto !important;
+            top: 5px !important;
+            left: auto !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b::before {
+            content: "" !important;
+            font-family: feather;
+            position: absolute;
+            right: 0;
+            top: -2px;
+            color: #686868;
+        }
+
+        .txtCenter {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: .3rem;
+        }
+
+        .sidebar .sidebar-body .nav .nav-item .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0;
+            height: 27px;
+            white-space: nowrap;
+            color: #000;
+        }
+
+        /*new Css*/
+
+        .btn {
+            -webkit-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .sidebar .sidebar-body .nav .nav-item .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0;
+            height: 30px !important;
+            white-space: nowrap;
+            color: #000;
+        }
+
+        .sidebar-dark .sidebar .sidebar-body .nav .nav-item:hover .nav-link .link-title, .sidebar-dark .sidebar .sidebar-body .nav .nav-item.active .nav-link .link-title {
+            color: #ebebeb !important;
+        }
+
+        .sidebar .sidebar-body .nav .nav-item .nav-link .link-title {
+            margin-left: 7px !important;
+            font-size: 14px !important;
+            -webkit-transition: all .2s ease-in-out !important;
+            transition: all .2s ease-in-out !important;
+        }
+
+        .sidebar .sidebar-body .nav.sub-menu {
+            padding: 0 0 8px 33px !important;
+        }
+
+        .sidebar-dark .sidebar .sidebar-body .nav .nav-item .nav-link[aria-expanded="true"] {
+            color: #ebebeb !important;
+        }
+
+        .sidebar .sidebar-body .nav.sub-menu .nav-item .nav-link {
+            height: 25px;
+            color: #000;
+            font-size: 13px;
+            /* -webkit-transition: all .3s ease-in-out; */
+            /* transition: all .3s ease-in-out; */
+        }
+
+        .sidebar .sidebar-body .nav.sub-menu .nav-item .nav-link::before {
+            content: '';
+            width: 10px !important;
+            height: 10px !important;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid #a9b4ca;
+            position: absolute;
+            left: -18px !important;
+            top: 10px;
+            -webkit-transition: all .7s ease-in-out;
+            -webkit-transition: all .4s ease-in-out;
+            transition: all .4s ease-in-out;
+        }
+
+
+        .sidebar .sidebar-body .nav.sub-menu .nav-item .nav-link {
+            height: 25px;
+            color: #ebebeb !important;
+            font-size: 14px !important;
+            -webkit-transition: all .3s ease-in-out;
+            transition: all .3s ease-in-out;
+        }
+
+        .sidebar .sidebar-body .nav .nav-item .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0;
+            height: 25px !important;
+            white-space: nowrap;
+            color: #000;
+        }
+
+        .sidebar .sidebar-body .nav .nav-item.active .nav-link::before {
+            content: '';
+            width: 3px;
+            height: 26px;
+            background: #52A8E6 !important;
+            position: absolute;
+            left: -25px;
+        }
+
+        .ajax__combobox_textboxcontainer input {
+            width: 100%;
+            height: 26px !important;
+            width: 350px !important;
+            padding: 6px 3px;
+            font-size: 10px;
+            line-height: 1.42857143;
+            color: #555555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ebebeb;
+            border-radius: 3px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        }
+
+        .ajax__combobox_textboxcontainer input :focus {
+            border-color: #cbd0d9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(203, 208, 217, 0.6);
+            box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(203, 208, 217, 0.6);
+        }
+
+        .ajax__combobox_buttoncontainer button {
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            border-color: white !important;
+            height: 23px !important;
+            width: 25px !important;
+            border: 2px solid orangered;
+            border-radius: 5px;
+            -webkit-appearance: none;
+            background: url("../Arrow_DownCom.png");
+            background-position: right;
+            background-color: white !important;
+        }
+
+
+
+
+
+        .ajax__combobox_itemlist {
+            background-color: white !important;
+            border: solid 1px ButtonShadow !important;
+            color: black !important;
+            cursor: default !important;
+            list-style-type: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            text-align: left !important;
+        }
+
+        .ajax__combobox_itemlist li {
+            padding: 7px 3px 7px 2px !important;
+            white-space: nowrap !important;
+            width: 100% !important;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset !important;
+        }
+
+        .ajax__combobox_inputcontainer {
+            border-spacing: 0 !important;
+        }
+
+        .ajax__combobox_inputcontainer td {
+            padding: 0;
+        }
+
+        table.blueTable {
+            font-family: Verdana, Geneva, sans-serif;
+            width: 100%;
+            text-align: center;
+            border-collapse: collapse;
+            border-style: none !important;
+        }
+
+        table.blueTable td, table.blueTable th {
+            padding: 3px 2px;
+            border-style: none !important;
+        }
+
+        table.blueTable tbody td {
+            font-size: 12px;
+            color: #000000;
+        }
+
+        table.blueTable tr:nth-child(even) {
+            background: #D0E4F5;
+        }
+
+        table.blueTable thead {
+            background: #52A8E6;
+            background: -moz-linear-gradient(top, #7dbeec 0%, #63b0e8 66%, #52A8E6 100%);
+            background: -webkit-linear-gradient(top, #7dbeec 0%, #63b0e8 66%, #52A8E6 100%);
+            background: linear-gradient(to bottom, #7dbeec 0%, #63b0e8 66%, #52A8E6 100%);
+            border-style: none !important;
+        }
+
+        table.blueTable thead th {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+            text-align: center;
+            padding: 8px;
+            border-style: none !important;
+        }
+
+
+
+        .float-sm-right button {
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+
+        .float-sm-right button i {
+            margin-top: -2px !important;
+            margin-right: 5px !important;
+        }
+
+        /*button*/
+
+        .btn-primary, .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk .fc-button-group .fc-button.fc-button-active, .swal2-modal .swal2-actions button.swal2-confirm, .wizard > .actions a, .wizard > .actions a:hover {
+            color: #fff;
+            background-color: #52A8E6 !important;
+            border-color: #52A8E6 !important;
+        }
+
+        .btn-primary:hover, .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk .fc-button-group .fc-button.fc-button-active:hover, .swal2-modal .swal2-actions button.swal2-confirm:hover, .wizard > .actions a:hover {
+            color: #fff;
+            background-color: #046CB5 !important;
+            border-color: #046CB5 !important;
+        }
+
+        .btn-info {
+            color: #fff;
+            background-color: #00bcd4 !important;
+            border-color: #00bcd4 !important;
+        }
+
+        .btn-info:hover {
+            color: #fff;
+            background-color: #009aae;
+            border-color: #008fa1;
+        }
+
+        /*header*/
+
+        .wizard > .steps ul li.done a {
+            background: #52A8E6 !important;
+        }
+
+        .wizard > .steps ul li.current a {
+            background: #8ecdfb !important;
+        }
+
+        .main-card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .card-header {
+            background-color: #D7E3EE;
+        }
+
+        .main-card {
+            border-radius: 3px !important;
+            border: 1px solid #DFDFDF;
+            border-left: 2px solid #73b4ff !important;
+            box-shadow: none !important;
+        }
+
+        .child-card {
+            border-radius: 3px !important;
+            border: 1px solid #DFDFDF !important;
+            box-shadow: none !important;
+        }
+
+        .card-header {
+            padding: 8px 15px !important;
+            border-radius: 0 !important;
+        }
+
+        .card .card-header {
+            border-bottom: 0px solid #e2e5e8;
+            position: relative;
+        }
+
+        .card .card-header a {
+            font-size: .9rem !important;
+        }
+
+        .card-header:first-child {
+            border-radius: calc(5px - 0px) calc(5px - 0px) 0 0;
+        }
+
+        .child-card-header {
+            background-color: #EEEEEE;
+            padding: 5px 12px !important;
+            color: #0000cd !important;
+            border-bottom: 2px solid #73b4ff !important;
+        }
+
+        .autocomplete_completionListElement {
+            margin: 0px !important;
+            background-color: White !important;
+            color: windowtext !important;
+            border: buttonshadow !important;
+            border-width: 1px !important;
+            border-style: solid !important;
+            cursor: 'default' !important;
+            overflow: auto !important;
+            font-family: Calibri !important;
+            font-size: 14px !important;
+            text-align: left !important;
+            list-style-type: none !important;
+            margin-left: 0px !important;
+            padding-left: 0px !important;
+            max-height: 200px !important;
+            width: 300px !important;
+            overflow: auto !important;
+            box-shadow: 0 0 3px 1px rgba(0,0,0,.35) !important;
+        }
+
+
+        .autocomplete_completionListElement222 {
+            margin: 0px !important;
+            background-color: White !important;
+            color: windowtext !important;
+            border: buttonshadow !important;
+            border-width: 1px !important;
+            border-style: solid !important;
+            cursor: 'default' !important;
+            overflow: auto !important;
+            font-family: Calibri !important;
+            font-size: 14px !important;
+            text-align: left !important;
+            list-style-type: none !important;
+            margin-left: 0px !important;
+            padding-left: 0px !important;
+            max-height: 200px !important;
+            width: 600px !important;
+            overflow: auto !important;
+            box-shadow: 0 0 3px 1px rgba(0,0,0,.35) !important;
+        }
+        /* AutoComplete highlighted item */
+
+        .autocomplete_highlightedListItem {
+            background-color: #17A2B8 !important;
+            color: white !important;
+            padding: 6px !important;
+            font-weight: bold !important;
+        }
+
+        /* AutoComplete item */
+
+        .autocomplete_listItem {
+            padding: 6px !important;
+            cursor: pointer !important;
+            font-weight: bold !important;
+            background-color: #fff !important;
+            border-bottom: 1px solid #d4d4d4 !important;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset !important;
+        }
+
+        /*Form*/
+
+        .wizard > .content {
+            background: #eee;
+            display: block;
+            margin: .5em;
+            margin-bottom: .1em !important;
+            min-height: 30em !important;
+            overflow: hidden;
+            position: relative;
+            width: auto;
+            overflow: auto;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+        }
+
+        .btn-container {
+            min-width: 300px;
+            margin: 0 auto;
+        }
+
+        .text-c-red {
+            color: red !important;
+        }
+
+        .form-group label {
+            text-align: right !important;
+            font-weight: bold;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            line-height: 1.0rem !important;
+            vertical-align: top;
+            margin-bottom: .5rem;
+        }
+
+        .form-group.row {
+            margin-bottom: 0;
+            padding: 0 0 !important;
+        }
+
+        .form-group {
+            margin-bottom: -8px !important;
+        }
+
+        .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12, .col,
+        .col-auto, .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm,
+        .col-sm-auto, .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12, .col-md,
+        .col-md-auto, .col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg,
+        .col-lg-auto, .col-xl-1, .col-xl-2, .col-xl-3, .col-xl-4, .col-xl-5, .col-xl-6, .col-xl-7, .col-xl-8, .col-xl-9, .col-xl-10, .col-xl-11, .col-xl-12, .col-xl,
+        .col-xl-auto {
+            position: relative;
+            width: 100%;
+            padding-right: 4px !important;
+            padding-left: 3px !important;
+        }
+
+        .col {
+            flex-basis: 0;
+            -webkit-box-flex: 1;
+            flex-grow: 1;
+            max-width: 100%;
+        }
+
+        .col-auto {
+            -webkit-box-flex: 0;
+            flex: 0 0 auto;
+            width: auto;
+            max-width: 100%;
+        }
+
+        .col-1 {
+            -webkit-box-flex: 0;
+            flex: 0 0 8.33333%;
+            max-width: 8.33333%;
+        }
+
+
+        .form-radio {
+            position: relative;
+        }
+
+        .radio-inline {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .form-radio label {
+            position: relative;
+            padding-left: 1.5rem;
+            text-align: left;
+            color: #333;
+            display: block;
+            line-height: 1.8;
+        }
+
+
+        .radio .helper {
+            position: absolute;
+            top: -0.15rem;
+            left: -0.25rem;
+            cursor: pointer;
+            display: block;
+            font-size: 1rem;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            color: #999;
+        }
+
+        .btn-primary, .btn-warning {
+            padding: .4rem 1rem !important;
+        }
+    </style>
+</head>
+<body class="sidebar-dark">
+
+    <form id="form1" runat="server">
+        <asp:ScriptManager ID="ScriptManager1" runat="server">
+        </asp:ScriptManager>
+
+
+
+
+        <!-- Wrapper / Start -->
+        <div class="main-wrapper">
+
+            <!-- partial:../../partials/_sidebar.html -->
+            <nav class="sidebar">
+      <div class="sidebar-header">
+                <a href="#" class="sidebar-brand">
+                    Click-<span style="color: #52A8E6 !important; font-weight: bold !important;">Pharma</span>
+                </a>
+                <div class="sidebar-toggler not-active">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+       <div class="sidebar-body" id="menu" runat="server">
+                  <ul class="nav">
+          <li class="nav-item nav-category">Main</li>
+          <li class="nav-item">
+            <a href="http://45.64.134.85:580/Dashboard/SalesDashboard" class="nav-link">
+              <i class="link-icon" data-feather="box"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item nav-category">web apps</li>
+
+
+
+            <li class="nav-item">
+   <a class="nav-link" data-toggle="collapse" href="#MasterSetup" role="button" aria-expanded="false" aria-controls="MasterSetup">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title"> Master Setup </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="MasterSetup">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/FinancialYear/FinancialYearView">
+            Financial Year
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Degisnation/DesignationView">
+            Designation
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Department/DepartmentView">
+            Department
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/MonthlyAllowanceView">
+            Allawance Information
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Leave/LeaveView">
+            Leave Information
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Holiday/HolidayView">
+            Holiday Information
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/DepotWiseAreaSetup/DepotWiseAreaSetup">
+            Depot Wise Area Setup
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#progtype" role="button" aria-expanded="false" aria-controls="progtype">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title"> Provider Type </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="progtype">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Station/StationView">
+            Customer  Station Type
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/ProgramType/ProgramTypeView">
+            Provider Type
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#leave" role="button" aria-expanded="false" aria-controls="leave">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title"> Leave Management </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="leave">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/LeaveProcess/YearlyLeaveProcess">
+            Yearly Leave Process
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/LeaveApplication/LeaveApplications">
+            Leave Applications
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#custinfo" role="button" aria-expanded="false" aria-controls="custinfo">
+   <i class="fas fa-cog"></i>
+   <span class="link-title"> Customer Information </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="custinfo">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/CustomerType/CustomerTypeView">
+            Customer Type
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/QuotedPrice/QuotedPriceView">
+            Quoted Price
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#mktstructure" role="button" aria-expanded="false" aria-controls="emails">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title"> Market Structure </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="mktstructure">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/GroupSetup/GroupSetupView">
+            Group Setup
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/ZoneSetup">
+            Zone Setup
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/AreaSetup">
+            Area Setup
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/TerritorySetup">
+            Territory Setup
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/MarketSetup">
+            Market Setup
+            </a>
+         </li>
+         
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#FF" role="button" aria-expanded="false" aria-controls="FF">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Field Force Setup </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="FF">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/FieldForce/RsmRecords">
+            RSM / DZSM Setup
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/FieldForce/AsmRecords">
+            ASM / FE Setup
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/FieldForce/MioRecords">
+            MIO Setup
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#doctor" role="button" aria-expanded="false" aria-controls="doctor">
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Doctor Information</span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="doctor">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/DoctorSetupview">
+            Doctor Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/DegreeView">
+            Degree Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/DoctorDesignationView">
+            Designation Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/SpecialityView">
+            Speciality Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/ChamberTypeView">
+            Chamber Type Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/PatientTypeView">
+            Patient Type Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/SpecialDaySetupView">
+            Speical Day Entry
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#doctorVisit" role="button" aria-expanded="false" aria-controls="doctorVisit">
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Doctor Visit</span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="doctorVisit">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/DoctorVisit/DoctorVisit">
+            Doctor Visit
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/DoctorVisit/DoctorDailyVisit">
+            Doctor Daily Visit
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/DoctorVisit/DCRList">
+            DCR Information
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#prescription" role="button" aria-expanded="false" aria-controls="prescription">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Prescription </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="prescription">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/PrescriptionTypeView">
+            Prescription  Type Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/PrescriptionView">
+            Prescription Entry
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#Expense" role="button" aria-expanded="false" aria-controls="Expense">
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Additional Expense  </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="Expense">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/ExpenseClaimView">
+            Expense Claim
+            </a>
+         </li>
+      
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/ExpenseTypeView">
+            Expense Type Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/MileageClaimView">
+            Milage Claim Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/TransportView">
+            Transport
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#TADAClaim" role="button" aria-expanded="false" aria-controls="TADAClaim">
+   <i class="fas fa-cog"></i>
+   <span class="link-title">TADA Claim </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="TADAClaim">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/TADAClaimView">
+            TADA Claim List
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/TADAMarketRuleConfigurationView">
+            TADA Market Rules Config
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#tourPlan" role="button" aria-expanded="false" aria-controls="tourPlan">
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Tour Plan </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="tourPlan">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/TourPlan/TourPlannedUserList">
+            Tour Plan User Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/TourPlan/TourTypeRecords">
+            Tour Type Entry
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/TourPlan/TourPurposeRecords">
+            Tour Purpose Entry
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#notice" role="button" aria-expanded="false" aria-controls="notice">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Notice Board </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="notice">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/NoticeBoard/NoticeRecords">
+            Notice Entry
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#Employee" role="button" aria-expanded="false" aria-controls="Employee">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Employee Information </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="Employee">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/EmployeeGeneral/EmployeeRecords">
+            Employee Info Entry
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#Attand" role="button" aria-expanded="false" aria-controls="Attand">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Attendance Information </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="Attand">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Attendance/ShiftInfoList">
+            Shift List
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Attendance/AttendanceInfoList">
+            Attendance List
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#Trainning" role="button" aria-expanded="false" aria-controls="Trainning">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Trainning Information </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="Trainning">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/TrainningView">
+            Trainning List
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#target" role="button" aria-expanded="false" aria-controls="target">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Target & Achivement </span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="target">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/SalesForceTarget/MioTargetRecords">
+            Target Setup
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/SalesForceTarget/MarketWiseSalesTargetView">
+            Market Wise Sales Target
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/SalesForceTarget/ProductWiseSalesTargetView">
+            Product Wise Sales Target
+            </a>
+         </li>
+      </ul>
+   </div>
+   <a class="nav-link" data-toggle="collapse" href="#Approval" role="button" aria-expanded="false" aria-controls="Approval">
+
+   <i class="fas fa-cog"></i>
+   <span class="link-title">Approval</span>
+   <i class="link-arrow" data-feather="chevron-down"></i>
+   </a>
+   <div class="collapse" id="Approval">
+      <ul class="nav sub-menu">
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/DoctorApproval">
+            Doctor Information Approval
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/TADAClaimApproval">
+            TADA Claim Appopval
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/TourPlan/TourPlannedApprovalList">
+            Tour Plan Appopval
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/DoctorVisit/DoctorVisitApprovalList">
+            Doctor Visit Appopval
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Attendance/AttendanceListApproval">
+            Attendance Appopval
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/PrescriptionApprovalList">
+            Prescription Appopval
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/ExpenseClaimApprovalList">
+            Expense Claim Appopval
+            </a>
+         </li>
+         <li class="nav-item">
+            <a class="nav-link" href="http://45.64.134.85:580/Setup/MileageClaimApprovalList">
+            Mileage Claim Appopval
+            </a>
+         </li>
+        
+      </ul>
+   </div>
+
+
+
+
+           <%--===========================================================================================--%>
+
+                <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#logistics" role="button" aria-expanded="false" aria-controls="logistics">
+              <i class="link-icon" data-feather="command"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;Logistics Management</span>
+              <i class="link-arrow" data-feather="chevron-down"></i>
+            </a>
+            <div class="collapse" id="logistics">
+              <ul class="nav sub-menu">
+
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/OrderRequisitionCreation.aspx">Stock Transfer Order</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/StockTransportOrderReportList.aspx">Stock Transfer Order Report</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/CreatePickingOnWareHouse.aspx">Challan Generation</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/WareHousePickingReportList.aspx">Ware House Picking Report</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/WarehouseStockIn.aspx">WH stock In</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/WarehouseStockInApproval.aspx">WH stock In Approval</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/OtherStockAction.aspx">Freeze Stock Release</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/StockConditionFreeze.aspx">Stock Condition Freeze</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/ChallanReportList.aspx">Challan Report</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/LogisticeRollBackOperation.aspx">Logistics Roll Back Operation</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/WHStockInList.aspx">WH Stock Out</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/WHStockInReportList.aspx">WH Stock Report</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/WhStockMonitoringReport.aspx">WH Stock Information</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/WhStockConditionFreeze.aspx">WH Freeze Stock</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/WhFreezeStockRelease.aspx">WH Freeze Stock Release</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/SampleStockforWarehouse.aspx">WH Sample Stock Conversion</a></li>
+
+ 
+              </ul>
+            </div>
+          </li>
+
+
+          <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#emails" role="button" aria-expanded="false" aria-controls="emails">
+              <i class="link-icon" data-feather="command"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;Sales Center Operation</span>
+              <i class="link-arrow" data-feather="chevron-down"></i>
+            </a>
+            <div class="collapse" id="emails">
+              <ul class="nav sub-menu">
+                <li class="nav-item"><a href="../SInventory_UI/StockReceiveByDC.aspx" class="nav-link"> Stock Receive By DC</a></li>
+                <li class="nav-item"><a href="../SInventory_UI/InvoiceCreationByOrder.aspx" class="nav-link">Proforma Invoice Creation</a></li>
+                  <li class="nav-item"><a href="../SInventory_UI/SampleInvoiceCreationByOrder.aspx" class="nav-link">Sample Invoice Creation</a></li>
+                <li class="nav-item"><a href="../SInventory_UI/DelivaryInvoiceCreationAuto.aspx" class="nav-link">Delivery Invoice Creation</a></li>
+                <li class="nav-item"><a href="../SInventory_UI/SCPickingGenerate.aspx" class="nav-link">SC Picking Generate</a></li>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/ProformaorInvoiceReturn.aspx">Proforma / Invoice Delete</a></li>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/MarketWiseCustomerPayment.aspx">Customer Payment</a></li>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/OrderDeleteorEdit.aspx">Order Delete</a></li>
+                <%--<li class="nav-item"><a class="nav-link" href="../SInventory_UI/OrderList.aspx">Sales Order List</a></li>--%>
+                <%--<li class="nav-item"><a class="nav-link" href="../SInventory_UI/ManualOrderCreation.aspx">Manual Order Creation</a></li>--%>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/PendingOrder.aspx">Pending Order List</a></li>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/OrderStatus.aspx">Order Status</a></li>
+                <%--<li class="nav-item"><a class="nav-link" href="../SInventory_UI/SalesReturn.aspx">Invoice Return</a></li>--%>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/ProformaPrintList.aspx">Invoice Print</a></li>
+                <%--<li class="nav-item"><a class="nav-link" href="../SInventory_UI/InvoiceCreationForCustomerManual.aspx">Manual Invoice Creation</a></li>--%>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/CompanyWiseBranch.aspx">Deposit Slip Entry</a></li>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DepotStockAdjustmentsVoucher.aspx">Depot Stock Adjustments(DSAV)</a></li>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/SampleTypeConvertion.aspx">DC Sample Stock Conversion</a></li>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DeliveryExcelUpload.aspx">Delivery Invoice Excel Upload</a></li>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/StockBatchUpdate.aspx">Stock Batch Update</a></li>
+                <li class="nav-item"><a class="nav-link" href="../SInventory_UI/PaymentReverse.aspx">Payment Reverse</a></li>
+                
+              </ul>
+            </div>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#dctodctransfer" role="button" aria-expanded="false" aria-controls="emails">
+              <i class="link-icon" data-feather="command"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;DC to DC Stock Transfer</span>
+              <i class="link-arrow" data-feather="chevron-down"></i>
+            </a>
+            <div class="collapse" id="dctodctransfer">
+              <ul class="nav sub-menu">
+
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/NewStockTransferDcToDc.aspx">Stock Transfer</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/TransferStockReceiveByDC.aspx">Stock Receive</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/SubDeportTransferStockReceiveByDC.aspx">Stock  Receive from Subdeport</a></li>
+                
+              </ul>
+            </div>
+          </li>
+          
+            <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#whreturn" role="button" aria-expanded="false" aria-controls="emails">
+              <i class="link-icon" data-feather="command"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;Warehouse Stock Return</span>
+              <i class="link-arrow" data-feather="chevron-down"></i>
+            </a>
+            <div class="collapse" id="whreturn">
+              <ul class="nav sub-menu">
+
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/ConditionalPurposeSetting.aspx">Purpose Settings</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DepoToWHTransfer.aspx">Challan Generation</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/StockRcvByWH.aspx">WH Stock Receive</a></li>
+                
+              </ul>
+            </div>
+          </li>
+
+            <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#subdepot" role="button" aria-expanded="false" aria-controls="emails">
+              <i class="link-icon" data-feather="command"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;Sub-Depot Operation</span>
+              <i class="link-arrow" data-feather="chevron-down"></i>
+            </a>
+            <div class="collapse" id="subdepot">
+              <ul class="nav sub-menu">
+
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/SubdepotInfoEntry.aspx">Sub-Depot Information</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/SubDepotProformaList.aspx">Invoice Print</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/SubDepotStockAdjustmentVoucher.aspx">Depot Stock Adjustments(DSAV)</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SInventory_UI/SalesReturnSubDeport.aspx">Sales Return</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SInventory_UI/subdeportProformaorInvoiceReturn.aspx">Invoice Delete</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/StockTransferDcToSubDepot.aspx">Stock Transfer to Sub-Depot</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/StockReceiveBySubDepot.aspx">Sub-Deport Stock Receive</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/SubDepotInvoiceCreation.aspx">Proforma Invoice Creation</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/DelivaryInvoiceList.aspx">Delivery Invoice Creation</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/SubDeportCustomerPayment.aspx">Customer Payment</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/SubDeportStockFreez.aspx">Freez Stock Release</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/SCPickingGenerate.aspx">SC Picking Generation</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/StockOutSubDepot.aspx">Stock Adjustment</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/TopSheetGenerate.aspx">Proforma Top Sheet</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/SubDeportStockReport.aspx">Sales Top Sheet</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/SubDeportStockReport.aspx">Stock Report</a></li>
+                 <li  class="nav-item"><a class="nav-link" href="../SubDepot_UI/StockTransferSubDepottoDc.aspx">Stock Return</a></li>
+<%--                 <li  class="nav-item"><a class="nav-link" href="../SInventory_UI/SubDeportProformaorInvoiceReturn.aspx">Invoice Delete</a></li>--%>
+                 <li  class="nav-item"><a class="nav-link" href="../SInventory_UI/SubdeportPaymentReverse.aspx">Payment Delete</a></li>
+                
+              </ul>
+            </div>
+          </li>
+          
+          <%--<li class="nav-item">
+            <a class="nav-link  collapsed" data-toggle="collapse" href="#approval" role="button" aria-expanded="false" aria-controls="emails">
+              <i class="link-icon" data-feather="command"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;Approval Operation</span>
+              <i class="link-arrow" data-feather="chevron-down"></i>
+            </a>
+            <div class="collapse" id="approval">
+              <ul class="nav sub-menu">
+
+                 <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DcStockOutApproval.aspx">DSAV Approval</a></li>
+                 <li class="nav-item"><a class="nav-link" href="../SubDepot_UI/SubDepotStockOutApproval.aspx">DSAV Approval Sub-Deport</a></li>
+                
+              </ul>
+            </div>
+          </li>--%>
+
+         <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#audit" role="button" aria-expanded="false" aria-controls="audit">
+              <i class="link-icon" data-feather="command"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;Audit Report</span>
+              <i class="link-arrow" data-feather="chevron-down"></i>
+            </a>
+            <div class="collapse" id="audit">
+              <ul class="nav sub-menu">
+
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/AuditReportOne.aspx">Order Delete Record</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DeleteInvoiceReport.aspx">Invoice Delete Record</a></li>
+                
+              </ul>
+            </div>
+          </li>
+
+                <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#MIS" role="button" aria-expanded="false" aria-controls="MIS">
+              <i class="link-icon" data-feather="command"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;MIS Report</span>
+              <i class="link-arrow" data-feather="chevron-down"></i>
+            </a>
+            <div class="collapse" id="MIS">
+              <ul class="nav sub-menu">
+
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/TotalSummaryNew.aspx">Product wise Business Summary</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/TotalSummaryNew2.aspx">Business Summary</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/MIOWiseTotalSummaryNew.aspx">MIO wise Business Summary</a></li>
+                  <li class="nav-item"><a class="nav-link" href="../SInventory_UI/FinalsalesReport.aspx">Final Sales Report</a></li>
+
+                 
+              </ul>
+            </div>
+          </li>
+
+                 <li class="nav-item">
+            <a class="nav-link collapsed" data-toggle="collapse" href="#reports" role="button" aria-expanded="false" aria-controls="reports">
+              <i class="link-icon" data-feather="command"></i>
+              <span class="link-title">&nbsp;&nbsp;&nbsp;Reports</span>
+              <i class="link-arrow" data-feather="chevron-down"></i>
+            </a>
+            <div class="collapse" id="reports">
+              <ul class="nav sub-menu">
+
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DCStockReport.aspx">DC Stock Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/CustomerMasterReport.aspx">Customer Master Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/ProductPriceReport.aspx">Material Master Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/ProductCostPriceReport.aspx">Product Cost Price</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DCStockReport.aspx">Stock Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/TopSheetGenerate.aspx">Proforma Top Sheet</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/ProformaReport.aspx">Proforma Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/AllSalesReport.aspx">Sales Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DeliveryReturnReport.aspx">Delivery Return Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DelivaryTopSheetGenerate.aspx">Final Sales Top Sheet</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/CustomerOutstandingReport.aspx">Customer Payment Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/StockReport.aspx">Stock Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/totalsummary.aspx">Business Summary</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/MIGOReport.aspx">Stock Transfer Order Details Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/CustomerLedgerReport.aspx">Customer Ledger Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/SalesRejecionReport.aspx">Sales Rejection Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/InTransitReport.aspx">Receivable Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DeleteOrderReport.aspx">Delete Order Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DistributionCenterStockMonitoring.aspx">DC Stock Monitoring Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/SalesComparisoneReport.aspx">Sales Comparison Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/SalesTrendReport.aspx">Sales Trend Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DayWiseBusinessReport.aspx">Day Wise Business Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/ProductWiseNationalSalesReport.aspx">Product Wise Sales Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/EmployeewiseProductSalesReport.aspx">Employee wise Product Sales Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/AreaWiseMonthlyInventoryReport.aspx">Monthly Inventory Report(DC)</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/MonthlyWarehouseReportCW.aspx">Monthly Inventory Report(WH)</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/HistoricalReport.aspx">Sales,Collection and Deposition Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/MIOwiseInTransitReport.aspx">MIO WIse Receivable</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/CustomerWiseSale.aspx">Customer Wise Monthly Sales</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/OrderListView.aspx">Pending Order List</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/OrderMonitor.aspx">Order Monitoring Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/FixedCustomerInformation.aspx">FCB Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/AllSalesReturnReport.aspx">Sales Return Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DepositSlipReport.aspx">Pharma Sales, Collection &amp; Deposition Statement Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/InvoiceWiseDetailsSalesReport.aspx">Invoice Wise Details Sales Report</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/BranchTotalSummary.aspx">Branch Wise Business Summary</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/DZSMTotalSummary.aspx">DZSM Wise Business Summary</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/AreaWiseMonthlyInventoryReport.aspx">Monthly Inventory Report(DC)</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/SubdeportMonthlyInventoryReport.aspx">Monthly Inventory Report(Subdepot)</a></li>
+         <li class="nav-item"><a class="nav-link" href="../SInventory_UI/ProformaandSalesReport.aspx">Proforma and Sales Report</a></li>
+
+
+                  
+
+                 
+              </ul>
+            </div>
+          </li>
+
+
+        </ul>
+
+      </div>
+    </nav>
+
+            <!-- partial -->
+
+            <div class="page-wrapper">
+
+                <!-- partial:../../partials/_navbar.html -->
+                <nav class="navbar">
+				<a href="#" class="sidebar-toggler">
+					<i data-feather="menu"></i>
+				</a>
+				<div class="navbar-content">
+					 
+					<ul class="navbar-nav">
+						<%--<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="flag-icon flag-icon-us mt-1" title="us"></i> <span class="font-weight-medium ml-1 mr-1 d-none d-md-inline-block">English</span>
+							</a>
+							<div class="dropdown-menu" aria-labelledby="languageDropdown">
+                <a href="javascript:;" class="dropdown-item py-2"><i class="flag-icon flag-icon-us" title="us" id="us"></i> <span class="ml-1"> English </span></a>
+                <a href="javascript:;" class="dropdown-item py-2"><i class="flag-icon flag-icon-fr" title="fr" id="fr"></i> <span class="ml-1"> French </span></a>
+                <a href="javascript:;" class="dropdown-item py-2"><i class="flag-icon flag-icon-de" title="de" id="de"></i> <span class="ml-1"> German </span></a>
+                <a href="javascript:;" class="dropdown-item py-2"><i class="flag-icon flag-icon-pt" title="pt" id="pt"></i> <span class="ml-1"> Portuguese </span></a>
+                <a href="javascript:;" class="dropdown-item py-2"><i class="flag-icon flag-icon-es" title="es" id="es"></i> <span class="ml-1"> Spanish </span></a>
+							</div>
+            </li>
+						<li class="nav-item dropdown nav-apps">
+							<a class="nav-link dropdown-toggle" href="#" id="appsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i data-feather="grid"></i>
+							</a>
+							<div class="dropdown-menu" aria-labelledby="appsDropdown">
+								<div class="dropdown-header d-flex align-items-center justify-content-between">
+									<p class="mb-0 font-weight-medium">Web Apps</p>
+									<a href="javascript:;" class="text-muted">Edit</a>
+								</div>
+								<div class="dropdown-body">
+									<div class="d-flex align-items-center apps">
+										<a href="chat.html"><i data-feather="message-square" class="icon-lg"></i><p>Chat</p></a>
+										<a href="calendar.html"><i data-feather="calendar" class="icon-lg"></i><p>Calendar</p></a>
+										<a href="../email/inbox.html"><i data-feather="mail" class="icon-lg"></i><p>Email</p></a>
+										<a href="../general/profile.html"><i data-feather="instagram" class="icon-lg"></i><p>Profile</p></a>
+									</div>
+								</div>
+								<div class="dropdown-footer d-flex align-items-center justify-content-center">
+									<a href="javascript:;">View all</a>
+								</div>
+							</div>
+						</li>
+						<li class="nav-item dropdown nav-messages">
+							<a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i data-feather="mail"></i>
+							</a>
+							<div class="dropdown-menu" aria-labelledby="messageDropdown">
+								<div class="dropdown-header d-flex align-items-center justify-content-between">
+									<p class="mb-0 font-weight-medium">9 New Messages</p>
+									<a href="javascript:;" class="text-muted">Clear all</a>
+								</div>
+								<div class="dropdown-body">
+									<a href="javascript:;" class="dropdown-item">
+										<div class="figure">
+											<img src="../../../assets/images/faces/face2.jpg" alt="userr">
+										</div>
+										<div class="content">
+											<div class="d-flex justify-content-between align-items-center">
+												<p>Leonardo Payne</p>
+												<p class="sub-text text-muted">2 min ago</p>
+											</div>	
+											<p class="sub-text text-muted">Project status</p>
+										</div>
+									</a>
+									<a href="javascript:;" class="dropdown-item">
+										<div class="figure">
+											<img src="../../../assets/images/faces/face3.jpg" alt="userr">
+										</div>
+										<div class="content">
+											<div class="d-flex justify-content-between align-items-center">
+												<p>Carl Henson</p>
+												<p class="sub-text text-muted">30 min ago</p>
+											</div>	
+											<p class="sub-text text-muted">Client meeting</p>
+										</div>
+									</a>
+									<a href="javascript:;" class="dropdown-item">
+										<div class="figure">
+											<img src="../../../assets/images/faces/face4.jpg" alt="userr">
+										</div>
+										<div class="content">
+											<div class="d-flex justify-content-between align-items-center">
+												<p>Jensen Combs</p>												
+												<p class="sub-text text-muted">1 hrs ago</p>
+											</div>	
+											<p class="sub-text text-muted">Project updates</p>
+										</div>
+									</a>
+									<a href="javascript:;" class="dropdown-item">
+										<div class="figure">
+											<img src="../../../assets/images/faces/face5.jpg" alt="userr">
+										</div>
+										<div class="content">
+											<div class="d-flex justify-content-between align-items-center">
+												<p>Amiah Burton</p>
+												<p class="sub-text text-muted">2 hrs ago</p>
+											</div>
+											<p class="sub-text text-muted">Project deadline</p>
+										</div>
+									</a>
+									<a href="javascript:;" class="dropdown-item">
+										<div class="figure">
+											<img src="../../../assets/images/faces/face6.jpg" alt="userr">
+										</div>
+										<div class="content">
+											<div class="d-flex justify-content-between align-items-center">
+												<p>Yaretzi Mayo</p>
+												<p class="sub-text text-muted">5 hr ago</p>
+											</div>
+											<p class="sub-text text-muted">New record</p>
+										</div>
+									</a>
+								</div>
+								<div class="dropdown-footer d-flex align-items-center justify-content-center">
+									<a href="javascript:;">View all</a>
+								</div>
+							</div>
+						</li>
+						<li class="nav-item dropdown nav-notifications">
+							<a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i data-feather="bell"></i>
+								<div class="indicator">
+									<div class="circle"></div>
+								</div>
+							</a>
+							<div class="dropdown-menu" aria-labelledby="notificationDropdown">
+								<div class="dropdown-header d-flex align-items-center justify-content-between">
+									<p class="mb-0 font-weight-medium">6 New Notifications</p>
+									<a href="javascript:;" class="text-muted">Clear all</a>
+								</div>
+								<div class="dropdown-body">
+									<a href="javascript:;" class="dropdown-item">
+										<div class="icon">
+											<i data-feather="user-plus"></i>
+										</div>
+										<div class="content">
+											<p>New customer registered</p>
+											<p class="sub-text text-muted">2 sec ago</p>
+										</div>
+									</a>
+									<a href="javascript:;" class="dropdown-item">
+										<div class="icon">
+											<i data-feather="gift"></i>
+										</div>
+										<div class="content">
+											<p>New Order Recieved</p>
+											<p class="sub-text text-muted">30 min ago</p>
+										</div>
+									</a>
+									<a href="javascript:;" class="dropdown-item">
+										<div class="icon">
+											<i data-feather="alert-circle"></i>
+										</div>
+										<div class="content">
+											<p>Server Limit Reached!</p>
+											<p class="sub-text text-muted">1 hrs ago</p>
+										</div>
+									</a>
+									<a href="javascript:;" class="dropdown-item">
+										<div class="icon">
+											<i data-feather="layers"></i>
+										</div>
+										<div class="content">
+											<p>Apps are ready for update</p>
+											<p class="sub-text text-muted">5 hrs ago</p>
+										</div>
+									</a>
+									<a href="javascript:;" class="dropdown-item">
+										<div class="icon">
+											<i data-feather="download"></i>
+										</div>
+										<div class="content">
+											<p>Download completed</p>
+											<p class="sub-text text-muted">6 hrs ago</p>
+										</div>
+									</a>
+								</div>
+								<div class="dropdown-footer d-flex align-items-center justify-content-center">
+									<a href="javascript:;">View all</a>
+								</div>
+							</div>
+						</li>--%>
+						<li class="nav-item dropdown nav-profile">
+                            <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img src="../assets/images/faces/UserImage.png" alt="profile">
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="profileDropdown">
+                                <div class="dropdown-header d-flex flex-column align-items-center">
+                                    <div class="figure mb-3">
+                                        <img src="../assets/images/faces/UserImage.png" alt="profile">
+                                    </div>
+                                    <div class="info text-center">
+
+                                        <p class="name font-weight-bold mb-0">@Session["UserName"]</p>
+                                        <p class="email text-muted mb-3">@Session["Email"]</p>
+                                    </div>
+                                </div>
+                                <div class="dropdown-body">
+                                    <ul class="profile-nav p-0 pt-3">
+                                        <li class="nav-item">
+                                            <a href="profile.html" class="nav-link">
+                                                <i data-feather="user"></i>
+                                                <span>Profile</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="javascript:;" class="nav-link">
+                                                <i data-feather="edit"></i>
+                                                <span>Edit Profile</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="../UserLogin/LogOut" class="nav-link">
+                                                <i data-feather="log-out"></i>
+                                                <span>Log Out</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+					</ul>
+				</div>
+			</nav>
+                <!-- partial -->
+                <div class="page-content">
+                    <div class="row">
+                        <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                        </asp:ContentPlaceHolder>
+                    </div>
+                </div>
+
+
+                <!-- partial:../../partials/_footer.html -->
+                <footer class="footer d-flex flex-column flex-md-row align-items-center justify-content-between">
+				<p class="text-muted text-center text-md-left">Copyright © 2021 <a href="https://www.nobleui.com/" target="_blank">CSTL</a>. All rights reserved</p>
+				<%--<p class="text-muted text-center text-md-left mb-0 d-none d-md-block">Handcrafted With <i class="mb-1 text-primary ml-1 icon-small" data-feather="heart"></i></p>--%>
+			</footer>
+                <!-- partial -->
+
+            </div>
+        </div>
+    <script src="../assets/_myCusGen_Func.js" type="text/javascript"></script>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+//        <%--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>--%>
+        <!-- core:js -->
+        <script src="../assets/vendors/core/core.js"></script>
+        <!-- endinject -->
+        <!-- plugin js for this page -->
+        <!-- end plugin js for this page -->
+        <!-- inject:js -->
+
+        <script src="../assets/vendors/feather-icons/feather.min.js"></script>
+        <script src="../assets/js/template.js"></script>
+        <!-- endinject -->
+        <!-- custom js for this page -->
+        <script src="../assets/js/chat.js"></script>
+        <script src="../assets/js/select2.js"></script>
+        <script src="~/assets/vendors/select2/select2.min.js"></script>
+        <script src="~/assets/vendors/datatables.net/jquery.dataTables.js"></script>
+        <script src="~/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+        <script src="~/assets/vendors/datatables.net/dataTables.buttons.min.js"></script>
+
+        <script src="~/assets/vendors/datatables.net/dataTables.buttons.min.js"></script>
+        <script src="~/assets/vendors/datatables.net/jszip.min.js"></script>
+
+        <script src="~/assets/vendors/datatables.net/pdfmake.min.js"></script>
+
+        <script src="~/assets/vendors/datatables.net/vfs_fonts.js"></script>
+
+        <script src="~/assets/vendors/datatables.net/buttons.html5.min.js"></script>
+
+        <script src="~/assets/vendors/datatables.net/buttons.print.min.js"></script>
+        
+        
+           <script src="~/assets/vendors/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/assets/vendors/bootstrap-maxlength/bootstrap-maxlength.min.js"></script>
+    <script src="~/assets/vendors/inputmask/jquery.inputmask.min.js"></script>
+    <script src="~/assets/vendors/select2/select2.min.js"></script>
+    <script src="~/assets/vendors/typeahead.js/typeahead.bundle.min.js"></script>
+    <script src="~/assets/vendors/jquery-tags-input/jquery.tagsinput.min.js"></script>
+    <script src="~/assets/vendors/dropzone/dropzone.min.js"></script>
+    <script src="~/assets/vendors/dropify/dist/dropify.min.js"></script>
+    <script src="~/assets/vendors/bootstrap-colorpicker/bootstrap-colorpicker.min.js"></script>
+    <script src="~/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="~/assets/vendors/moment/moment.min.js"></script>
+    <script src="~/assets/vendors/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.js"></script>
+    <script src="~/assets/vendors/feather-icons/feather.min.js"></script>
+    <script src="~/assets/js/template.js"></script>
+    <script src="~/assets/js/form-validation.js"></script>
+    <script src="~/assets/js/bootstrap-maxlength.js"></script>
+    <script src="~/assets/js/inputmask.js"></script>
+    <script src="~/assets/js/select2.js"></script>
+    <script src="~/assets/js/typeahead.js"></script>
+    <script src="~/assets/js/tags-input.js"></script>
+    <script src="~/assets/js/dropzone.js"></script>
+    <script src="~/assets/js/dropify.js"></script>
+    <script src="~/assets/js/bootstrap-colorpicker.js"></script>
+    <script src="~/assets/js/datepicker.js"></script>
+    <script src="~/assets/js/timepicker.js"></script>
+    <script src="../assets/_myCusGen_Func.js" type="text/javascript"></script>
+    <script src="../assets/_QuickDataAccess.js" type="text/javascript"></script>
+
+
+    <script src="../assets/jquery-confirm.min.js" type="text/javascript"></script>
+    <script src="~/assets/vendors/datatables.net/jquery.dataTables.js"></script>
+    <script src="~/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+    <script src="~/assets/js/data-table.js"></script>
+    <script src="~/assets/vendors/feather-icons/feather.min.js"></script>
+
+    <script src="~/assets/vendors/jquery-steps/jquery.steps.min.js"></script>
+    <script src="~/assets/js/wizard.js"></script>
+
+    <script src="~/assets/vendors/dropzone/dropzone.min.js"></script>
+    <script src="~/assets/vendors/dropify/dist/dropify.min.js"></script>
+    <script src="~/assets/js/dropzone.js"></script>
+    <script src="~/assets/js/dropify.js"></script>
+ 
+    <script src="../assets/ValidationClasses.js" type="text/javascript"></script>
+    <script src="~/assets/js/dashboard.js"></script>
+    <script src="~/assets/js/datepicker.js"></script>
+        <script src="../CustomScript/_myCusGen_Func.js"></script>
+        <script src="../CustomScript/_QuickDataAccess.js"></script>
+        <!-- end custom js for this page -->
+    </form>
+</body>
+</html>
+

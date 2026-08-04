@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="HistoricalReportDataSet" targetNamespace="http://tempuri.org/HistoricalReportDataSet.xsd" xmlns:mstns="http://tempuri.org/HistoricalReportDataSet.xsd" xmlns="http://tempuri.org/HistoricalReportDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="HistoricalReportDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="HistoricalReportDataSet" msprop:Generator_UserDSName="HistoricalReportDataSet">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="HistoricalReportDataTable" msprop:Generator_TableClassName="HistoricalReportDataTableDataTable" msprop:Generator_TableVarName="tableHistoricalReportDataTable" msprop:Generator_TablePropName="HistoricalReportDataTable" msprop:Generator_RowDeletingName="HistoricalReportDataTableRowDeleting" msprop:Generator_RowChangingName="HistoricalReportDataTableRowChanging" msprop:Generator_RowEvHandlerName="HistoricalReportDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="HistoricalReportDataTableRowDeleted" msprop:Generator_UserTableName="HistoricalReportDataTable" msprop:Generator_RowChangedName="HistoricalReportDataTableRowChanged" msprop:Generator_RowEvArgName="HistoricalReportDataTableRowChangeEvent" msprop:Generator_RowClassName="HistoricalReportDataTableRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="MIOName" msprop:Generator_ColumnVarNameInTable="columnMIOName" msprop:Generator_ColumnPropNameInRow="MIOName" msprop:Generator_ColumnPropNameInTable="MIONameColumn" msprop:Generator_UserColumnName="MIOName" type="xs:string" minOccurs="0" />
+              <xs:element name="OpeningReceivableInHand" msprop:Generator_ColumnVarNameInTable="columnOpeningReceivableInHand" msprop:Generator_ColumnPropNameInRow="OpeningReceivableInHand" msprop:Generator_ColumnPropNameInTable="OpeningReceivableInHandColumn" msprop:Generator_UserColumnName="OpeningReceivableInHand" type="xs:string" minOccurs="0" />
+              <xs:element name="OpeningReceivableMarketOutStanding" msprop:Generator_ColumnVarNameInTable="columnOpeningReceivableMarketOutStanding" msprop:Generator_ColumnPropNameInRow="OpeningReceivableMarketOutStanding" msprop:Generator_ColumnPropNameInTable="OpeningReceivableMarketOutStandingColumn" msprop:Generator_UserColumnName="OpeningReceivableMarketOutStanding" type="xs:string" minOccurs="0" />
+              <xs:element name="OpeningReceivableFromAO" msprop:Generator_ColumnVarNameInTable="columnOpeningReceivableFromAO" msprop:Generator_ColumnPropNameInRow="OpeningReceivableFromAO" msprop:Generator_ColumnPropNameInTable="OpeningReceivableFromAOColumn" msprop:Generator_UserColumnName="OpeningReceivableFromAO" type="xs:string" minOccurs="0" />
+              <xs:element name="SalesOnTP" msprop:Generator_ColumnVarNameInTable="columnSalesOnTP" msprop:Generator_ColumnPropNameInRow="SalesOnTP" msprop:Generator_ColumnPropNameInTable="SalesOnTPColumn" msprop:Generator_UserColumnName="SalesOnTP" type="xs:string" minOccurs="0" />
+              <xs:element name="SalesVAT" msprop:Generator_ColumnVarNameInTable="columnSalesVAT" msprop:Generator_ColumnPropNameInRow="SalesVAT" msprop:Generator_ColumnPropNameInTable="SalesVATColumn" msprop:Generator_UserColumnName="SalesVAT" type="xs:string" minOccurs="0" />
+              <xs:element name="TotalSales" msprop:Generator_ColumnVarNameInTable="columnTotalSales" msprop:Generator_ColumnPropNameInRow="TotalSales" msprop:Generator_ColumnPropNameInTable="TotalSalesColumn" msprop:Generator_UserColumnName="TotalSales" type="xs:string" minOccurs="0" />
+              <xs:element name="CollectionFromSales" msprop:Generator_ColumnVarNameInTable="columnCollectionFromSales" msprop:Generator_ColumnPropNameInRow="CollectionFromSales" msprop:Generator_ColumnPropNameInTable="CollectionFromSalesColumn" msprop:Generator_UserColumnName="CollectionFromSales" type="xs:string" minOccurs="0" />
+              <xs:element name="DepositCashAtBank" msprop:Generator_ColumnVarNameInTable="columnDepositCashAtBank" msprop:Generator_ColumnPropNameInRow="DepositCashAtBank" msprop:Generator_ColumnPropNameInTable="DepositCashAtBankColumn" msprop:Generator_UserColumnName="DepositCashAtBank" type="xs:string" minOccurs="0" />
+              <xs:element name="DepositOthers" msprop:Generator_ColumnVarNameInTable="columnDepositOthers" msprop:Generator_ColumnPropNameInRow="DepositOthers" msprop:Generator_ColumnPropNameInTable="DepositOthersColumn" msprop:Generator_UserColumnName="DepositOthers" type="xs:string" minOccurs="0" />
+              <xs:element name="ClosingReceivableInHand" msprop:Generator_ColumnVarNameInTable="columnClosingReceivableInHand" msprop:Generator_ColumnPropNameInRow="ClosingReceivableInHand" msprop:Generator_ColumnPropNameInTable="ClosingReceivableInHandColumn" msprop:Generator_UserColumnName="ClosingReceivableInHand" type="xs:string" minOccurs="0" />
+              <xs:element name="ClosingReceivableMarketOutStanding" msprop:Generator_ColumnVarNameInTable="columnClosingReceivableMarketOutStanding" msprop:Generator_ColumnPropNameInRow="ClosingReceivableMarketOutStanding" msprop:Generator_ColumnPropNameInTable="ClosingReceivableMarketOutStandingColumn" msprop:Generator_UserColumnName="ClosingReceivableMarketOutStanding" type="xs:string" minOccurs="0" />
+              <xs:element name="ClosingReceivableFromAO" msprop:Generator_ColumnVarNameInTable="columnClosingReceivableFromAO" msprop:Generator_ColumnPropNameInRow="ClosingReceivableFromAO" msprop:Generator_ColumnPropNameInTable="ClosingReceivableFromAOColumn" msprop:Generator_UserColumnName="ClosingReceivableFromAO" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

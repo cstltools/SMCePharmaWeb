@@ -1,0 +1,161 @@
+﻿using SalesSolution.Web.DataLayer;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class DoctorModule_UI_AppMonitoringList : System.Web.UI.Page
+{
+
+    private static RSMSetupDal _setupDAL = new RSMSetupDal();
+    private CommonDataLoad _CmnLoad = new CommonDataLoad();
+    private static SeedDataDAL _seedRepo = new SeedDataDAL();
+
+
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+        {
+
+            try
+            {
+                using (DataTable dt = _seedRepo.GetEmployee_All())
+                {
+                    ddlEmployeeName.DataSource = dt;
+                    ddlEmployeeName.DataValueField = "EmpInfoId";
+                    ddlEmployeeName.DataTextField = "EmployeeName";
+                    ddlEmployeeName.DataBind();
+                    ddlEmployeeName.Items.Insert(0, new ListItem("Please Select From List", String.Empty));
+                    ddlEmployeeName.SelectedIndex = 0;
+                }
+
+
+            }
+            catch (Exception ex) { }
+
+
+            try
+            {
+                using (DataTable dt = _seedRepo.GetUserRoleList())
+                {
+                    ddlUserRole.DataSource = dt;
+                    ddlUserRole.DataValueField = "UserRoleID";
+                    ddlUserRole.DataTextField = "RoleName";
+                    ddlUserRole.DataBind();
+                    ddlUserRole.Items.Insert(0, new ListItem("Please Select From List", String.Empty));
+                    ddlUserRole.SelectedIndex = 0;
+                }
+
+
+            }
+            catch (Exception ex) { }
+            UserPersmissionValidation();
+            LoadData();
+        }
+    }
+    public void UserPersmissionValidation()
+    {
+        if (Session["UserRoleID"].ToString() != "2")
+        {
+            try
+            {
+                string filepath = Path.GetDirectoryName(Request.Path);
+                filepath = filepath.TrimStart('\\');
+                string text = Path.GetExtension(Request.Path);
+                filepath = "../" + filepath + "/" + Path.GetFileName(Request.Path);
+                DataTable dtuserpermission = _CmnLoad.GetPermissionForUserRole(filepath);
+                if (dtuserpermission.Rows.Count > 0)
+                {
+                    if (Session["UserRoleID"].ToString() != "2")
+                    {
+                        //btnEntry.Visible = Convert.ToBoolean(dtuserpermission.Rows[0]["RAdd"].ToString());
+                        //loadGridView.Columns[loadGridView.Columns.Count - 1].Visible = Convert.ToBoolean(dtuserpermission.Rows[0]["REdit"].ToString());
+
+
+                    }
+                }
+                else
+                {
+                    Response.Redirect("../Dashboard_UI/DashboardOne.aspx");
+                }
+            }
+            catch (Exception ex)
+            {
+                Response.Redirect("../Dashboard_UI/DashboardOne.aspx");
+            }
+        }
+    }
+    protected void gv_DocumentUpload_PreRender(object sender, EventArgs e)
+    {
+        GridView gv = (GridView)sender;
+
+        if ((gv.ShowHeader == true && gv.Rows.Count > 0)
+            || (gv.ShowHeaderWhenEmpty == true))
+        {
+            //Force GridView to use <thead> instead of <tbody> - 11/03/2013 - MCR.
+            gv.HeaderRow.TableSection = TableRowSection.TableHeader;
+        }
+    }
+
+    private void LoadData()
+    {
+        
+
+        DataTable dt = _setupDAL.Get_AppMonitoringList(Parm());
+        loadGridView.DataSource = dt;
+        loadGridView.DataBind();
+
+        
+    }
+
+
+    private string Parm()
+    {
+        string param = "";
+
+
+        if (ddlUserRole.SelectedValue != "")
+        {
+            param = param + " AND us.UserRoleID='" + ddlUserRole.SelectedValue + "' ";
+        }
+
+        if (ddlActiveStatus.SelectedValue != "")
+        {
+            param = param + " AND emp.EmployeeStatus='" + ddlActiveStatus.SelectedValue + "' ";
+        }
+
+        if (ddlEmployeeName.SelectedValue != "")
+        {
+            param = param + " AND emp.EmpInfoId='" + ddlEmployeeName.SelectedValue + "' ";
+        }
+
+        return param;
+    }
+
+        protected void loadGridView_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        if (e.CommandName == "EditData")
+        {
+            int rowindex = Convert.ToInt32(e.CommandArgument);
+            string unitPriceId = loadGridView.DataKeys[rowindex][0].ToString();
+
+            Response.Redirect("UserSetup.aspx?MID=" + unitPriceId);
+        }
+
+    }
+
+    protected void btnSearch_Click(object sender, EventArgs e)
+    {
+        LoadData();
+    }
+
+    protected void resetBtn_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("UserRecords.aspx");
+    }
+}

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: epharma_sqlserver_prod
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${MSSQL_SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_prod_data:/var/opt/mssql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: epharma_web_prod
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      - DB_SERVER=sqlserver
+      - DB_NAME=${DB_NAME}
+      - DB_USER=sa
+      - DB_PASSWORD=${MSSQL_SA_PASSWORD}
+    depends_on:
+      - sqlserver
+
+volumes:
+  mssql_prod_data:

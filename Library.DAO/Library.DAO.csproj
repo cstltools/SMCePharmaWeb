@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{41D64757-EE79-4D94-8162-FA9B70785771}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Library.DAO</RootNamespace>
+    <AssemblyName>Library.DAO</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Http.Common, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Web.Http.Common.4.0.20126.16343\lib\net40\System.Web.Http.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DoctorMaster_Dao\DoctorDegreeDao.cs" />
+    <Compile Include="DoctorMaster_Dao\PatientTypeDao.cs" />
+    <Compile Include="DoctorModule_DAO\AppInfo.cs" />
+    <Compile Include="DoctorModule_DAO\Area.cs" />
+    <Compile Include="DoctorModule_DAO\ASMInfo.cs" />
+    <Compile Include="DoctorModule_DAO\BonusCampaignNewDetailDAO.cs" />
+    <Compile Include="DoctorModule_DAO\BonusCampaignNewMasterDAO.cs" />
+    <Compile Include="DoctorModule_DAO\Class1.cs" />
+    <Compile Include="DoctorModule_DAO\CustomerType.cs" />
+    <Compile Include="DoctorModule_DAO\dadtlsBonusCampaignNewDetailDAO.cs" />
+    <Compile Include="DoctorModule_DAO\dadtlsBonusCampaignNewMasterDAO.cs" />
+    <Compile Include="DoctorModule_DAO\DCRInfoRpt.cs" />
+    <Compile Include="DoctorModule_DAO\Department.cs" />
+    <Compile Include="DoctorModule_DAO\DepotWiseAreaDao.cs" />
+    <Compile Include="DoctorModule_DAO\Designation.cs" />
+    <Compile Include="DoctorModule_DAO\DoctorCategory.cs" />
+    <Compile Include="DoctorModule_DAO\DoctorChamber.cs" />
+    <Compile Include="DoctorModule_DAO\DoctorDegree.cs" />
+    <Compile Include="DoctorModule_DAO\DoctorDesignation.cs" />
+    <Compile Include="DoctorModule_DAO\DoctorPatientType.cs" />
+    <Compile Include="DoctorModule_DAO\DoctorSetup.cs" />
+    <Compile Include="DoctorModule_DAO\DoctorSpecailDay.cs" />
+    <Compile Include="DoctorModule_DAO\DoctorSpeciality.cs" />
+    <Compile Include="DoctorModule_DAO\EmployeeInformation.cs" />
+    <Compile Include="DoctorModule_DAO\EmployeeLeave.cs" />
+    <Compile Include="DoctorModule_DAO\Employee_ShiftInfosDAO.cs" />
+    <Compile Include="DoctorModule_DAO\ExpenseClaimDAO.cs" />
+    <Compile Include="DoctorModule_DAO\ExpenseClaimDetailsDAO.cs" />
+    <Compile Include="DoctorModule_DAO\ExpenseClaimMasterDAO.cs" />
+    <Compile Include="DoctorModule_DAO\ExpenseTypeDetails.cs" />
+    <Compile Include="DoctorModule_DAO\ExpenseTypeMaster.cs" />
+    <Compile Include="DoctorModule_DAO\FinancialYear.cs" />
+    <Compile Include="DoctorModule_DAO\GenericGroup.cs" />
+    <Compile Include="DoctorModule_DAO\GroupSetup.cs" />
+    <Compile Include="DoctorModule_DAO\Holiday.cs" />
+    <Compile Include="DoctorModule_DAO\ImagePath.cs" />
+    <Compile Include="DoctorModule_DAO\LeaveApplication.cs" />
+    <Compile Include="DoctorModule_DAO\LeaveConfigDAO.cs" />
+    <Compile Include="DoctorModule_DAO\LeaveProcess.cs" />
+    <Compile Include="DoctorModule_DAO\LoginInfoDAO.cs" />
+    <Compile Include="DoctorModule_DAO\ManufacturerDao.cs" />
+    <Compile Include="DoctorModule_DAO\Market.cs" />
+    <Compile Include="DoctorModule_DAO\MenuDAO.cs" />
+    <Compile Include="DoctorModule_DAO\MileageClaimDAO.cs" />
+    <Compile Include="DoctorModule_DAO\MIOInfo.cs" />
+    <Compile Include="DoctorModule_DAO\MonthlyAllowance.cs" />
+    <Compile Include="DoctorModule_DAO\NoticeImage.cs" />
+    <Compile Include="DoctorModule_DAO\NoticeMarketDetails.cs" />
+    <Compile Include="DoctorModule_DAO\NoticeMaster.cs" />
+    <Compile Include="DoctorModule_DAO\NSMInfo.cs" />
+    <Compile Include="DoctorModule_DAO\PackSizeDao.cs" />
+    <Compile Include="DoctorModule_DAO\PrescriptionDetails.cs" />
+    <Compile Include="DoctorModule_DAO\PrescriptionMaster.cs" />
+    <Compile Include="DoctorModule_DAO\PrescriptionMasterDAO.cs" />
+    <Compile Include="DoctorModule_DAO\PrescriptionProductDetailDAO.cs" />
+    <Compile Include="DoctorModule_DAO\PrescriptionType.cs" />
+    <Compile Include="DoctorModule_DAO\PresTypeVM.cs" />
+    <Compile Include="DoctorModule_DAO\ProductBrand.cs" />
+    <Compile Include="DoctorModule_DAO\ProductCategoryDao.cs" />
+    <Compile Include="DoctorModule_DAO\ProductDao.cs" />
+    <Compile Include="DoctorModule_DAO\ProductQuotedPrice.cs" />
+    <Compile Include="DoctorModule_DAO\ProductVM.cs" />
+    <Compile Include="DoctorModule_DAO\ProgramType.cs" />
+    <Compile Include="DoctorModule_DAO\RouterDetails.cs" />
+    <Compile Include="DoctorModule_DAO\RouterMaster.cs" />
+    <Compile Include="DoctorModule_DAO\RSMInfo.cs" />
+    <Compile Include="DoctorModule_DAO\ShippingCarton.cs" />
+    <Compile Include="DoctorModule_DAO\StationType.cs" />
+    <Compile Include="DoctorModule_DAO\SubMarket.cs" />
+    <Compile Include="DoctorModule_DAO\SubTerritoryDAO.cs" />
+    <Compile Include="DoctorModule_DAO\TADAMarketruleConfig.cs" />
+    <Compile Include="DoctorModule_DAO\TargetSetupDAO.cs" />
+    <Compile Include="DoctorModule_DAO\Territory.cs" />
+    <Compile Include="DoctorModule_DAO\TherapeuticGroup.cs" />
+    <Compile Include="DoctorModule_DAO\TourPlanMaster.cs" />
+    <Compile Include="DoctorModule_DAO\TourPlanMasterDAO.cs" />
+    <Compile Include="DoctorModule_DAO\TourPurpose.cs" />
+    <Compile Include="DoctorModule_DAO\TourType.cs" />
+    <Compile Include="DoctorModule_DAO\Trainning.cs" />
+    <Compile Include="DoctorModule_DAO\Transport.cs" />
+    <Compile Include="DoctorModule_DAO\UnitPriceDao.cs" />
+    <Compile Include="DoctorModule_DAO\UserDAO.cs" />
+    <Compile Include="DoctorModule_DAO\UserRoleDao.cs" />
+    <Compile Include="DoctorModule_DAO\Zone.cs" />
+    <Compile Include="DWSP_DAO\AreaWiseTargetSetupDao.cs" />
+    <Compile Include="DWSP_DAO\NationalTargetDao.cs" />
+    <Compile Include="DWSP_DAO\ZoneWiseTargetDao.cs" />
+    <Compile Include="MarketUpload_DAO\MarketUpload.cs" />
+    <Compile Include="MasterSetup_DAO\BonusCampaignMarketDetailDAO.cs" />
+    <Compile Include="MasterSetup_DAO\CustomerInvoiceLimitModel.cs" />
+    <Compile Include="MasterSetup_DAO\CustomerInvoiceLimitViewModel.cs" />
+    <Compile Include="MasterSetup_DAO\CustMasterInfoDAO.cs" />
+    <Compile Include="MasterSetup_DAO\CustomerDAO.cs" />
+    <Compile Include="MasterSetup_DAO\TotalInfoDAO.cs" />
+    <Compile Include="MasterSetup_DAO\TourTypeSetupDAO.cs" />
+    <Compile Include="MasterSetup_DAO\DAInfoDao.cs" />
+    <Compile Include="MasterSetup_DAO\DcWiseTerritoryMasterDAO.cs" />
+    <Compile Include="MasterSetup_DAO\DoctorBrandDetailDAO.cs" />
+    <Compile Include="MasterSetup_DAO\DoctorChemberDetailDAO.cs" />
+    <Compile Include="MasterSetup_DAO\DoctorDegreeDetailDAO.cs" />
+    <Compile Include="MasterSetup_DAO\DoctorMasterDAO.cs" />
+    <Compile Include="MasterSetup_DAO\DoctorSpecialityDetailDAO.cs" />
+    <Compile Include="MasterSetup_DAO\QuotedPriceDetailDAO.cs" />
+    <Compile Include="MasterSetup_DAO\QuotedPriceMasterDAO.cs" />
+    <Compile Include="MasterSetup_DAO\RouteInformationDADetailDAO.cs" />
+    <Compile Include="PromoAlloc_DAO\GroupDAO.cs" />
+    <Compile Include="PromoAlloc_DAO\GroupWisePromoQtyDAO.cs" />
+    <Compile Include="PromoAlloc_DAO\PromoMIOTag.cs" />
+    <Compile Include="SettingPanel_DAO\UserSettingPanelDao.cs" />
+    <Compile Include="SInventory_Entities\AppSetupDAO.cs" />
+    <Compile Include="SInventory_Entities\CentralStoreDao.cs" />
+    <Compile Include="SInventory_Entities\ChalanDetail.cs" />
+    <Compile Include="SInventory_Entities\ChalanInfo.cs" />
+    <Compile Include="SInventory_Entities\CompanyWiseDepositDao.cs" />
+    <Compile Include="SInventory_Entities\CustomerPaymentDeleteDAO.cs" />
+    <Compile Include="SInventory_Entities\CustPaymentDetail_daaw.cs" />
+    <Compile Include="SInventory_Entities\CustPayment_daaw.cs" />
+    <Compile Include="SInventory_Entities\dadtlsCustPayment.cs" />
+    <Compile Include="SInventory_Entities\dadtlsCustPaymentDetail.cs" />
+    <Compile Include="SInventory_Entities\dadtlsInvoice.cs" />
+    <Compile Include="SInventory_Entities\dadtlsInvoiceDetail.cs" />
+    <Compile Include="SInventory_Entities\dadtlsOrderInfoDetail.cs" />
+    <Compile Include="SInventory_Entities\dadtlsOrderInfoMaster.cs" />
+    <Compile Include="SInventory_Entities\dadtlsRequesition.cs" />
+    <Compile Include="SInventory_Entities\dadtlsRequsitionChild.cs" />
+    <Compile Include="SInventory_Entities\DcStockOutDetailsDao.cs" />
+    <Compile Include="SInventory_Entities\DcStockOutMasterDao.cs" />
+    <Compile Include="SInventory_Entities\PrescriptionType.cs" />
+    <Compile Include="SInventory_Entities\ResultInfo.cs" />
+    <Compile Include="SInventory_Entities\ReturnAmountDAO.cs" />
+    <Compile Include="SInventory_Entities\CustPayment.cs" />
+    <Compile Include="SInventory_Entities\CustPaymentDetail.cs" />
+    <Compile Include="SInventory_Entities\DCPicking.cs" />
+    <Compile Include="SInventory_Entities\DCPickingDetail.cs" />
+    <Compile Include="SInventory_Entities\DCStockNew.cs" />
+    <Compile Include="SInventory_Entities\DCStore.cs" />
+    <Compile Include="SInventory_Entities\CurrentStock.cs" />
+    <Compile Include="SInventory_Entities\DCStoreFreezeDAO.cs" />
+    <Compile Include="SInventory_Entities\DepoToWHTransferDao.cs" />
+    <Compile Include="SInventory_Entities\DepoToWHTransferDetailDao.cs" />
+    <Compile Include="SInventory_Entities\EmpGeneralInfo.cs" />
+    <Compile Include="SInventory_Entities\Ingridents.cs" />
+    <Compile Include="SInventory_Entities\Invoice.cs" />
+    <Compile Include="SInventory_Entities\InvoiceDetail.cs" />
+    <Compile Include="SInventory_Entities\CentralStore.cs" />
+    <Compile Include="SInventory_Entities\Manufacturer.cs" />
+    <Compile Include="SInventory_Entities\MigoMasterDAO.cs" />
+    <Compile Include="SInventory_Entities\OrderInfoDetail.cs" />
+    <Compile Include="SInventory_Entities\OrderInfoMaster.cs" />
+    <Compile Include="SInventory_Entities\OrderListMasterDAO.cs" />
+    <Compile Include="SInventory_Entities\PackSize.cs" />
+    <Compile Include="SInventory_Entities\ProductDiscount.cs" />
+    <Compile Include="SInventory_Entities\ProductSQ.cs" />
+    <Compile Include="SInventory_Entities\ProType.cs" />
+    <Compile Include="SInventory_Entities\Requesition.cs" />
+    <Compile Include="SInventory_Entities\RequsitionChild.cs" />
+    <Compile Include="SInventory_Entities\SampleStockForDcDetails.cs" />
+    <Compile Include="SInventory_Entities\SampleStockForDcMaster.cs" />
+    <Compile Include="SInventory_Entities\SampleStockForWareHouseMaster.cs" />
+    <Compile Include="SInventory_Entities\SampleStockForWHDetails.cs" />
+    <Compile Include="SInventory_Entities\ShippingCartonSize.cs" />
+    <Compile Include="SInventory_Entities\StockConditionFreezeDAO.cs" />
+    <Compile Include="SInventory_Entities\StockConditionPermissionDao.cs" />
+    <Compile Include="SInventory_Entities\StockInTransfar.cs" />
+    <Compile Include="SInventory_Entities\StockUOM.cs" />
+    <Compile Include="SInventory_Entities\SupplierInformation.cs" />
+    <Compile Include="SInventory_Entities\UserCompanyUnit.cs" />
+    <Compile Include="SInventory_Entities\UserCompanyUnitDao.cs" />
+    <Compile Include="SInventory_Entities\UserInformation.cs" />
+    <Compile Include="Panal_Entities\ObjPanal.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SInventory_Entities\AreaInfo.cs" />
+    <Compile Include="SInventory_Entities\CompanyInformation.cs" />
+    <Compile Include="SInventory_Entities\CustomerCategory.cs" />
+    <Compile Include="SInventory_Entities\CustomerMaster.cs" />
+    <Compile Include="SInventory_Entities\Department.cs" />
+    <Compile Include="SInventory_Entities\DistrictInfo.cs" />
+    <Compile Include="SInventory_Entities\MarketInfo.cs" />
+    <Compile Include="SInventory_Entities\MiaInformation.cs" />
+    <Compile Include="SInventory_Entities\MiaTarget.cs" />
+    <Compile Include="SInventory_Entities\Product.cs" />
+    <Compile Include="SInventory_Entities\ProductCategory.cs" />
+    <Compile Include="SInventory_Entities\ProductUnitPrice.cs" />
+    <Compile Include="SInventory_Entities\RegionInfo.cs" />
+    <Compile Include="SInventory_Entities\CompanyUnit.cs" />
+    <Compile Include="SInventory_Entities\WarehouseStockInMasterDao.cs" />
+    <Compile Include="SInventory_Entities\WharehouseStockInDetailsDao.cs" />
+    <Compile Include="SInventory_Entities\WHStockAdjDAO.cs" />
+    <Compile Include="SInventory_Entities\WhStockAdjDetailDAO.cs" />
+    <Compile Include="SInventory_Entities\WhStockConditionFreezeDao.cs" />
+    <Compile Include="SInventory_Entities\WHStockInToCenteralStore.cs" />
+    <Compile Include="SInventory_Entities\WhStoreFreezeDao.cs" />
+    <Compile Include="SInventory_Entities\ZoneInfo.cs" />
+    <Compile Include="SubDepot_DAO\ProductType.cs" />
+    <Compile Include="SubDepot_DAO\SubDepoAdjustDetailDAO.cs" />
+    <Compile Include="SubDepot_DAO\SubDepoAdjustMentDAO.cs" />
+    <Compile Include="SubDepot_DAO\SubdepotStockOutDetailsDao.cs" />
+    <Compile Include="SubDepot_DAO\SubdepotStockOutMasterDao.cs" />
+    <Compile Include="Target_DAO\ProductWiseTargetDAO.cs" />
+    <Compile Include="Target_DAO\TargetDAO.cs" />
+    <Compile Include="Thana_DAO\ThanaDao.cs" />
+    <Compile Include="Transer_DAO\MarketStructureTranferDAO.cs" />
+    <Compile Include="UserRoleDAO\ApprovalMapMaster.cs" />
+    <Compile Include="UserRoleDAO\MenuRoleDAO.cs" />
+    <Compile Include="UserRoleDAO\MenuRoleMasterDAO.cs" />
+    <Compile Include="UserRoleDAO\UserRoleDAO.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

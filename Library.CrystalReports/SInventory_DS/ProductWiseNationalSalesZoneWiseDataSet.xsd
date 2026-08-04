@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ProductWiseNationalSalesZoneWiseDataSet" targetNamespace="http://tempuri.org/ProductWiseNationalSalesZoneWiseDataSet.xsd" xmlns:mstns="http://tempuri.org/ProductWiseNationalSalesZoneWiseDataSet.xsd" xmlns="http://tempuri.org/ProductWiseNationalSalesZoneWiseDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="ProductWiseNationalSalesZoneWiseDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="ProductWiseNationalSalesZoneWiseDataSet" msprop:Generator_UserDSName="ProductWiseNationalSalesZoneWiseDataSet">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="ProductWiseNationalSalesReportZoneWiseDataTable" msprop:Generator_TableClassName="ProductWiseNationalSalesReportZoneWiseDataTableDataTable" msprop:Generator_TableVarName="tableProductWiseNationalSalesReportZoneWiseDataTable" msprop:Generator_TablePropName="ProductWiseNationalSalesReportZoneWiseDataTable" msprop:Generator_RowDeletingName="ProductWiseNationalSalesReportZoneWiseDataTableRowDeleting" msprop:Generator_RowChangingName="ProductWiseNationalSalesReportZoneWiseDataTableRowChanging" msprop:Generator_RowEvHandlerName="ProductWiseNationalSalesReportZoneWiseDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="ProductWiseNationalSalesReportZoneWiseDataTableRowDeleted" msprop:Generator_UserTableName="ProductWiseNationalSalesReportZoneWiseDataTable" msprop:Generator_RowChangedName="ProductWiseNationalSalesReportZoneWiseDataTableRowChanged" msprop:Generator_RowEvArgName="ProductWiseNationalSalesReportZoneWiseDataTableRowChangeEvent" msprop:Generator_RowClassName="ProductWiseNationalSalesReportZoneWiseDataTableRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ProductCode" msprop:Generator_ColumnVarNameInTable="columnProductCode" msprop:Generator_ColumnPropNameInRow="ProductCode" msprop:Generator_ColumnPropNameInTable="ProductCodeColumn" msprop:Generator_UserColumnName="ProductCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ProductName" msprop:Generator_ColumnVarNameInTable="columnProductName" msprop:Generator_ColumnPropNameInRow="ProductName" msprop:Generator_ColumnPropNameInTable="ProductNameColumn" msprop:Generator_UserColumnName="ProductName" type="xs:string" minOccurs="0" />
+              <xs:element name="PackSize" msprop:Generator_ColumnVarNameInTable="columnPackSize" msprop:Generator_ColumnPropNameInRow="PackSize" msprop:Generator_ColumnPropNameInTable="PackSizeColumn" msprop:Generator_UserColumnName="PackSize" type="xs:string" minOccurs="0" />
+              <xs:element name="DeliveryTotal-KL-100" msprop:Generator_ColumnVarNameInTable="_columnDeliveryTotal_KL_100" msprop:Generator_ColumnPropNameInRow="_DeliveryTotal_KL_100" msprop:Generator_ColumnPropNameInTable="_DeliveryTotal_KL_100Column" msprop:Generator_UserColumnName="DeliveryTotal-KL-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="SaleValue-KL-100" msprop:Generator_ColumnVarNameInTable="_columnSaleValue_KL_100" msprop:Generator_ColumnPropNameInRow="_SaleValue_KL_100" msprop:Generator_ColumnPropNameInTable="_SaleValue_KL_100Column" msprop:Generator_UserColumnName="SaleValue-KL-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="DeliveryTotal-BG-100" msprop:Generator_ColumnVarNameInTable="_columnDeliveryTotal_BG_100" msprop:Generator_ColumnPropNameInRow="_DeliveryTotal_BG_100" msprop:Generator_ColumnPropNameInTable="_DeliveryTotal_BG_100Column" msprop:Generator_UserColumnName="DeliveryTotal-BG-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="SaleValue-BG-100" msprop:Generator_ColumnVarNameInTable="_columnSaleValue_BG_100" msprop:Generator_ColumnPropNameInRow="_SaleValue_BG_100" msprop:Generator_ColumnPropNameInTable="_SaleValue_BG_100Column" msprop:Generator_UserColumnName="SaleValue-BG-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="DeliveryTotal-SL-100" msprop:Generator_ColumnVarNameInTable="_columnDeliveryTotal_SL_100" msprop:Generator_ColumnPropNameInRow="_DeliveryTotal_SL_100" msprop:Generator_ColumnPropNameInTable="_DeliveryTotal_SL_100Column" msprop:Generator_UserColumnName="DeliveryTotal-SL-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="SaleValue-SL-100" msprop:Generator_ColumnVarNameInTable="_columnSaleValue_SL_100" msprop:Generator_ColumnPropNameInRow="_SaleValue_SL_100" msprop:Generator_ColumnPropNameInTable="_SaleValue_SL_100Column" msprop:Generator_UserColumnName="SaleValue-SL-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="DeliveryTotal-CM-100" msprop:Generator_ColumnVarNameInTable="_columnDeliveryTotal_CM_100" msprop:Generator_ColumnPropNameInRow="_DeliveryTotal_CM_100" msprop:Generator_ColumnPropNameInTable="_DeliveryTotal_CM_100Column" msprop:Generator_UserColumnName="DeliveryTotal-CM-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="SaleValue-CM-100" msprop:Generator_ColumnVarNameInTable="_columnSaleValue_CM_100" msprop:Generator_ColumnPropNameInRow="_SaleValue_CM_100" msprop:Generator_ColumnPropNameInTable="_SaleValue_CM_100Column" msprop:Generator_UserColumnName="SaleValue-CM-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="DeliveryTotal-DK-100" msprop:Generator_ColumnVarNameInTable="_columnDeliveryTotal_DK_100" msprop:Generator_ColumnPropNameInRow="_DeliveryTotal_DK_100" msprop:Generator_ColumnPropNameInTable="_DeliveryTotal_DK_100Column" msprop:Generator_UserColumnName="DeliveryTotal-DK-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="SaleValue-DK-100" msprop:Generator_ColumnVarNameInTable="_columnSaleValue_DK_100" msprop:Generator_ColumnPropNameInRow="_SaleValue_DK_100" msprop:Generator_ColumnPropNameInTable="_SaleValue_DK_100Column" msprop:Generator_UserColumnName="SaleValue-DK-100" type="xs:decimal" minOccurs="0" />
+              <xs:element name="DeliveryTotalMonth" msprop:Generator_ColumnVarNameInTable="columnDeliveryTotalMonth" msprop:Generator_ColumnPropNameInRow="DeliveryTotalMonth" msprop:Generator_ColumnPropNameInTable="DeliveryTotalMonthColumn" msprop:Generator_UserColumnName="DeliveryTotalMonth" type="xs:decimal" minOccurs="0" />
+              <xs:element name="SaleValueMonth" msprop:Generator_ColumnVarNameInTable="columnSaleValueMonth" msprop:Generator_ColumnPropNameInRow="SaleValueMonth" msprop:Generator_ColumnPropNameInTable="SaleValueMonthColumn" msprop:Generator_UserColumnName="SaleValueMonth" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ContributionPercent" msprop:Generator_ColumnVarNameInTable="columnContributionPercent" msprop:Generator_ColumnPropNameInRow="ContributionPercent" msprop:Generator_ColumnPropNameInTable="ContributionPercentColumn" msprop:Generator_UserColumnName="ContributionPercent" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

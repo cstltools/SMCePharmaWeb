@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="CWMonthlyInventoryReport" targetNamespace="http://tempuri.org/CWMonthlyInventoryReport.xsd" xmlns:mstns="http://tempuri.org/CWMonthlyInventoryReport.xsd" xmlns="http://tempuri.org/CWMonthlyInventoryReport.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="CWMonthlyInventoryReport" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="CWMonthlyInventoryReport" msprop:Generator_UserDSName="CWMonthlyInventoryReport">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="CWMonthlyInventoryReportDataTable" msprop:Generator_TableClassName="CWMonthlyInventoryReportDataTableDataTable" msprop:Generator_TableVarName="tableCWMonthlyInventoryReportDataTable" msprop:Generator_TablePropName="CWMonthlyInventoryReportDataTable" msprop:Generator_RowDeletingName="CWMonthlyInventoryReportDataTableRowDeleting" msprop:Generator_RowChangingName="CWMonthlyInventoryReportDataTableRowChanging" msprop:Generator_RowEvHandlerName="CWMonthlyInventoryReportDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="CWMonthlyInventoryReportDataTableRowDeleted" msprop:Generator_UserTableName="CWMonthlyInventoryReportDataTable" msprop:Generator_RowChangedName="CWMonthlyInventoryReportDataTableRowChanged" msprop:Generator_RowEvArgName="CWMonthlyInventoryReportDataTableRowChangeEvent" msprop:Generator_RowClassName="CWMonthlyInventoryReportDataTableRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ProductCode" msprop:Generator_ColumnVarNameInTable="columnProductCode" msprop:Generator_ColumnPropNameInRow="ProductCode" msprop:Generator_ColumnPropNameInTable="ProductCodeColumn" msprop:Generator_UserColumnName="ProductCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ProductName" msprop:Generator_ColumnVarNameInTable="columnProductName" msprop:Generator_ColumnPropNameInRow="ProductName" msprop:Generator_ColumnPropNameInTable="ProductNameColumn" msprop:Generator_UserColumnName="ProductName" type="xs:string" minOccurs="0" />
+              <xs:element name="BaseUnit" msprop:Generator_ColumnVarNameInTable="columnBaseUnit" msprop:Generator_ColumnPropNameInRow="BaseUnit" msprop:Generator_ColumnPropNameInTable="BaseUnitColumn" msprop:Generator_UserColumnName="BaseUnit" type="xs:string" minOccurs="0" />
+              <xs:element name="OpeningStock" msprop:Generator_ColumnVarNameInTable="columnOpeningStock" msprop:Generator_ColumnPropNameInRow="OpeningStock" msprop:Generator_ColumnPropNameInTable="OpeningStockColumn" msprop:Generator_UserColumnName="OpeningStock" type="xs:string" minOccurs="0" />
+              <xs:element name="ReceiveFromProduction" msprop:Generator_ColumnVarNameInTable="columnReceiveFromProduction" msprop:Generator_ColumnPropNameInRow="ReceiveFromProduction" msprop:Generator_ColumnPropNameInTable="ReceiveFromProductionColumn" msprop:Generator_UserColumnName="ReceiveFromProduction" type="xs:string" minOccurs="0" />
+              <xs:element name="Barishal" msprop:Generator_ColumnVarNameInTable="columnBarishal" msprop:Generator_ColumnPropNameInRow="Barishal" msprop:Generator_ColumnPropNameInTable="BarishalColumn" msprop:Generator_UserColumnName="Barishal" type="xs:string" minOccurs="0" />
+              <xs:element name="Bogura" msprop:Generator_ColumnVarNameInTable="columnBogura" msprop:Generator_ColumnPropNameInRow="Bogura" msprop:Generator_ColumnPropNameInTable="BoguraColumn" msprop:Generator_UserColumnName="Bogura" type="xs:string" minOccurs="0" />
+              <xs:element name="Chottogram" msprop:Generator_ColumnVarNameInTable="columnChottogram" msprop:Generator_ColumnPropNameInRow="Chottogram" msprop:Generator_ColumnPropNameInTable="ChottogramColumn" msprop:Generator_UserColumnName="Chottogram" type="xs:string" minOccurs="0" />
+              <xs:element name="Cumilla" msprop:Generator_ColumnVarNameInTable="columnCumilla" msprop:Generator_ColumnPropNameInRow="Cumilla" msprop:Generator_ColumnPropNameInTable="CumillaColumn" msprop:Generator_UserColumnName="Cumilla" type="xs:string" minOccurs="0" />
+              <xs:element name="Dhaka_West" msprop:Generator_ColumnVarNameInTable="columnDhaka_West" msprop:Generator_ColumnPropNameInRow="Dhaka_West" msprop:Generator_ColumnPropNameInTable="Dhaka_WestColumn" msprop:Generator_UserColumnName="Dhaka_West" type="xs:string" minOccurs="0" />
+              <xs:element name="Khulna" msprop:Generator_ColumnVarNameInTable="columnKhulna" msprop:Generator_ColumnPropNameInRow="Khulna" msprop:Generator_ColumnPropNameInTable="KhulnaColumn" msprop:Generator_UserColumnName="Khulna" type="xs:string" minOccurs="0" />
+              <xs:element name="Kushtia" msprop:Generator_ColumnVarNameInTable="columnKushtia" msprop:Generator_ColumnPropNameInRow="Kushtia" msprop:Generator_ColumnPropNameInTable="KushtiaColumn" msprop:Generator_UserColumnName="Kushtia" type="xs:string" minOccurs="0" />
+              <xs:element name="Mymensingh" msprop:Generator_ColumnVarNameInTable="columnMymensingh" msprop:Generator_ColumnPropNameInRow="Mymensingh" msprop:Generator_ColumnPropNameInTable="MymensinghColumn" msprop:Generator_UserColumnName="Mymensingh" type="xs:string" minOccurs="0" />
+              <xs:element name="Rajshahi" msprop:Generator_ColumnVarNameInTable="columnRajshahi" msprop:Generator_ColumnPropNameInRow="Rajshahi" msprop:Generator_ColumnPropNameInTable="RajshahiColumn" msprop:Generator_UserColumnName="Rajshahi" type="xs:string" minOccurs="0" />
+              <xs:element name="Rangpur" msprop:Generator_ColumnVarNameInTable="columnRangpur" msprop:Generator_ColumnPropNameInRow="Rangpur" msprop:Generator_ColumnPropNameInTable="RangpurColumn" msprop:Generator_UserColumnName="Rangpur" type="xs:string" minOccurs="0" />
+              <xs:element name="Sylhet" msprop:Generator_ColumnVarNameInTable="columnSylhet" msprop:Generator_ColumnPropNameInRow="Sylhet" msprop:Generator_ColumnPropNameInTable="SylhetColumn" msprop:Generator_UserColumnName="Sylhet" type="xs:string" minOccurs="0" />
+              <xs:element name="OtherIsueSample" msprop:Generator_ColumnVarNameInTable="columnOtherIsueSample" msprop:Generator_ColumnPropNameInRow="OtherIsueSample" msprop:Generator_ColumnPropNameInTable="OtherIsueSampleColumn" msprop:Generator_UserColumnName="OtherIsueSample" type="xs:string" minOccurs="0" />
+              <xs:element name="OtherIsueDamage" msprop:Generator_ColumnVarNameInTable="columnOtherIsueDamage" msprop:Generator_ColumnPropNameInRow="OtherIsueDamage" msprop:Generator_ColumnPropNameInTable="OtherIsueDamageColumn" msprop:Generator_UserColumnName="OtherIsueDamage" type="xs:string" minOccurs="0" />
+              <xs:element name="TotalIssued" msprop:Generator_ColumnVarNameInTable="columnTotalIssued" msprop:Generator_ColumnPropNameInRow="TotalIssued" msprop:Generator_ColumnPropNameInTable="TotalIssuedColumn" msprop:Generator_UserColumnName="TotalIssued" type="xs:string" minOccurs="0" />
+              <xs:element name="ClosingStock" msprop:Generator_ColumnVarNameInTable="columnClosingStock" msprop:Generator_ColumnPropNameInRow="ClosingStock" msprop:Generator_ColumnPropNameInTable="ClosingStockColumn" msprop:Generator_UserColumnName="ClosingStock" type="xs:string" minOccurs="0" />
+              <xs:element name="StockAdjustQuantity" msprop:Generator_ColumnVarNameInTable="columnStockAdjustQuantity" msprop:Generator_ColumnPropNameInRow="StockAdjustQuantity" msprop:Generator_ColumnPropNameInTable="StockAdjustQuantityColumn" msprop:Generator_UserColumnName="StockAdjustQuantity" type="xs:string" minOccurs="0" />
+              <xs:element name="FDate" msprop:Generator_ColumnVarNameInTable="columnFDate" msprop:Generator_ColumnPropNameInRow="FDate" msprop:Generator_ColumnPropNameInTable="FDateColumn" msprop:Generator_UserColumnName="FDate" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="Todate" msprop:Generator_ColumnVarNameInTable="columnTodate" msprop:Generator_ColumnPropNameInRow="Todate" msprop:Generator_ColumnPropNameInTable="TodateColumn" msprop:Generator_UserColumnName="Todate" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="FaridpurDistribution" msprop:Generator_ColumnVarNameInTable="columnFaridpurDistribution" msprop:Generator_ColumnPropNameInRow="FaridpurDistribution" msprop:Generator_ColumnPropNameInTable="FaridpurDistributionColumn" msprop:Generator_UserColumnName="FaridpurDistribution" type="xs:string" minOccurs="0" />
+              <xs:element name="HeadOffice" msprop:Generator_ColumnVarNameInTable="columnHeadOffice" msprop:Generator_ColumnPropNameInRow="HeadOffice" msprop:Generator_ColumnPropNameInTable="HeadOfficeColumn" msprop:Generator_UserColumnName="HeadOffice" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

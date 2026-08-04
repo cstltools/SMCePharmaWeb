@@ -1,0 +1,113 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="ProductCostPriceViewer.aspx.cs" Inherits="SInventory_RPTVIEW_ProductCostPriceViewer" %>
+
+<%@ Register assembly="CrystalDecisions.Web, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304" namespace="CrystalDecisions.Web" tagprefix="CR" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title>Edit</title>
+    <link href="../css/custom.css" rel="stylesheet" type="text/css" />
+     <link rel="stylesheet" href="../css/style.css" type="text/css">
+    <link rel="stylesheet" href="../css/colors/blue.css" id="colors" type="text/css">
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div>
+        <div>
+            <asp:ScriptManager ID="ScriptManager1" runat="server">
+        </asp:ScriptManager>
+    <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+        <ContentTemplate>
+            <div>
+                <table width="100%" class="TableWorkArea">
+                    <tr>
+                        <td colspan="6" class="TableHeading">
+                            Product Cost Price Report
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="TDLeft">
+                            &nbsp;
+                        </td>
+                        <td width="20%" class="TDRight">
+                        </td>
+                        <td width="13%" class="TDLeft">
+                        </td>
+                        <td width="20%" class="TDRight">
+                            <asp:Button ID="closeButton" runat="server" 
+                                Text="Close" onclick="closeButton_Click" />
+                        </td>
+                        <td width="13%" class="TDLeft">
+                        </td>
+                        <td width="20%" class="TDRight">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="TDLeft">
+                            &nbsp;
+                        </td>
+                        <td width="20%" class="TDRight">
+                            &nbsp;
+                        </td>
+                        <td width="13%" class="TDLeft" >
+                            &nbsp;
+                        </td>
+                         <td width="20%" class="TDRight">
+                            &nbsp;
+                             <asp:Label ID="MessageLabel" runat="server"></asp:Label>
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            &nbsp;
+                        </td>
+                        <td width="20%" class="TDRight">
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="TDLeft" colspan="6">
+                           <div style="overflow: scroll; height: auto;">
+
+
+                               <CR:CrystalReportViewer ID="crvProductCostPriceRpt" runat="server" 
+                                   AutoDataBind="true" EnableDatabaseLogonPrompt="False" 
+                                   EnableParameterPrompt="False" ReuseParameterValuesOnRefresh="True" 
+                                   ToolPanelView="None"  />
+
+                            </div>
+                        </td>
+                       
+                    </tr>
+                   
+                    <tr>
+                        <td width="13%" class="TDLeft">
+                            &nbsp;
+                        </td>
+                        <td width="20%" class="TDRight">
+                            &nbsp;
+                        </td>
+                        <td width="13%" class="TDLeft" >
+                            &nbsp;
+                        </td>
+                         <td width="20%" class="TDRight">
+                            &nbsp;
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            &nbsp;
+                        </td>
+                        <td width="20%" class="TDRight">
+                            &nbsp;
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+
+    </div>
+
+    </div>
+    </form>
+</body>
+</html>

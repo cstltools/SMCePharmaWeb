@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ProductWiseNationalSalesReportDataSet" targetNamespace="http://tempuri.org/ProductWiseNationalSalesReportDataSet.xsd" xmlns:mstns="http://tempuri.org/ProductWiseNationalSalesReportDataSet.xsd" xmlns="http://tempuri.org/ProductWiseNationalSalesReportDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="ProductWiseNationalSalesReportDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="ProductWiseNationalSalesReportDataSet" msprop:Generator_UserDSName="ProductWiseNationalSalesReportDataSet">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="ProductWiseNationalSalesReportDataTable" msprop:Generator_TableClassName="ProductWiseNationalSalesReportDataTableDataTable" msprop:Generator_TableVarName="tableProductWiseNationalSalesReportDataTable" msprop:Generator_RowChangedName="ProductWiseNationalSalesReportDataTableRowChanged" msprop:Generator_TablePropName="ProductWiseNationalSalesReportDataTable" msprop:Generator_RowDeletingName="ProductWiseNationalSalesReportDataTableRowDeleting" msprop:Generator_RowChangingName="ProductWiseNationalSalesReportDataTableRowChanging" msprop:Generator_RowEvHandlerName="ProductWiseNationalSalesReportDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="ProductWiseNationalSalesReportDataTableRowDeleted" msprop:Generator_RowClassName="ProductWiseNationalSalesReportDataTableRow" msprop:Generator_UserTableName="ProductWiseNationalSalesReportDataTable" msprop:Generator_RowEvArgName="ProductWiseNationalSalesReportDataTableRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ProductCode" msprop:Generator_ColumnVarNameInTable="columnProductCode" msprop:Generator_ColumnPropNameInRow="ProductCode" msprop:Generator_ColumnPropNameInTable="ProductCodeColumn" msprop:Generator_UserColumnName="ProductCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ProductName" msprop:Generator_ColumnVarNameInTable="columnProductName" msprop:Generator_ColumnPropNameInRow="ProductName" msprop:Generator_ColumnPropNameInTable="ProductNameColumn" msprop:Generator_UserColumnName="ProductName" type="xs:string" minOccurs="0" />
+              <xs:element name="PackSize" msprop:Generator_ColumnVarNameInTable="columnPackSize" msprop:Generator_ColumnPropNameInRow="PackSize" msprop:Generator_ColumnPropNameInTable="PackSizeColumn" msprop:Generator_UserColumnName="PackSize" type="xs:string" minOccurs="0" />
+              <xs:element name="DeliveryTotal3" msprop:Generator_ColumnVarNameInTable="columnDeliveryTotal3" msprop:Generator_ColumnPropNameInRow="DeliveryTotal3" msprop:Generator_ColumnPropNameInTable="DeliveryTotal3Column" msprop:Generator_UserColumnName="DeliveryTotal3" type="xs:decimal" minOccurs="0" />
+              <xs:element name="PreviousMonthSaleValue3" msprop:Generator_ColumnVarNameInTable="columnPreviousMonthSaleValue3" msprop:Generator_ColumnPropNameInRow="PreviousMonthSaleValue3" msprop:Generator_ColumnPropNameInTable="PreviousMonthSaleValue3Column" msprop:Generator_UserColumnName="PreviousMonthSaleValue3" type="xs:decimal" minOccurs="0" />
+              <xs:element name="DeliveryTotal2" msprop:Generator_ColumnVarNameInTable="columnDeliveryTotal2" msprop:Generator_ColumnPropNameInRow="DeliveryTotal2" msprop:Generator_ColumnPropNameInTable="DeliveryTotal2Column" msprop:Generator_UserColumnName="DeliveryTotal2" type="xs:decimal" minOccurs="0" />
+              <xs:element name="PreviousMonthSaleValue2" msprop:Generator_ColumnVarNameInTable="columnPreviousMonthSaleValue2" msprop:Generator_ColumnPropNameInRow="PreviousMonthSaleValue2" msprop:Generator_ColumnPropNameInTable="PreviousMonthSaleValue2Column" msprop:Generator_UserColumnName="PreviousMonthSaleValue2" type="xs:decimal" minOccurs="0" />
+              <xs:element name="DeliveryTotal1" msprop:Generator_ColumnVarNameInTable="columnDeliveryTotal1" msprop:Generator_ColumnPropNameInRow="DeliveryTotal1" msprop:Generator_ColumnPropNameInTable="DeliveryTotal1Column" msprop:Generator_UserColumnName="DeliveryTotal1" type="xs:decimal" minOccurs="0" />
+              <xs:element name="PreviousMonthSaleValue1" msprop:Generator_ColumnVarNameInTable="columnPreviousMonthSaleValue1" msprop:Generator_ColumnPropNameInRow="PreviousMonthSaleValue1" msprop:Generator_ColumnPropNameInTable="PreviousMonthSaleValue1Column" msprop:Generator_UserColumnName="PreviousMonthSaleValue1" type="xs:decimal" minOccurs="0" />
+              <xs:element name="DeliveryTotal" msprop:Generator_ColumnVarNameInTable="columnDeliveryTotal" msprop:Generator_ColumnPropNameInRow="DeliveryTotal" msprop:Generator_ColumnPropNameInTable="DeliveryTotalColumn" msprop:Generator_UserColumnName="DeliveryTotal" type="xs:decimal" minOccurs="0" />
+              <xs:element name="CurrentMonthSaleValue" msprop:Generator_ColumnVarNameInTable="columnCurrentMonthSaleValue" msprop:Generator_ColumnPropNameInRow="CurrentMonthSaleValue" msprop:Generator_ColumnPropNameInTable="CurrentMonthSaleValueColumn" msprop:Generator_UserColumnName="CurrentMonthSaleValue" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ContributionPercent" msprop:Generator_ColumnVarNameInTable="columnContributionPercent" msprop:Generator_ColumnPropNameInRow="ContributionPercent" msprop:Generator_ColumnPropNameInTable="ContributionPercentColumn" msprop:Generator_UserColumnName="ContributionPercent" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

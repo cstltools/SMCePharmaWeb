@@ -1,0 +1,933 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/NewMasterPage.master" AutoEventWireup="true" CodeFile="DelivaryInvoiceCreationForCustomerByOrderAuto.aspx.cs" Inherits="SInventory_UI_DelivaryInvoiceCreationForCustomerByOrderAuto" %>
+
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    
+
+
+
+
+
+      <asp:UpdatePanel ID="UpdatePanel4" runat="server">
+        <ContentTemplate>
+             <div class="page-wrapper">
+        <div class="page-content">
+            <!--breadcrumb-->
+            <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+                <div class="breadcrumb-title pe-3"><i class="bx bx-customize"></i> Invoice </div>
+
+                <div class="ms-auto">
+                    <div class="btn-group">
+                        
+ <asp:LinkButton ID="viewLinkButton"    class="btn btn-sm btn-sm btn-outline-info" 
+                                OnClick="backLinkButton_Click" runat="server"> <i class="fa fa-backward"></i>&nbsp;Back to List</asp:LinkButton>
+
+                    
+                    </div>
+                </div>
+            </div>
+            <!--end breadcrumb-->
+            <div class="row">
+                <div class="col">
+
+                    <div class="card border-top border-0 border-4 border-success">
+                        <div class="card-body">
+
+
+                             <script type="text/javascript">
+                                 function pageLoad() {
+                                     $('.datepicker').pickadate({
+                                         selectMonths: true,
+                                         selectYears: true
+                                     })
+                                     $('.mySelect2').select2({
+                                         theme: 'bootstrap4',
+                                         width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                                         placeholder: $(this).data('placeholder'),
+                                         allowClear: Boolean($(this).data('allow-clear')),
+                                     });
+                                 }
+                             </script>
+
+
+                    <div class="card-body">
+                        <br/>  
+                                  <div class="form-group row">
+                                    <label for="mainName" class="col-sm-2 col-form-label">  Customer Code:</label>
+
+                                    <div class="col-sm-2">
+                              <asp:TextBox ID="custCodeTextBox" runat="server" AutoPostBack="True" 
+                                   CssClass="form-control form-control-sm "  ontextchanged="custCodeTextBox_TextChanged" ></asp:TextBox>
+
+                                    </div>
+                                      
+                                        <label for="mainName" class="col-sm-2 col-form-label"> Customer Name:</label>
+
+                                    <div class="col-sm-2">
+                                       <asp:TextBox ID="custNameTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                AutoPostBack="True" ontextchanged="custNameTextBox_TextChanged"></asp:TextBox>
+                            
+                            <asp:AutoCompleteExtender ID="custNameTextBox_AutoCompleteExtender" runat="server"
+                                         DelimiterCharacters="" EnableCaching="true"
+                                        Enabled="True" MinimumPrefixLength="1" CompletionSetCount="10"
+                                        ServiceMethod="GetCustomer" ServicePath="SInventoryWebService.asmx"  TargetControlID="custNameTextBox" 
+                                        UseContextKey="True"
+                                        CompletionListCssClass="autocomplete_completionListElement" 
+                                        CompletionListItemCssClass="autocomplete_listItem" 
+                                        CompletionListHighlightedItemCssClass="autocomplete_highlightedListItem"
+                                        ShowOnlyCurrentWordInCompletionListItem="true"
+                                        >
+                                    </asp:AutoCompleteExtender>
+                             
+                                       
+
+
+                                    </div>
+                                      
+                                      
+                                        <label for="mainName" class="col-sm-2 col-form-label">  	Customer Address:</label>
+
+                                    <div class="col-sm-2">
+                                       <asp:TextBox ID="custAddressTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                ReadOnly="True"></asp:TextBox>
+
+
+                                    </div>
+
+                                    </div>
+                        
+                        
+                        
+                             <div class="form-group row">
+                                    <label for="mainName" class="col-sm-2 col-form-label">  Salse Center:</label>
+
+                                    <div class="col-sm-2">
+                                    
+                               <asp:TextBox ID="comUnitNameTextBox" runat="server"  CssClass="form-control form-control-sm "   
+                                ReadOnly="True"></asp:TextBox>
+
+
+                                    </div>
+                                      
+                                        <label for="mainName" class="col-sm-2 col-form-label">MIO Code:</label>
+
+                                    <div class="col-sm-2">
+                                      <asp:TextBox ID="miaCodeTextBox" runat="server"  CssClass="form-control form-control-sm "    
+                                ReadOnly="True"></asp:TextBox>
+
+
+                                    </div>
+                                      
+                                          <label for="mainName" class="col-sm-2 col-form-label">	MIO Name:</label>
+
+                                    <div class="col-sm-2">
+                                                               <asp:TextBox ID="miaNameTextBox" runat="server"  CssClass="form-control form-control-sm "    
+                                ReadOnly="True"></asp:TextBox>
+
+                                    </div>
+                                      
+                                      
+                                   
+                                </div>  
+                        
+                            <div class="form-group row">
+                                    <label for="mainName" class="col-sm-2 col-form-label">  FE Name:</label>
+
+                                    <div class="col-sm-2">
+                                    
+                                <asp:TextBox ID="districtNameTextBox" runat="server" CssClass="form-control form-control-sm " 
+                                ReadOnly="True"></asp:TextBox>
+
+
+                                    </div>
+                                      
+                                        <label for="mainName" class="col-sm-2 col-form-label">Territory Name:</label>
+
+                                    <div class="col-sm-2">
+                                      <asp:TextBox ID="areaNameTextBox" runat="server" CssClass="form-control form-control-sm " 
+                                ReadOnly="True"></asp:TextBox>
+
+
+                                    </div>
+                                      
+                                          <label for="mainName" class="col-sm-2 col-form-label">	Merket:</label>
+
+                                    <div class="col-sm-2">
+                                                           <asp:TextBox ID="marketNameTextBox" runat="server" CssClass="form-control form-control-sm " 
+                                ReadOnly="True"></asp:TextBox>
+
+                                    </div>
+                                      
+                                      
+                                   
+                                </div>  
+                        
+                        
+                          <div class="form-group row">
+                                    <label for="mainName" class="col-sm-2 col-form-label">   Customer Category:</label>
+
+                                    <div class="col-sm-2">
+                                    
+                                <asp:TextBox ID="custCategoryTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                ReadOnly="True"></asp:TextBox>
+
+
+                                    </div>
+                                      
+                                        <label for="mainName" class="col-sm-2 col-form-label"> Order No:</label>
+
+                                    <div class="col-sm-2">
+                                     <asp:TextBox ID="orderNoTextBox" runat="server"    CssClass="form-control form-control-sm " ></asp:TextBox>
+
+
+                                    </div>
+                                      
+                                          <label for="mainName" class="col-sm-2 col-form-label">	 Order Date:</label>
+
+                                    <div class="col-sm-2">
+                                                     <asp:TextBox ID="orderDateTextBox" runat="server" CssClass="form-control form-control-sm  datepicker "></asp:TextBox>
+                            
+                          <%--   <asp:CalendarExtender ID="orderDate" runat="server" Format="dd-MMM-yyyy" CssClass="MyCalendar" TargetControlID="orderDateTextBox"
+                                PopupButtonID="orderDateTextBox">
+                            </asp:CalendarExtender>--%>
+                                    </div>
+                                      
+                                      
+                                   
+                                </div>  
+                        
+                        
+                          <div class="form-group row">
+                                    <label for="mainName" class="col-sm-2 col-form-label">    Invoice Date:</label>
+
+                                    <div class="col-sm-2">
+                                    
+                           <asp:TextBox ID="invDateTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                ReadOnly="True"></asp:TextBox>
+
+                                    </div>
+                                      
+                                        <label for="mainName" class="col-sm-2 col-form-label"> Delivery Person Mob. No:</label>
+
+                                    <div class="col-sm-2">
+                                    <asp:TextBox ID="deliverypersonNameTextBox" runat="server"    CssClass="form-control form-control-sm " ></asp:TextBox>
+
+
+                                    </div>
+                                      
+                                          <label for="mainName" class="col-sm-2 col-form-label">	 Delivery Person Name:</label>
+
+                                    <div class="col-sm-2">
+                                                         <asp:TextBox ID="deliverypersonMobileTextBox" runat="server"    CssClass="form-control form-control-sm " ></asp:TextBox>
+                                    </div>
+                                      
+                                      
+                                   
+                                </div>  
+                        
+                        
+                         <div class="form-group row">
+                                    <label for="mainName" class="col-sm-2 col-form-label">    Remarks</label>
+
+                                    <div class="col-sm-2">
+                                    
+                     <asp:TextBox ID="remarksTextBox" runat="server"    CssClass="form-control form-control-sm " ></asp:TextBox>
+
+                                    </div>
+                                      
+                                        <label for="mainName" class="col-sm-2 col-form-label">  </label>
+
+                                    <div class="col-sm-2">
+                                   
+
+                                    </div>
+                                      
+                                          <label for="mainName" class="col-sm-2 col-form-label"> </label>
+
+                                    <div class="col-sm-2">
+                                                      
+                                    </div>
+                                      
+                                      
+                                   
+                                </div>  
+                         <script type="text/javascript">
+                             function pageLoad() {
+                                 $('.datepicker').pickadate({
+                                     selectMonths: true,
+                                     selectYears: true
+                                 })
+                                 $('.mySelect2').select2({
+                                     theme: 'bootstrap4',
+                                     width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                                     placeholder: $(this).data('placeholder'),
+                                     allowClear: Boolean($(this).data('allow-clear')),
+                                 });
+                             }
+                         </script>
+                            <div class="row">
+      <div class="table-responsive" id="MainGradeDiv">
+                <asp:GridView ID="gridLineItemGridView" runat="server" 
+                                AutoGenerateColumns="False"     CssClass="table table-bordered  text-center thead-dark"  OnPreRender="gv_DocumentUpload_PreRender"   
+                                DataKeyNames="InvoiceDetailId,DCStoreId,Campaign">
+                                <Columns>
+                                    <asp:TemplateField HeaderText="SL" Visible="False">
+                                        <ItemTemplate>
+                                            <asp:Label ID="slLabel" runat="server" Text= <%# Eval("SL")%>></asp:Label>
+                                            <asp:ImageButton ID="addImageButton" runat="server" 
+                                                ImageUrl="~/images/lineAdd.png" onclick="addImageButton_Click" />
+                                            <asp:ImageButton ID="removeImageButton" runat="server" 
+                                                ImageUrl="~/images/lineDelete.png" onclick="removeImageButton_Click" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="Code">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="codeTextBox" runat="server" Text= <%# Eval("ProductCode")%> 
+                                                   CssClass="form-control form-control-sm "  AutoPostBack="True" 
+                                                ontextchanged="codeTextBox_TextChanged"></asp:TextBox>
+                                            <asp:HiddenField ID="orderdetailIdHiddenField" runat="server" Value=<%# Eval("OrderDetailsId")%> />    
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="Product Name">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="nameTextBox" runat="server"  TextMode="MultiLine" Rows="2"  CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("ProductName")%> AutoPostBack="True" 
+                                                ontextchanged="nameTextBox_TextChanged" ></asp:TextBox>
+                                                <asp:AutoCompleteExtender ID="nameTextBox_AutoCompleteExtender" runat="server"
+                                         DelimiterCharacters="" EnableCaching="true"
+                                        Enabled="True" MinimumPrefixLength="1" CompletionSetCount="10"
+                                        ServiceMethod="GetProduct2" ServicePath="SInventoryWebService.asmx"  TargetControlID="nameTextBox" 
+                                        UseContextKey="True"
+                                        CompletionListCssClass="autocomplete_completionListElement" 
+                                        CompletionListItemCssClass="autocomplete_listItem" 
+                                        CompletionListHighlightedItemCssClass="autocomplete_highlightedListItem"
+                                        ShowOnlyCurrentWordInCompletionListItem="true"
+                                        >
+                                    </asp:AutoCompleteExtender>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="CStock" Visible="False">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="currentStockTextBox" runat="server" 
+                                                   CssClass="form-control form-control-sm "  Text= <%# Eval("StockQty")%> ReadOnly="True"></asp:TextBox>
+                                                <asp:FilteredTextBoxExtender ID="fcurrentStockTextBox" runat="server"
+                                                    TargetControlID="currentStockTextBox"         
+                                                    FilterType="Custom, Numbers"
+                                                    ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="UP">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="unitPriceTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("UnitPrice")%> ReadOnly="True"></asp:TextBox>
+                                                              <asp:FilteredTextBoxExtender ID="funitPriceTextBox" runat="server"
+                                                    TargetControlID="unitPriceTextBox"         
+                                                    FilterType="Custom, Numbers"
+                                                    ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="UVAT">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="upVatTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("UnitVAT")%> ReadOnly="True"></asp:TextBox>
+                                            <asp:FilteredTextBoxExtender ID="fupVatTextBox" runat="server"
+                                                    TargetControlID="upVatTextBox"         
+                                                    FilterType="Custom, Numbers"
+                                                    ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="Qty">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="qtyTextBox" runat="server"    CssClass="form-control form-control-sm "  ReadOnly="True"
+                                                Text= <%# Eval("Quantity")%> AutoPostBack="True" 
+                                                ontextchanged="qtyTextBox_TextChanged"></asp:TextBox>
+                                                   <asp:FilteredTextBoxExtender ID="fqtyTextBox" runat="server"
+                                                    TargetControlID="qtyTextBox"         
+                                                    FilterType="Custom, Numbers"
+                                                    ValidChars="." />
+                                                
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="TP">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="tpTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("TotalPrice")%> ReadOnly="True"></asp:TextBox>
+                                             <asp:FilteredTextBoxExtender ID="ftpTextBox" runat="server"
+                                                    TargetControlID="tpTextBox"         
+                                                    FilterType="Custom, Numbers"
+                                                    ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    
+                                    <asp:TemplateField HeaderText="DP">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="dpTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("DiscountPercentage")%> ReadOnly="True"></asp:TextBox>
+                                            <asp:FilteredTextBoxExtender ID="fdpTextBox" runat="server"
+                                                        TargetControlID="dpTextBox"         
+                                                        FilterType="Custom, Numbers"
+                                                        ValidChars="." />
+
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="DAmt">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="dpAmtTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("DiscountAmount")%> ReadOnly="True"></asp:TextBox>
+                                             <asp:FilteredTextBoxExtender ID="fdpAmtTextBox" runat="server"
+                                                        TargetControlID="dpAmtTextBox"         
+                                                        FilterType="Custom, Numbers"
+                                                        ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="SD">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="sdTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("IsCampaignProduct")%> ReadOnly="True"></asp:TextBox>
+                                             <asp:FilteredTextBoxExtender ID="fsdTextBox" runat="server"
+                                                        TargetControlID="sdTextBox"         
+                                                        FilterType="Custom, Numbers"
+                                                        ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="TPVAT">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="tpVatTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("VAT")%> ReadOnly="True"></asp:TextBox>
+                                             <asp:FilteredTextBoxExtender ID="ftpVatTextBox" runat="server"
+                                                        TargetControlID="tpVatTextBox"         
+                                                        FilterType="Custom, Numbers"
+                                                        ValidChars="." />
+
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="NP">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="npTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("NetPrice")%> ReadOnly="True"></asp:TextBox>
+                                             <asp:FilteredTextBoxExtender ID="fnpTextBox" runat="server"
+                                                        TargetControlID="npTextBox"         
+                                                        FilterType="Custom, Numbers"
+                                                        ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="BQty">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="bQtyTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("ISGiftProduct")%> AutoPostBack="True" 
+                                                ontextchanged="bQtyTextBox_TextChanged" ReadOnly="True"></asp:TextBox>
+                                                <asp:FilteredTextBoxExtender ID="fbQtyTextBox" runat="server"
+                                                        TargetControlID="bQtyTextBox"         
+                                                        FilterType="Custom, Numbers"
+                                                        ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="TQty">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="tQtyTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                                Text= <%# Eval("TotalQty")%> ReadOnly="True"></asp:TextBox>
+                                            <asp:FilteredTextBoxExtender ID="ftQtyTextBox" runat="server"
+                                                        TargetControlID="tQtyTextBox"         
+                                                        FilterType="Custom, Numbers"
+                                                        ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="DQty">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="dQtyTextBox" runat="server"    CssClass="form-control form-control-sm "   AutoPostBack="True"
+                                                ontextchanged="dQtyTextBox_TextChanged" Text= <%# Eval("TotalQty")%> ></asp:TextBox>
+                                            <asp:FilteredTextBoxExtender ID="fdQtyTextBox" runat="server"
+                                                        TargetControlID="dQtyTextBox"         
+                                                        FilterType="Custom, Numbers"
+                                                        ValidChars="." />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="Status">
+                                        <ItemTemplate>
+                                            <asp:Label ID="statusLabel" CssClass="badge bg-success" runat="server" ></asp:Label>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:TemplateField HeaderText="Reason">
+                                        <ItemTemplate>
+                                            <asp:DropDownList ID="reasonReturnDropDownList" runat="server"    CssClass="form-control form-control-sm mySelect2"  Enabled="False">
+                                            </asp:DropDownList>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                </Columns>
+                            </asp:GridView>
+
+           </div>
+                                    </div>
+                        
+                        
+                        
+                        
+                                    <br/>
+<div class="row">
+                            <div class="col-4">&nbsp;</div>
+                            <div class="col-6">
+                                <div class="form-group row">
+                                    <label for="mainName" class="col-sm-3 col-form-label"> 	TP Total:</label>
+
+                                    <div class="col-sm-5">
+                                      
+                              <asp:TextBox ID="tpTptalTextBox" runat="server" CssClass="form-control form-control-sm " 
+                                ReadOnly="True"></asp:TextBox>
+                                   
+
+
+                                    </div>
+                                     
+                                </div>  
+                                
+                                
+                                  <div class="form-group row">
+                                    <label for="mainName" class="col-sm-3 col-form-label"> 		Discount Total:</label>
+
+                                    <div class="col-sm-5">
+                                      
+                             <asp:TextBox ID="disTotalTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                ReadOnly="True"></asp:TextBox>
+
+
+                                    </div>
+                                     
+                                </div>  
+                                
+                                
+                                  <div class="form-group row">
+                                    <label for="mainName" class="col-sm-3 col-form-label"> 	Special Discount:</label>
+
+                                    <div class="col-sm-5">
+                                      
+                           <asp:TextBox ID="pdTextBox" runat="server"    CssClass="form-control form-control-sm "  ReadOnly="True"></asp:TextBox>
+
+
+                                    </div>
+                                     
+                                </div>  
+                                
+                                
+                                  <div class="form-group row">
+                                    <label for="mainName" class="col-sm-3 col-form-label"> 	VAT Total:</label>
+
+                                    <div class="col-sm-5">
+                                      
+                            <asp:TextBox ID="vatTotalTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                ReadOnly="True"></asp:TextBox>
+
+
+                                    </div>
+                                     
+                                </div>  
+                                
+                                  <div class="form-group row">
+                                    <label for="mainName" class="col-sm-3 col-form-label"> Grand Total:</label>
+
+                                    <div class="col-sm-5">
+                                      
+                           <asp:TextBox ID="grandTotalTextBox" runat="server"    CssClass="form-control form-control-sm "  
+                                ReadOnly="True"></asp:TextBox>
+                                   
+
+
+                                    </div>
+                                     
+                                </div>  
+                                <div class="form-group row">
+                                    <label for="mainName" class="col-sm-3 col-form-label"></label>
+
+                                    <div class="col-sm-5">
+                                      
+                                        <asp:CheckBox runat="server" ID="autopayment"  Checked="true" Enabled="false"  Text="Auto Payment"/>
+                                   
+
+
+                                    </div>
+                                     
+                                </div>  
+                                
+                                
+                                  
+                                
+                                 
+
+                                </div>
+                        
+
+                                </div>  
+                           <br />
+                        <div class="row">
+                            <div class="col-4">&nbsp;</div>
+                            <div class="col-6">
+
+                                <div class="form-group row">
+                                    <label for="exampleInputUsername2" class="col-sm-3 col-form-label"></label>
+                                    <div class="col-sm-8">
+                                        
+ <asp:LinkButton ID="submitButton" CssClass="btn btnMyDesignSearch   btn-sm" runat="server" OnClick="saveButton_Click"  
+                               OnClientClick="return sweetAlertConfirm_Submit(this);"> <i class="fa fa-check"></i>&nbsp; Invoice Generate</asp:LinkButton>
+                           
+                                         
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-2">&nbsp;</div>
+                        </div>
+                            <br />
+                        
+                        <div class="row">
+                            <div class="col-3">&nbsp;</div>
+                            <div class="col-8">
+                                <div class="form-group row">
+                                    <label for="mainName" class="col-sm-3 col-form-label"> 	 Print Inv No:</label>
+
+                                    <div class="col-sm-5">
+                                      
+                       <asp:TextBox ID="invTextBox" runat="server"    CssClass="form-control form-control-sm " ></asp:TextBox>
+                                   
+
+
+                                    </div>
+                                     <div class="col-sm-2">
+                                     <asp:LinkButton ID="LinkButton1" runat="server"  class="btn btn-sm btn-info"  onclick="printButton_Click" 
+                                  ><i class="fa fa-print"></i>&nbsp; Print</asp:LinkButton>
+                                     </div>
+                                </div>  
+                                </div>
+                            </div>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    
+           
+                                    </div>
+                                    </div>
+     </div>
+    </ContentTemplate>
+            </asp:UpdatePanel>
+
+    <asp:UpdatePanel ID="UpdatePanel1" runat="server" Visible="False">
+        <ContentTemplate>
+            <div>
+                <table width="100%" class="TableWorkArea">
+                    <tr>
+                        <td colspan="6" class="TableHeading">
+                            Invoice</td>
+                    </tr>
+                     <tr>
+                        <td class="TDLeft" width="13%">
+                            <asp:HyperLink ID="HyperLink1" runat="server" NavigateUrl="DelivaryInvoiceCreationAuto.aspx">Back to List</asp:HyperLink>                          
+                        </td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="TDLeft">
+                            Customer Code</td>
+                        <td width="20%" class="TDRight">
+                           
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            CustomerName</td>
+                        <td width="20%" class="TDRight">
+                         
+
+
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            Customer Address</td>
+                        <td width="20%" class="TDRight">
+                          
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="TDLeft">
+                            Salse Center</td>
+                        <td width="20%" class="TDRight">
+                             
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            MIO Code</td>
+                        <td width="20%" class="TDRight">
+                            
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            MIO Name</td>
+                        <td width="20%" class="TDRight">
+                           
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="TDLeft">
+                           FE Name
+                        </td>
+                        <td width="20%" class="TDRight">
+                             
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            Territory Name</td>
+                        <td width="20%" class="TDRight">
+                             
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            Merket</td>
+                        <td width="20%" class="TDRight">
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="TDLeft">
+                            Customer Category</td>
+                        <td width="20%" class="TDRight">
+                         
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            Order No</td>
+                        <td width="20%" class="TDRight">
+                            
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            Order Date</td>
+                        <td width="20%" class="TDRight">
+                           
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="TDLeft">
+                            Invoice Date</td>
+                        <td width="20%" class="TDRight">
+                           
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            Delivery Person Mob.No </td>
+                        <td width="20%" class="TDRight">
+                           
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            Delivery Person Name </td>
+                        <td width="20%" class="TDRight">
+                           
+                       
+                        </td>
+                    </tr>
+                    <tr runat="server" id="asdfs">
+                        <td width="13%" class="TDLeft" >
+                            Remarks</td>
+                        <td width="20%" class="TDRight">
+                           
+                        </td>
+                        <td width="13%" class="TDLeft">
+                            &nbsp;</td>
+                         <td width="20%" class="TDRight">
+                             &nbsp;</td>
+                        <td id="Td1" width="13%" class="TDLeft">
+                            </td>
+                        <td id="Td2" width="20%" class="TDRight" >
+                            
+                        </td>
+                        <td width="13%" class="TDLeft" runat="server" Visible="False">
+                            Payment Type</td>
+                        <td width="20%" class="TDRight" runat="server" Visible="False">
+                            <asp:DropDownList ID="payTypeDDL" runat="server" CssClass="DropDown">
+                            </asp:DropDownList>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            <asp:HiddenField ID="invoiceNoHiddenField" runat="server" />
+                            <asp:HiddenField ID="invoiceHiddenField" runat="server" />
+                            <asp:HiddenField ID="orderIdHiddenField" runat="server" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="TDLeft" width="13%" colspan="6">
+                      
+                            <br>
+                               <br>
+                        </td>
+                        
+                    </tr>
+                     <tr runat="server" Visible="False">
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            TP Total</td>
+                        <td class="TDRight" width="20%">
+                          
+                        </td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            TP Total</td>
+                        <td class="TDRight" width="20%">
+                             <asp:TextBox ID="campaignTPTextBox1" runat="server"    CssClass="form-control form-control-sm "  
+                                ReadOnly="True"></asp:TextBox>
+                        </td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            Discount Total</td>
+                        <td class="TDRight" width="20%">
+                            
+                        </td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            Special Discount</td>
+                        <td class="TDRight" width="20%">
+                          
+                        </td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            VAT Total</td>
+                        <td class="TDRight" width="20%">
+                          
+                        </td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            Grand Total</td>
+                        <td class="TDRight" width="20%">
+                          
+                        </td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            <asp:UpdatePanel ID="UpdatePanel3" runat="server">
+                                <ContentTemplate>
+                                    <asp:Button ID="Button1" runat="server" Text="Invoice Generate" OnClick="saveButton_Click" OnClientClick="return confirm('Are you sure you want to Save Delivery Invoice ?');" />
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                            <asp:UpdateProgress ID="UpdateProgress2" runat="server" AssociatedUpdatePanelID="UpdatePanel3"
+                                DisplayAfter="0" DynamicLayout="true">
+                                <ProgressTemplate>
+                                    <center>
+                                        <asp:Image ID="Img2" runat="server" ImageUrl="~/Images/ajax-loader.gif" />
+                                    </center>
+                                </ProgressTemplate>
+                            </asp:UpdateProgress>
+                        </td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            Print InvNo</td>
+                        <td class="TDRight" width="20%">
+                           
+                        </td>
+                        <td class="TDLeft" width="13%">
+                            <asp:Button ID="printButton" runat="server" onclick="printButton_Click" 
+                                Text="Print" />
+                        </td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="TDLeft" width="13%">
+                             <asp:HiddenField ID="hdCustomerMasterId" runat="server" />
+                             <asp:HiddenField ID="hdComUnitId" runat="server" />
+                           
+                        </td>
+                        <td class="TDRight" width="20%">
+                            <asp:HiddenField ID="hdMiaId" runat="server" />
+                        </td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                        <td class="TDLeft" width="13%">
+                            &nbsp;</td>
+                        <td class="TDRight" width="20%">
+                            &nbsp;</td>
+                    </tr>
+                </table>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
+</asp:Content>
+
+

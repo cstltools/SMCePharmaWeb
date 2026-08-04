@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="AreaWiseMonthlyInventoryReport" targetNamespace="http://tempuri.org/AreaWiseMonthlyInventoryReport.xsd" xmlns:mstns="http://tempuri.org/AreaWiseMonthlyInventoryReport.xsd" xmlns="http://tempuri.org/AreaWiseMonthlyInventoryReport.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="AreaWiseMonthlyInventoryReport" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="AreaWiseMonthlyInventoryReport" msprop:Generator_UserDSName="AreaWiseMonthlyInventoryReport">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="AreaWiseMonthlyInventoryReportDataTable" msprop:Generator_TableClassName="AreaWiseMonthlyInventoryReportDataTableDataTable" msprop:Generator_TableVarName="tableAreaWiseMonthlyInventoryReportDataTable" msprop:Generator_RowChangedName="AreaWiseMonthlyInventoryReportDataTableRowChanged" msprop:Generator_TablePropName="AreaWiseMonthlyInventoryReportDataTable" msprop:Generator_RowDeletingName="AreaWiseMonthlyInventoryReportDataTableRowDeleting" msprop:Generator_RowChangingName="AreaWiseMonthlyInventoryReportDataTableRowChanging" msprop:Generator_RowEvHandlerName="AreaWiseMonthlyInventoryReportDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="AreaWiseMonthlyInventoryReportDataTableRowDeleted" msprop:Generator_RowClassName="AreaWiseMonthlyInventoryReportDataTableRow" msprop:Generator_UserTableName="AreaWiseMonthlyInventoryReportDataTable" msprop:Generator_RowEvArgName="AreaWiseMonthlyInventoryReportDataTableRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ProductCode" msprop:Generator_ColumnVarNameInTable="columnProductCode" msprop:Generator_ColumnPropNameInRow="ProductCode" msprop:Generator_ColumnPropNameInTable="ProductCodeColumn" msprop:Generator_UserColumnName="ProductCode" type="xs:string" minOccurs="0" />
+              <xs:element name="ProductName" msprop:Generator_ColumnVarNameInTable="columnProductName" msprop:Generator_ColumnPropNameInRow="ProductName" msprop:Generator_ColumnPropNameInTable="ProductNameColumn" msprop:Generator_UserColumnName="ProductName" type="xs:string" minOccurs="0" />
+              <xs:element name="BaseUnit" msprop:Generator_ColumnVarNameInTable="columnBaseUnit" msprop:Generator_ColumnPropNameInRow="BaseUnit" msprop:Generator_ColumnPropNameInTable="BaseUnitColumn" msprop:Generator_UserColumnName="BaseUnit" type="xs:string" minOccurs="0" />
+              <xs:element name="OpeningStock" msprop:Generator_ColumnVarNameInTable="columnOpeningStock" msprop:Generator_ColumnPropNameInRow="OpeningStock" msprop:Generator_ColumnPropNameInTable="OpeningStockColumn" msprop:Generator_UserColumnName="OpeningStock" type="xs:string" minOccurs="0" />
+              <xs:element name="ReceiveFromCentralWarehouse" msprop:Generator_ColumnVarNameInTable="columnReceiveFromCentralWarehouse" msprop:Generator_ColumnPropNameInRow="ReceiveFromCentralWarehouse" msprop:Generator_ColumnPropNameInTable="ReceiveFromCentralWarehouseColumn" msprop:Generator_UserColumnName="ReceiveFromCentralWarehouse" type="xs:string" minOccurs="0" />
+              <xs:element name="ReceiveFromAreaOfficeInterTransfer" msprop:Generator_ColumnVarNameInTable="columnReceiveFromAreaOfficeInterTransfer" msprop:Generator_ColumnPropNameInRow="ReceiveFromAreaOfficeInterTransfer" msprop:Generator_ColumnPropNameInTable="ReceiveFromAreaOfficeInterTransferColumn" msprop:Generator_UserColumnName="ReceiveFromAreaOfficeInterTransfer" type="xs:string" minOccurs="0" />
+              <xs:element name="TotalReceived" msprop:Generator_ColumnVarNameInTable="columnTotalReceived" msprop:Generator_ColumnPropNameInRow="TotalReceived" msprop:Generator_ColumnPropNameInTable="TotalReceivedColumn" msprop:Generator_UserColumnName="TotalReceived" type="xs:string" minOccurs="0" />
+              <xs:element name="IssuedToSales" msprop:Generator_ColumnVarNameInTable="columnIssuedToSales" msprop:Generator_ColumnPropNameInRow="IssuedToSales" msprop:Generator_ColumnPropNameInTable="IssuedToSalesColumn" msprop:Generator_UserColumnName="IssuedToSales" type="xs:string" minOccurs="0" />
+              <xs:element name="IssuedToProductBonus" msprop:Generator_ColumnVarNameInTable="columnIssuedToProductBonus" msprop:Generator_ColumnPropNameInRow="IssuedToProductBonus" msprop:Generator_ColumnPropNameInTable="IssuedToProductBonusColumn" msprop:Generator_UserColumnName="IssuedToProductBonus" type="xs:string" minOccurs="0" />
+              <xs:element name="IssuedToAreaOfficeInterTransfer" msprop:Generator_ColumnVarNameInTable="columnIssuedToAreaOfficeInterTransfer" msprop:Generator_ColumnPropNameInRow="IssuedToAreaOfficeInterTransfer" msprop:Generator_ColumnPropNameInTable="IssuedToAreaOfficeInterTransferColumn" msprop:Generator_UserColumnName="IssuedToAreaOfficeInterTransfer" type="xs:string" minOccurs="0" />
+              <xs:element name="IssuedToCentralWarehouse" msprop:Generator_ColumnVarNameInTable="columnIssuedToCentralWarehouse" msprop:Generator_ColumnPropNameInRow="IssuedToCentralWarehouse" msprop:Generator_ColumnPropNameInTable="IssuedToCentralWarehouseColumn" msprop:Generator_UserColumnName="IssuedToCentralWarehouse" type="xs:string" minOccurs="0" />
+              <xs:element name="IssuedToDamageAndOthers" msprop:Generator_ColumnVarNameInTable="columnIssuedToDamageAndOthers" msprop:Generator_ColumnPropNameInRow="IssuedToDamageAndOthers" msprop:Generator_ColumnPropNameInTable="IssuedToDamageAndOthersColumn" msprop:Generator_UserColumnName="IssuedToDamageAndOthers" type="xs:string" minOccurs="0" />
+              <xs:element name="TotalIssued" msprop:Generator_ColumnVarNameInTable="columnTotalIssued" msprop:Generator_ColumnPropNameInRow="TotalIssued" msprop:Generator_ColumnPropNameInTable="TotalIssuedColumn" msprop:Generator_UserColumnName="TotalIssued" type="xs:string" minOccurs="0" />
+              <xs:element name="ClosingStock" msprop:Generator_ColumnVarNameInTable="columnClosingStock" msprop:Generator_ColumnPropNameInRow="ClosingStock" msprop:Generator_ColumnPropNameInTable="ClosingStockColumn" msprop:Generator_UserColumnName="ClosingStock" type="xs:string" minOccurs="0" />
+              <xs:element name="WHReturn" msprop:Generator_ColumnVarNameInTable="columnWHReturn" msprop:Generator_ColumnPropNameInRow="WHReturn" msprop:Generator_ColumnPropNameInTable="WHReturnColumn" msprop:Generator_UserColumnName="WHReturn" type="xs:string" minOccurs="0" />
+              <xs:element name="SubdepoTransfer" msprop:Generator_ColumnVarNameInTable="columnSubdepoTransfer" msprop:Generator_ColumnPropNameInRow="SubdepoTransfer" msprop:Generator_ColumnPropNameInTable="SubdepoTransferColumn" msprop:Generator_UserColumnName="SubdepoTransfer" type="xs:string" minOccurs="0" />
+              <xs:element name="Subdeporeturn" msprop:Generator_ColumnVarNameInTable="columnSubdeporeturn" msprop:Generator_ColumnPropNameInRow="Subdeporeturn" msprop:Generator_ColumnPropNameInTable="SubdeporeturnColumn" msprop:Generator_UserColumnName="Subdeporeturn" type="xs:string" minOccurs="0" />
+              <xs:element name="ComUnitName" msprop:Generator_ColumnVarNameInTable="columnComUnitName" msprop:Generator_ColumnPropNameInRow="ComUnitName" msprop:Generator_ColumnPropNameInTable="ComUnitNameColumn" msprop:Generator_UserColumnName="ComUnitName" type="xs:string" minOccurs="0" />
+              <xs:element name="fromDate" msprop:Generator_ColumnVarNameInTable="columnfromDate" msprop:Generator_ColumnPropNameInRow="fromDate" msprop:Generator_ColumnPropNameInTable="fromDateColumn" msprop:Generator_UserColumnName="fromDate" type="xs:string" minOccurs="0" />
+              <xs:element name="toDate" msprop:Generator_ColumnVarNameInTable="columntoDate" msprop:Generator_ColumnPropNameInRow="toDate" msprop:Generator_ColumnPropNameInTable="toDateColumn" msprop:Generator_UserColumnName="toDate" type="xs:string" minOccurs="0" />
+              <xs:element name="StockOutQty" msprop:Generator_ColumnVarNameInTable="columnStockOutQty" msprop:Generator_ColumnPropNameInRow="StockOutQty" msprop:Generator_ColumnPropNameInTable="StockOutQtyColumn" msprop:Generator_UserColumnName="StockOutQty" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

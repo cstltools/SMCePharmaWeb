@@ -1,0 +1,240 @@
+﻿<%@ Page Title="App Monitoring List" Language="C#" MasterPageFile="~/MasterPages/NewMasterPage.master" AutoEventWireup="true" CodeFile="AppMonitoringList.aspx.cs" Inherits="DoctorModule_UI_AppMonitoringList" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
+    
+    <div class="page-wrapper">
+        <div class="page-content">
+            <!--breadcrumb-->
+            <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+                <div class="breadcrumb-title pe-3"><i class="bx bx-customize"></i> App Monitoring List </div>  
+
+                <div class="ms-auto">
+                    <div class="btn-group">
+                        
+                    </div>
+                </div>
+            </div>
+            <!--end breadcrumb-->
+            <div class="row">
+                <div class="col">
+
+                    <div class="card border-top border-0 border-4 border-success">
+                        <div class="card-body">
+                             <asp:UpdatePanel ID="UpdatePanel2" runat="server">
+                                <ContentTemplate>
+                                              <asp:UpdateProgress ID="progress" runat="server" ClientIDMode="Static" DisplayAfter="0" DynamicLayout="true">
+                    <ProgressTemplate>
+                       
+                        <div class="divWaiting">
+                            <asp:Image ID="imgWait" CssClass="position-set" runat="server" ImageAlign="Middle" ImageUrl="../images/Spinner.gif" Width="180px" Height="180px" />
+                        </div>
+                    </ProgressTemplate>
+                </asp:UpdateProgress>
+                                         <script type="text/javascript">
+                                             function pageLoad() {
+
+                                                 $('.multiple-select').select2({
+                                                     includeSelectAllOption: true,
+                                                     theme: 'bootstrap4',
+                                                     width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                                                     placeholder: $(this).data('placeholder'),
+                                                     allowClear: Boolean($(this).data('allow-clear')),
+                                                 });
+                                                 $('.datepicker').pickadate({
+                                                     selectMonths: true,
+                                                     selectYears: true
+                                                 })
+                                                 $('.mySelect2').select2({
+                                                     theme: 'bootstrap4',
+                                                     width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+                                                     placeholder: $(this).data('placeholder'),
+                                                     allowClear: Boolean($(this).data('allow-clear')),
+                                                 });
+                                             }
+                                         </script>
+
+
+                                          <div class="row mt-1">
+                                <div class="col-2">&nbsp;</div>
+                                <div class="col-7">
+                                    <div class="form-group row">
+                                        <label for="acDate" class="col-sm-3 col-form-label"> Employee Name:</label>
+                                        <div class="col-sm-7">
+                                            <div class="input-group">
+                                              <asp:DropDownList  runat="server"  class="form-select form-select-sm mb-3 mySelect2" id="ddlEmployeeName">
+                                                 
+                                                </asp:DropDownList>
+                                                 
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                                        <div class="row mt-1">
+                                <div class="col-2">&nbsp;</div>
+                                <div class="col-7">
+                                    <div class="form-group row">
+                                        <label for="acDate" class="col-sm-3 col-form-label"> User Role:</label>
+                                        <div class="col-sm-7">
+                                            <div class="input-group">
+                                              <asp:DropDownList  runat="server"  class="form-select form-select-sm mb-3 mySelect2" id="ddlUserRole">
+                                                 
+                                                </asp:DropDownList>
+                                                 
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                                        <div class="row mt-1">
+                                <div class="col-2">&nbsp;</div>
+                                <div class="col-7">
+                                    <div class="form-group row">
+                                        <label for="acDate" class="col-sm-3 col-form-label">Active Status:</label>
+                                        <div class="col-sm-7">
+                                            <div class="input-group">
+                                              <asp:DropDownList  runat="server"  class="form-select form-select-sm mb-3 mySelect2" id="ddlActiveStatus">
+                                                   <asp:ListItem Value="">All</asp:ListItem>
+                                                   <asp:ListItem Value="Active">Active</asp:ListItem>
+                                                  <asp:ListItem Value="Inactive">Inactive</asp:ListItem>
+                                              </asp:DropDownList>
+                                                 
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                                       <div style="padding-top:16px;"></div>
+                        <div class="row">
+                            <div class="col-md-5">
+                            </div>
+                            <div class="col-md-4" style="align-content:center">
+                                <asp:LinkButton runat="server"  id="btnSearch" class="btn btnMyDesignSearch   btn-sm "  onclick="btnSearch_Click">  <i class="fa fa-search-plus"></i>&nbsp; Search</asp:LinkButton>
+                                  
+                                
+                               <asp:LinkButton  runat="server" class="btn btnMyDesignReset   btn-sm"   id="resetBtn" onclick="resetBtn_Click" ><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp; Reset </asp:LinkButton>
+                            </div>
+                        </div>
+                                    <br />
+                            <div class="table-responsive" id="MainGradeDiv">
+
+
+                                   <asp:GridView ID="loadGridView" runat="server" AutoGenerateColumns="False"
+                                
+                                onrowcommand="loadGridView_RowCommand"  CssClass="table table-striped table-bordered" OnPreRender="gv_DocumentUpload_PreRender">
+                                <Columns>
+
+                                     <asp:TemplateField HeaderText="SL">
+                                        <ItemTemplate>
+                                            <asp:Label ID="LabelSL" Text='<%# Container.DataItemIndex + 1 %>' runat="server"></asp:Label>
+                                         
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <%--<asp:BoundField DataField="UserName" HeaderText="User Name " />--%>
+                                    <asp:BoundField DataField="EmpMasterCode" HeaderText="Employee ID" />
+                                    <asp:BoundField DataField="EmpName" HeaderText="Employee Name" />
+                                    <asp:BoundField DataField="Rolename" HeaderText="Role" />
+                                    <asp:BoundField DataField="IMEI_One" HeaderText="UuId 1" />
+                                    <asp:BoundField DataField="IMEI_Two" HeaderText="UuId 2" />
+                                    <asp:BoundField DataField="DeviceInfo_1" HeaderText="Device Info 1" />
+                                    <asp:BoundField DataField="DeviceInfo_2" HeaderText="Device Info 2" />
+                                    <asp:BoundField DataField="OS_1" HeaderText="OS 1" />
+                                    <asp:BoundField DataField="OS_2" HeaderText="OS 2" />
+                                    <asp:BoundField DataField="OS_Version_1" HeaderText="OS Version 1" />
+                                    <asp:BoundField DataField="OS_Version_2" HeaderText="OS Version 2" />
+
+                                    <asp:BoundField DataField="AppVer_1" HeaderText="App Version Name 1" />
+                                    <asp:BoundField DataField="AppVer_2" HeaderText="App Version Name 2" />
+                                    <asp:BoundField DataField="LastAccessTime_1" HeaderText="Last Access Time 2" />
+                                    <asp:BoundField DataField="LastAccessTime_2" HeaderText="Last Access Time 2" />
+
+
+                                   
+                            
+ 
+ 
+
+                                   
+                               
+                                </Columns>
+                            </asp:GridView>
+ 
+                            </div>
+
+
+                                    
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+
+    
+    <script>
+
+        $(document).ready(function () {
+
+            var table = $('#ContentPlaceHolder1_loadGridView').DataTable(
+                {
+                    "bInfo": true,
+                    "bFilter": true,
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                    pageLength: 10,
+                    dom: 'lBfrtip',
+
+
+                    buttons: ['copy', 'excel', 'pdf', 'print']
+                }
+            );
+
+            var prm = Sys.WebForms.PageRequestManager.getInstance();
+            if (prm != null) {
+                prm.add_endRequest(function (sender, e) {
+                    if (sender._postBackSettings.panelsToUpdate != null) {
+                        table = $('#ContentPlaceHolder1_loadGridView').DataTable(
+                            {
+                                "bInfo": true,
+                                "bFilter": true,
+                                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                                pageLength: 10,
+                                dom: 'lBfrtip',
+
+
+                                buttons: ['copy', 'excel', 'pdf', 'print']
+
+
+                            }
+                        );
+                    }
+                });
+            };
+
+
+            table.columns().every(function () {
+                var that = this;
+
+
+            });
+        });
+
+
+    </script>
+
+</asp:Content>
+

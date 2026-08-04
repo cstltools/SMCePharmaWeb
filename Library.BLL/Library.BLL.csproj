@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BF660F82-3CB8-4965-AF00-37D0B1BE6664}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Library.BLL</RootNamespace>
+    <AssemblyName>Library.BLL</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Http.Common, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Web.Http.Common.4.0.20126.16343\lib\net40\System.Web.Http.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MasterSetup_BLL\CustomerInvoiceLimitService.cs" />
+    <Compile Include="SInventory_BLL\AccountSettingsBll.cs" />
+    <Compile Include="SInventory_BLL\AreaBLL.cs" />
+    <Compile Include="SInventory_BLL\AreaWiseMonthlyInventoryReportBll.cs" />
+    <Compile Include="SInventory_BLL\AuditReportOneBll.cs" />
+    <Compile Include="SInventory_BLL\ChalanBLL.cs" />
+    <Compile Include="SInventory_BLL\ChallanReportViewBLL.cs" />
+    <Compile Include="SInventory_BLL\CompanySalesReportBLL.cs" />
+    <Compile Include="SInventory_BLL\ComUnitSalesReportBLL.cs" />
+    <Compile Include="SInventory_BLL\CustomerPaymentDeleteBLL.cs" />
+    <Compile Include="SInventory_BLL\CustPaymentBLL_daaw.cs" />
+    <Compile Include="SInventory_BLL\dadtlsCustPaymentBLL.cs" />
+    <Compile Include="SInventory_BLL\dadtlsInvoiceBLL.cs" />
+    <Compile Include="SInventory_BLL\dadtlsOrderInfoBLL.cs" />
+    <Compile Include="SInventory_BLL\dadtlsRequisitionBLL.cs" />
+    <Compile Include="SInventory_BLL\DeleteInvoiceReportBLL.cs" />
+    <Compile Include="SInventory_BLL\DeStockOutBLL.cs" />
+    <Compile Include="SInventory_BLL\InvoiceBLL_daaw.cs" />
+    <Compile Include="SInventory_BLL\OrderInfoBLLSalesReturn.cs" />
+    <Compile Include="SInventory_BLL\OrderInfoBLL_daaw.cs" />
+    <Compile Include="SInventory_BLL\ProformaOrInvoiceReturnBLL_daaw.cs" />
+    <Compile Include="SInventory_BLL\SalesReturnBLL.cs" />
+    <Compile Include="SInventory_BLL\InvoicewisedetailssalesBLL.cs" />
+    <Compile Include="SInventory_BLL\MIOTotalSummaryBLL.cs" />
+    <Compile Include="SInventory_BLL\CWMonthlyInventoryReportBll.cs" />
+    <Compile Include="SInventory_BLL\DayWiseBusinessReportBll.cs" />
+    <Compile Include="SInventory_BLL\DcOpeningStockReportBll.cs" />
+    <Compile Include="SInventory_BLL\DCUserPermissionBll.cs" />
+    <Compile Include="SInventory_BLL\HistoricalReportBll.cs" />
+    <Compile Include="SInventory_BLL\ProductWiseNationalSalesReportBll.cs" />
+    <Compile Include="SInventory_BLL\ReturnInvoiceBLL.cs" />
+    <Compile Include="SInventory_BLL\SalesComparisoneReportBll.cs" />
+    <Compile Include="SInventory_BLL\CustomerLedgerBLL.cs" />
+    <Compile Include="SInventory_BLL\CustomerMasterInfoBll.cs" />
+    <Compile Include="SInventory_BLL\DeleteOrderReportBll.cs" />
+    <Compile Include="SInventory_BLL\DistributionCenterStockMonitoringBll.cs" />
+    <Compile Include="SInventory_BLL\ExcelUpForCustTagChangeBLL.cs" />
+    <Compile Include="SInventory_BLL\ImportedApiCustomerBll.cs" />
+    <Compile Include="SInventory_BLL\MultiCustomerEditBLL.cs" />
+    <Compile Include="SInventory_BLL\OrderListBLL.cs" />
+    <Compile Include="SInventory_BLL\OrderStatusBll.cs" />
+    <Compile Include="SInventory_BLL\PendingOrderBll.cs" />
+    <Compile Include="SInventory_BLL\RollBackBLL.cs" />
+    <Compile Include="SInventory_BLL\SalesTrendReportBll.cs" />
+    <Compile Include="SInventory_BLL\SampleStockForWHBll.cs" />
+    <Compile Include="SInventory_BLL\SampleTypeConventionBLL.cs" />
+    <Compile Include="SInventory_BLL\StockConditionPermissionBll.cs" />
+    <Compile Include="SInventory_BLL\StockTransportOrderReportBLL_daaw.cs" />
+    <Compile Include="SInventory_BLL\TotalSummaryBLL.cs" />
+    <Compile Include="SInventory_BLL\CustPaymentBLL.cs" />
+    <Compile Include="SInventory_BLL\ExcelUpForMIGOBLL.cs" />
+    <Compile Include="SInventory_BLL\ExcelUpForOrderListBLL.cs" />
+    <Compile Include="SInventory_BLL\OrderInfoBLL.cs" />
+    <Compile Include="SInventory_BLL\OtherStockActionBLL.cs" />
+    <Compile Include="SInventory_BLL\ProductDiscountBLL.cs" />
+    <Compile Include="SInventory_BLL\ProductSQBLL.cs" />
+    <Compile Include="SInventory_BLL\IngridentsBLL.cs" />
+    <Compile Include="SInventory_BLL\ManufacturerBLL.cs" />
+    <Compile Include="SInventory_BLL\PackSizeBLL.cs" />
+    <Compile Include="SInventory_BLL\ProformaOrInvoiceReturnBLL.cs" />
+    <Compile Include="SInventory_BLL\ProTypeBLL.cs" />
+    <Compile Include="SInventory_BLL\RegionSalesReportBLL.cs" />
+    <Compile Include="SInventory_BLL\CountryReportBLL.cs" />
+    <Compile Include="SInventory_BLL\DCStockReportBLL.cs" />
+    <Compile Include="SInventory_BLL\ShippingCartonSizeBLL.cs" />
+    <Compile Include="SInventory_BLL\StockConditionFreezeBLL.cs" />
+    <Compile Include="SInventory_BLL\StockUOMBLL.cs" />
+    <Compile Include="SInventory_BLL\WarehouseStockInApprovalBll.cs" />
+    <Compile Include="SInventory_BLL\WarehouseStockInBll.cs" />
+    <Compile Include="SInventory_BLL\WhFreezeStockReleaseBll.cs" />
+    <Compile Include="SInventory_BLL\WhOpeningStockReportBll.cs" />
+    <Compile Include="SInventory_BLL\WhStockConditionFreezeBll.cs" />
+    <Compile Include="SInventory_BLL\WHStockInReportBll.cs" />
+    <Compile Include="SInventory_BLL\WHStockListBLL.cs" />
+    <Compile Include="SInventory_BLL\WhStockMonitoringReportBll.cs" />
+    <Compile Include="SInventory_BLL\ZoneSalesReportBLL.cs" />
+    <Compile Include="SInventory_BLL\CustomerCategoryBLL.cs" />
+    <Compile Include="SInventory_BLL\CustomerMasterBLL.cs" />
+    <Compile Include="SInventory_BLL\CustomerSalesReportBLL.cs" />
+    <Compile Include="SInventory_BLL\DCStoreBLL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SInventory_BLL\DistrictBLL.cs" />
+    <Compile Include="SInventory_BLL\DistrictSalesReportBLL.cs" />
+    <Compile Include="SInventory_BLL\EmpGeneralInfoBLL.cs" />
+    <Compile Include="SInventory_BLL\InvoiceBLL.cs" />
+    <Compile Include="SInventory_BLL\MIAInformationBLL.cs" />
+    <Compile Include="SInventory_BLL\CentralStoreBLL.cs" />
+    <Compile Include="SInventory_BLL\MiaSalesReportBLL.cs" />
+    <Compile Include="SInventory_BLL\RequisitionBLL.cs" />
+    <Compile Include="SInventory_BLL\StockTransportOrderReportBLL.cs" />
+    <Compile Include="SInventory_BLL\UserBLL.cs" />
+    <Compile Include="Panal_BLL\PanalBLL.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SInventory_BLL\CompanyInfoBLL.cs" />
+    <Compile Include="SInventory_BLL\DepartmentBLL.cs" />
+    <Compile Include="SInventory_BLL\MarketInfoBLL.cs" />
+    <Compile Include="SInventory_BLL\MiaTargetBLL.cs" />
+    <Compile Include="SInventory_BLL\ProductBLL.cs" />
+    <Compile Include="SInventory_BLL\ProductCategoriesBLL.cs" />
+    <Compile Include="SInventory_BLL\RegionInfoBLL.cs" />
+    <Compile Include="SInventory_BLL\CompanyUnitBLL.cs" />
+    <Compile Include="SInventory_BLL\UnitPriceBLL.cs" />
+    <Compile Include="SInventory_BLL\WarehousePickingBLL.cs" />
+    <Compile Include="SInventory_BLL\ZoneInfoBLL.cs" />
+    <Compile Include="SubDepot_BLL\SubDepotChalanReturnBLL.cs" />
+    <Compile Include="SubDepot_BLL\SubDepoAdjustBLL.cs" />
+    <Compile Include="SubDepot_BLL\SubDepotStockAdjustmentsVoucherBll.cs" />
+    <Compile Include="SubDepot_BLL\Sub_InvoiceBLL.cs" />
+    <Compile Include="SubDepot_BLL\SubDepotChalanBLL.cs" />
+    <Compile Include="SubDepot_BLL\SubDepotBLL.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Library.DAL\Library.DAL.csproj">
+      <Project>{046D3DDD-3ED1-4271-B1F2-2D7DDFA064C9}</Project>
+      <Name>Library.DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Library.DAO\Library.DAO.csproj">
+      <Project>{41D64757-EE79-4D94-8162-FA9B70785771}</Project>
+      <Name>Library.DAO</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
