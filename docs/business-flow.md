@@ -40,11 +40,15 @@ stored procedure body (full source in [`spec/database/procs/`](../spec/database/
 
 ## Order-to-cash lifecycle
 
-Reconstructed from DAO field lists and the root-level `.sql` scripts (which reference columns the thin C# DTOs don't fully mirror):
+Grounded in the live schema (previously reconstructed from DAO field lists and root-level `.sql`
+scripts, which is why an earlier version of this diagram cited a table name — `tblOrderInfoMaster`
+— that doesn't actually exist in the database; the real table is `tblOrder`, confirmed against
+[`spec/database-tables.md`](../spec/database-tables.md)):
 
 ```
-Order (tblOrderInfoMaster)
-   │  OrderInfoMaster.IsInvoice flag flips when converted
+Order (tblOrder)
+   │  tblOrder.IsInvoice flag flips when converted; tblOrder.ActionStatus
+   │  tracks the approval chain itself (see the Update note above)
    ▼
 Invoice generated (tblInvoice, linked by OrderId)
    │
@@ -65,7 +69,13 @@ Payment Collection (tblInvoice.DA_PaymentCollection + tblPaymentCollection_appLo
 
 Each stage that can be rejected has a dedicated "reject" stored procedure at the repo root (`sp_RejectInvoiceDASalesConfirmStatus.sql`, `sp_RejectInvoiceDAPaymentCollection.sql`, `sp_RejectInvoiceDASalesReturn.sql`) that flips the relevant `tblInvoice` status column back and deletes the corresponding in-progress app-log rows, effectively resetting that stage for resubmission.
 
-**Gaps**: the full column list of `tblOrderInfoMaster`, `tblInvoice`, and the challan tables is not fully mirrored in the C# DAO classes (confirmed by the SQL scripts referencing columns like `DA_SalesConfirmStatus` that don't appear in `Invoice.cs`) — treat the DAO classes as a partial view of the real schema, not authoritative. See [`spec/database-spec.md`](../spec/database-spec.md).
+**Gap, now closed**: the full column list of `tblOrder`, `tblInvoice`, and the challan tables is
+**not** fully mirrored in the C# DAO classes (confirmed: `Invoice.cs` is missing
+`DA_SalesConfirmStatus`/`DA_PaymentCollection`/`DA_SalesReturn`, which real SQL scripts read/write
+directly) — but this is no longer a documentation gap, since the actual column list is now in
+[`spec/database-tables.md`](../spec/database-tables.md) regardless of what the DAO class shows.
+Treat any `Library.DAO` class in this codebase as a **possibly partial** view of its table, and
+check the schema file directly when a DAO class's shape is in question.
 
 ## Leave approval — a workflow with a real side effect beyond status
 

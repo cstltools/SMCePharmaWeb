@@ -429,7 +429,7 @@ Role `5` **or** the specific hard-coded employee ID **`496`** gets final "Accept
 
 ## 7. Order-to-cash stage rules (cross-module, from prior pass — not re-verified in this scan)
 
-- An order converts to an invoice (`OrderInfoMaster.IsInvoice` flag); the exact gating condition (e.g. "only after order approval") is implied by approval-workflow ordering but was not traced to a single method.
+- An order converts to an invoice (`tblOrder.IsInvoice` flag — confirmed against the live schema; an earlier pass of this document incorrectly named this `OrderInfoMaster.IsInvoice`, a table that doesn't exist); the exact gating condition (e.g. "only after order approval") is implied by approval-workflow ordering but was not traced to a single method.
 - DA sales confirmation, payment collection, and sales return each have their own status column on `tblInvoice` (`DA_SalesConfirmStatus`, `DA_PaymentCollection`, `DA_SalesReturn`), independently rejectable via dedicated `sp_RejectInvoiceDA*.sql` procedures. A DIC re-approval layer (`sp_UpdateDICApprovalStatus[_SalesReturn].sql`) sits on top of the DA's own actions for those two stages.
 
 ---

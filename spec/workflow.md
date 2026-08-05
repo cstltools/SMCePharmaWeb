@@ -235,9 +235,13 @@ This is the full state sequence, grounded in the actual column definitions
 
 ### 4.2 Order → Invoice conversion
 
-- `tblOrder`/`tblOrderInfoMaster`-family tables carry an `IsInvoice bit` flag (present on 6 tables
-  per `database-tables.md`, including the order and invoice info-master tables) marking whether an
-  order has already been converted to an invoice — prevents double-invoicing the same order.
+- An `IsInvoice bit` flag marks whether an order has already been converted to an invoice —
+  prevents double-invoicing the same order. Confirmed present on 6 tables in
+  `database-tables.md`: `tblOrder` (the live/current order), `tblOrder_Doctorrequirement`,
+  `tblOrderDel`, `tblOrderDeleteArchive` (soft-delete/archive variants), `tblSampleIssue`, and
+  `tblTempSalesReturnOrder`. There is no `tblOrderInfoMaster` table in this database — an earlier
+  pass of this document (before live-schema verification) used that name by mistake; `tblOrder` is
+  the correct table.
 - Conversion procs: `sp_AutoInvoiceGeneration`, `sp_I_InvoiceMaster`,
   `sp_Process_ProformaInvoiceByOrderId` (and DC/sub-depot/sample variants) — not read in full for
   this pass; the exact trigger condition for auto vs. manual invoice generation is **Not Found**
