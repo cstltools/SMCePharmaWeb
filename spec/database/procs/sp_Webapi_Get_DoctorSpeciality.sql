@@ -1,0 +1,18 @@
+﻿-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[sp_Webapi_Get_DoctorSpeciality] 
+	-- Add the parameters for the stored procedure here
+
+AS
+BEGIN
+		
+		SELECT SpecialityId ,
+               SpecialityName 
+			    FROM dbo.tblDoctorSpeciality WHERE IsActive = 1
+
+
+END
+

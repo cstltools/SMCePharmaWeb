@@ -1,0 +1,116 @@
+﻿-- =============================================
+-- Author: <Author,JEWEL>
+-- Alter date: <Alter Date,06/04/2016,>
+-- Description: <Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[UD_CustomerMaster2] 
+
+ @CustomerMasterId INT,
+ @CustomerCode NVARCHAR(MAX) = NULL,
+ @CategoryId INT = NULL,
+ @CustomerName NVARCHAR(MAX) = NULL,
+ @Address NVARCHAR(MAX) = NULL,
+ @CellNo NVARCHAR(MAX) = NULL,
+ @Addrees2 NVARCHAR(MAX) = NULL,
+ @City NVARCHAR(MAX) = NULL,
+ @ShippingCond NVARCHAR(MAX) = NULL,
+ @MarketCode NVARCHAR(MAX) = NULL,
+ @MarketName NVARCHAR(MAX) = NULL,
+ @MIACode NVARCHAR(MAX) = NULL,
+ @MiaName NVARCHAR(MAX) = NULL,
+ @AreaCode NVARCHAR(MAX) = NULL,
+ @DisCode NVARCHAR(MAX) = NULL,
+ @FEName NVARCHAR(MAX) = NULL,
+ @ComUnitCode NVARCHAR(MAX) = NULL,
+ @ComUnitName NVARCHAR(MAX) = NULL,
+ @RegionCode NVARCHAR(MAX) = NULL,
+ @DZSMName NVARCHAR(MAX) = NULL,
+ @TermOfPayment NVARCHAR(MAX) = NULL,
+ @LoginName  NVARCHAR(MAX) = NULL
+ --,@FixedCustomer bit
+AS
+BEGIN 
+
+
+INSERT INTO tblPreviousCustInfo
+        ( 
+			CustomerMasterId ,
+			CustomerCode ,
+			CategoryId ,
+			CustomerName ,
+			Address ,
+			CellNo,
+			MarketId,
+			Addrees2 ,
+			City,
+			ConPerson,
+			ShippingCond,
+			MarketCode,
+			MarketName ,
+			MIACode ,
+			MIAName ,
+			AreaCode ,
+			DisCode ,
+			FEName ,
+			ComUnitCode ,
+			ComUnitName ,
+			RegionCode ,
+			DZSMName ,
+			TermOfPayment ,
+			CustomerCodeOld ,
+			UploadDate ,
+			ExcelUpload,
+			FixedCustomer ,
+			CreateBy ,
+			CreateDate 
+        )
+		SELECT 
+		CustomerMasterId ,
+			CustomerCode ,
+			CategoryId ,
+			CustomerName ,
+			Address ,
+			CellNo,
+			MarketId,
+			Addrees2 ,
+			City,
+			ConPerson,
+			ShippingCond,
+			MarketCode,
+			MarketName ,
+			MIACode ,
+			MIAName ,
+			AreaCode ,
+			DisCode ,
+			FEName ,
+			ComUnitCode ,
+			ComUnitName ,
+			RegionCode ,
+			DZSMName ,
+			TermOfPayment ,
+			CustomerCodeOld ,
+			UploadDate ,
+			ExcelUpload,
+			FixedCustomer ,
+			@LoginName ,
+			GETDATE() FROM dbo.tblCustMaster WHERE CustomerCode=@CustomerCode
+	
+
+ 
+ UPDATE dbo.tblCustMaster 
+ SET UpdateBy=@LoginName,UpdateDate=GETDATE(),
+ CategoryId = @CategoryId, CustomerName = @CustomerName, Address = @Address,
+ CellNo = @CellNo, Addrees2 = @Addrees2, City = @City, ShippingCond = @ShippingCond,
+ MarketCode = @MarketCode,MarketName = @MarketName, MIACode = @MIACode,AreaCode = @AreaCode, DisCode = @DisCode, 
+ FEName = @FEName, ComUnitCode = @ComUnitCode, ComUnitName = @ComUnitName, RegionCode = @RegionCode, DZSMName = @DZSMName,TermOfPayment = @TermOfPayment
+ WHERE CustomerMasterId = @CustomerMasterId
+
+
+ 
+	DECLARE @SalesCenterID int
+	select @SalesCenterID=ComUnitId from tblCompanyUnit where ComUnitCode=@ComUnitCode
+
+
+ UPDATE dbo.tblOrder SET ComUnitCode= @ComUnitCode,ComUnitName = @ComUnitName,ComUnitId=@SalesCenterID
+ where CustomerCode=@CustomerCode and IsInvoice=0
+END

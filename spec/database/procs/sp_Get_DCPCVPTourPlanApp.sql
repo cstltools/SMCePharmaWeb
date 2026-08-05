@@ -1,0 +1,115 @@
+﻿CREATE PROCEDURE [dbo].[sp_Get_DCPCVPTourPlanApp]
+	-- Add the parameters for the stored procedure here
+	@param NVARCHAR(MAX)= NULL,
+	@Role NVARCHAR(MAX) =NULL,
+	@AppStatus NVARCHAR(MAX)= NULL,
+	
+	@FromDt DATETIME =NULL,
+	@ToDt DATETIME =NULL,
+	@EmpId INT =NULL,
+	@MonthValue INT=NULL,
+	@YearValue INT=NULL
+    
+AS
+    BEGIN
+	--tblTourPlanApprovalLog.Status NOT IN (''Accepted'',''Rejected'')
+	DECLARE @params NVARCHAR(max)=' mas.DocTPMaster  is not null '
+	IF(@AppStatus IS NOT NULL)
+	BEGIN
+	    SET @params=' tblVisitPlanApprovalLog.Status IN ('''+@AppStatus+''')'
+		IF(@FromDt IS NOT NULL AND @ToDt IS NULL)
+		BEGIN
+		    SET @params=@params+ ' AND tblTourPlanApprovalLog.EntryDateApp='''+@FromDt+''''
+		END
+		IF(@FromDt IS NOT NULL AND @ToDt IS NOT NULL)
+		BEGIN
+		    SET @params=@params+ ' AND tblVisitPlanApprovalLog.EntryDateApp between '''+@FromDt+''' AND '''+@ToDt+''' '
+		END
+	END
+	ELSE
+    BEGIN
+        IF(@FromDt IS NOT NULL AND @ToDt IS NULL)
+		BEGIN
+		    SET @params=@params+ ' AND mas.EntryDate='''+@FromDt+''''
+		END
+		IF(@FromDt IS NOT NULL AND @ToDt IS NOT NULL)
+		BEGIN
+		    SET @params=@params+ ' AND mas.EntryDate between '''+@FromDt+''' AND '''+@ToDt+''' '
+		END
+    END
+	
+	IF(@EmpId IS NOT NULL)
+	BEGIN
+	    SET @params= @params + ' AND mas.EmpInfoId='+convert(nvarchar(max),@EmpId)+' '
+	END
+	IF(@MonthValue IS NOT NULL)
+	BEGIN
+	    SET @params= @params + ' AND mas.MonthValue='+convert(nvarchar(max),@MonthValue)+' '
+	END
+	IF(@YearValue IS NOT NULL)
+	BEGIN
+	    SET @params= @params + ' AND mas.YearValue='+convert(nvarchar(max),@YearValue)+' '
+	END
+
+	DECLARE @Q NVARCHAR(MAX)
+	SET @Q='
+		SELECT distinct mas.FinalSubmitRemarks, DateName( month , DateAdd( month , mas.MonthValue , -1 ))  MonthValue,  toRole.RoleType WaitingForRole, usr.RoleName, dgs.DesigName,  case when mas.ApprovalStatus=''0'' then ''Pending''  when mas.ApprovalStatus=''1'' then ''Verified'' when mas.ApprovalStatus=''2'' then ''Approved'' when mas.ApprovalStatus=''3'' then ''Disapproveed''  else mas.ApprovalStatus end ApprovalStatusWeb,   emp.EmpInfoId,mas.DocTPMaster TPMaster,
+       MonthValue ,
+                  YearValue ,
+                  
+          
+       
+       mas.ApprovalStatus,
+       
+       
+       tblVisitPlanApprovalLog.VisitPlanApprovalId TourPlanApprovalId,
+       Date,
+       FromEmpId,
+       ToEmpId,
+       tblVisitPlanApprovalLog.TableId,
+       tblVisitPlanApprovalLog.Status,
+       Comments,
+       Type,
+       Step,
+0 GroupId,
+       0 RegionId,
+    0 AreaId,
+    0 TerritoryId,
+       
+       tblVisitPlanApprovalLog.RoleTypeId,tblVisitPlanApprovalLog.ToRoleTypeId,
+       
+       
+       emp.EmpMasterCode,
+       emp.EmpName,
+	 
+                                 0 TerritoryName,
+                              0   TerritoryCode,
+                               0  AreaCode,
+                                0 AreaName,
+                               0  RegionCode,
+                                0 RegionName,
+                               0 GroupName,
+                               0  MIOEmpId,
+                               0  ASMEMPId,
+                               0  RSMEMPId,
+                               0  NSMEMPId,LogMax.MaxStep 
+	   
+	   
+	   FROM dbo.tbl_DoctorTourPlanMaster mas  with (nolock)
+	     
+LEFT JOIN dbo.tblVisitPlanApprovalLog  with (nolock) ON dbo.tblVisitPlanApprovalLog.TableId=mas.DocTPMaster
+LEFT JOIN (SELECT TableId,MAX(tblVisitPlanApprovalLog.VisitPlanApprovalId)MaxStep FROM dbo.tblVisitPlanApprovalLog   GROUP BY TableId) AS LogMax ON LogMax.TableId=dbo.tblVisitPlanApprovalLog.TableId
+LEFT JOIN dbo.tblEmpGeneralInfo emp  with (nolock) ON emp.EmpInfoId = mas.EmpInfoId
+left JOIN dbo.tblUser us  with (nolock) ON us.EmpInfoId = mas.EmpInfoId
+ 
+left JOIN dbo.tbl_UserRoleInfo usr   with (nolock) ON usr.UserRoleID = us.UserRoleID
+left JOIN dbo.tblDesignation dgs  with (nolock) ON dgs.DesignationId = emp.DesignationId
+left JOIN dbo.tblRoleType toRole  with (nolock) ON tblVisitPlanApprovalLog.ToRoleTypeId = usr.RoleTypeId
+
+LEFT JOIN dbo.View_Webapi_EmployeeFieldForceInfo  with (nolock) ON View_Webapi_EmployeeFieldForceInfo.EmpInfoId = emp.EmpInfoId
+WHERE '+@params+'  AND tblVisitPlanApprovalLog.VisitPlanApprovalId=LogMax.MaxStep '+@param
+
+EXEC sys.sp_executesql @Q
+
+
+    END
