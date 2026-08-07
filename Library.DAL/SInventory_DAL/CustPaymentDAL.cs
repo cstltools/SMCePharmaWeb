@@ -62,11 +62,14 @@ namespace Library.DAL.SInventory_DAL
                 accessManager.SqlConnectionClose();
             }
         }
-        public bool SaveCustPayment(CustPayment aCustPayment)
+        // Generates CustPayId and inserts inside one locked transaction so two concurrent
+        // saves can't compute the same MAX(CustPayId)+1 and collide. Returns the new id, or 0 on failure.
+        public int SaveCustPayment(CustPayment aCustPayment)
         {
             string insertQuery = @"
-
-
+BEGIN TRAN;
+DECLARE @NewId INT;
+SELECT @NewId = ISNULL(MAX(CustPayId),0)+1 FROM dbo.tblCustomerPay WITH (UPDLOCK, HOLDLOCK);
 
 INSERT INTO dbo.tblCustomerPay
         ( CustPayId ,
@@ -79,22 +82,29 @@ INSERT INTO dbo.tblCustomerPay
           RefNo ,
           RefDate ,
           CreateBy ,
-          CreateDate 
-          
+          CreateDate
+
         )
 
-            values (@CustPayId,@MarketId,@CustomerMasterId,@ComUnitId,@PaymentDate,@PaymentAmount,@PayType,@RefNo,@RefDate,@CreateBy,@CreateDate)";
-            return SInventorySql.Execute(insertQuery, CustPaymentParameters(aCustPayment));
+            values (@NewId,@MarketId,@CustomerMasterId,@ComUnitId,@PaymentDate,@PaymentAmount,@PayType,@RefNo,@RefDate,@CreateBy,@CreateDate);
+COMMIT TRAN;
+SELECT @NewId AS NewCustPayId;";
+            DataTable dt = SInventorySql.GetDataTable(insertQuery, CustPaymentParameters(aCustPayment));
+            return dt.Rows.Count > 0 ? Convert.ToInt32(dt.Rows[0]["NewCustPayId"]) : 0;
         }
-        public bool SaveCustDetail(CustPaymentDetail aCustPaymentDetail)
+
+        // Same locked-transaction approach as SaveCustPayment, plus keeps the existing
+        // same-day/same-amount duplicate guard. Returns the new id, 0 if skipped as a duplicate or failed.
+        public int SaveCustDetail(CustPaymentDetail aCustPaymentDetail)
         {
             string insertQuery = @"
-
- DECLARE @CountDataOrd INT
-    SELECT @CountDataOrd = COUNT(*) FROM dbo.tblCustPayDetail WHERE InvoiceId=@InvoiceId AND CONVERT(DATE, custPaymentDate) = CONVERT(DATE, GETDATE()) AND ISNULL(PaymentAmount, 0) = ISNULL(@PaymentAmount, 0)
+BEGIN TRAN;
+DECLARE @CountDataOrd INT, @NewId INT;
+SELECT @CountDataOrd = COUNT(*) FROM dbo.tblCustPayDetail WITH (UPDLOCK, HOLDLOCK) WHERE InvoiceId=@InvoiceId AND CONVERT(DATE, custPaymentDate) = CONVERT(DATE, GETDATE()) AND ISNULL(PaymentAmount, 0) = ISNULL(@PaymentAmount, 0)
 
     IF (@CountDataOrd = 0)
     BEGIN
+SELECT @NewId = ISNULL(MAX(CustPayDetailId),0)+1 FROM dbo.tblCustPayDetail WITH (UPDLOCK, HOLDLOCK);
 INSERT INTO dbo.tblCustPayDetail
         ( CustPayDetailId ,
           InvoiceId ,
@@ -102,11 +112,14 @@ INSERT INTO dbo.tblCustPayDetail
           CustPayId,TPAmount,VATAmount,CollectionBy ,DANameId,custPaymentDate
         )
 
-          
-        
 
-            values (@CustPayDetailId,@InvoiceId,@PaymentAmount,@CustPayId,@TPAmount,@VATAmount,@CollectionBy,@DANameId,getdate())  end";
-            return SInventorySql.Execute(insertQuery, CustPaymentDetailParameters(aCustPaymentDetail));
+
+
+            values (@NewId,@InvoiceId,@PaymentAmount,@CustPayId,@TPAmount,@VATAmount,@CollectionBy,@DANameId,getdate())  end
+COMMIT TRAN;
+SELECT ISNULL(@NewId,0) AS NewCustPayDetailId;";
+            DataTable dt = SInventorySql.GetDataTable(insertQuery, CustPaymentDetailParameters(aCustPaymentDetail));
+            return dt.Rows.Count > 0 ? Convert.ToInt32(dt.Rows[0]["NewCustPayDetailId"]) : 0;
         }
         public bool SubdeportSaveCustDetail(CustPaymentDetail aCustPaymentDetail)
         {

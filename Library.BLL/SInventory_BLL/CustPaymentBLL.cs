@@ -28,16 +28,20 @@ namespace Library.BLL.SInventory_BLL
         {
             try
             {
+                int newCustPayId = aCustPaymentDal.SaveCustPayment(aCustPayment);
+                if (newCustPayId <= 0) return false;
+                aCustPayment.CustPayId = newCustPayId;
 
-                ClsPrimaryKeyFind aClsPrimaryKeyFind = new ClsPrimaryKeyFind();
-                aCustPayment.CustPayId = aClsPrimaryKeyFind.PrimaryKeyMax("CustPayId", "tblCustomerPay");
-                aCustPaymentDal.SaveCustPayment(aCustPayment);
+                bool allDetailsSaved = true;
                 foreach (var custPaymentDetail in aPaymentDetailList)
                 {
-                    custPaymentDetail.CustPayId = aCustPayment.CustPayId;
-                    SaveCustDetail(custPaymentDetail);
+                    custPaymentDetail.CustPayId = newCustPayId;
+                    if (!SaveCustDetail(custPaymentDetail))
+                    {
+                        allDetailsSaved = false;
+                    }
                 }
-                return true;
+                return allDetailsSaved;
 
             }
             catch (Exception ex)
@@ -51,29 +55,19 @@ namespace Library.BLL.SInventory_BLL
         {
             try
             {
-
-                ClsPrimaryKeyFind aClsPrimaryKeyFind = new ClsPrimaryKeyFind();
-                aCustPayment.CustPayId = aClsPrimaryKeyFind.PrimaryKeyMax("CustPayId", "tblCustomerPay");
-
-
                 DataTable dt = aCustPaymentDal.Existence(custPaymentDetail.InvoiceId.ToString(), custPaymentDetail.PaymentAmount.ToString());
-
 
                 if( dt.Rows.Count > 0 )
                 {
-
-                  
-
-                }
-                else
-                {
-                      aCustPaymentDal.SaveCustPayment(aCustPayment);
-                    custPaymentDetail.CustPayId = aCustPayment.CustPayId;
-                    SaveCustDetail(custPaymentDetail);
+                    return false;
                 }
 
-                
-                return true;
+                int newCustPayId = aCustPaymentDal.SaveCustPayment(aCustPayment);
+                if (newCustPayId <= 0) return false;
+                aCustPayment.CustPayId = newCustPayId;
+
+                custPaymentDetail.CustPayId = newCustPayId;
+                return SaveCustDetail(custPaymentDetail);
 
             }
             catch (Exception ex)
@@ -87,12 +81,11 @@ namespace Library.BLL.SInventory_BLL
         {
             try
             {
+                int newCustPayId = aCustPaymentDal.SaveCustPayment(aCustPayment);
+                if (newCustPayId <= 0) return false;
+                aCustPayment.CustPayId = newCustPayId;
 
-                ClsPrimaryKeyFind aClsPrimaryKeyFind = new ClsPrimaryKeyFind();
-                aCustPayment.CustPayId = aClsPrimaryKeyFind.PrimaryKeyMax("CustPayId", "tblCustomerPay");
-                aCustPaymentDal.SaveCustPayment(aCustPayment);
-
-                custPaymentDetail.CustPayId = aCustPayment.CustPayId;
+                custPaymentDetail.CustPayId = newCustPayId;
                 SubdeportSaveCustDetail(custPaymentDetail);
 
                 return true;
@@ -122,12 +115,10 @@ namespace Library.BLL.SInventory_BLL
         {
             try
             {
+                int newDetailId = aCustPaymentDal.SaveCustDetail(aCustPaymentDetail);
+                if (newDetailId <= 0) return false;
 
-                ClsPrimaryKeyFind aClsPrimaryKeyFind = new ClsPrimaryKeyFind();
-
-                aCustPaymentDetail.CustPayDetailId = aClsPrimaryKeyFind.PrimaryKeyMax("CustPayDetailId", "tblCustPayDetail");
-                aCustPaymentDal.SaveCustDetail(aCustPaymentDetail);
-
+                aCustPaymentDetail.CustPayDetailId = newDetailId;
                 return true;
 
             }

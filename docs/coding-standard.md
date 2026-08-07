@@ -32,6 +32,7 @@ This describes the conventions actually present in the codebase (observed, not p
 
 - Legacy: liberal empty `try { } catch { }` / `catch (Exception ex) { }` blocks around conversions and optional reads — a deliberate (if blunt) way of tolerating an unset session value or a malformed column on first load. Do not assume every catch block is dead code; some suppress expected, benign failures.
 - Newer `Service` classes: catch `SqlException` specifically when its `.Number == 50000` (a `RAISERROR`-raised custom error from a stored procedure) and surface `.Message` directly to the caller; other exceptions are re-thrown after a `finally` closes the connection.
+- **Swallowed exception + ignored bool return, compounding into a misleading downstream error**: `DataAccessManager.SqlConnectionOpen` caught `SqlException` and returned `false` with no rethrow, but its callers (e.g. `PanalClsDAL.Login`) never check that return value before calling a `Get*`/`Save*` method on the same instance — so a real connection failure surfaces as `InvalidOperationException("Connection is not open.")` instead of the actual `SqlException`. See `docs/database.md`'s "Data access plumbing" section for the current (temporary, unresolved as of 2026-08-06) diagnostic fix. Don't add a new call path with this shape: either check the bool, or let the exception propagate — not both silently.
 
 ## Comments
 

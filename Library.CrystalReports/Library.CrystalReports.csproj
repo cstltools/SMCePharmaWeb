@@ -256,7 +256,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>dsMonthlyExpense.xsd</DependentUpon>
     </Compile>
-    <Compile Include="SInventory_DS\dsOrderInformation.Designer.cs" />
     <Compile Include="SInventory_DS\dsProductCostPrice.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

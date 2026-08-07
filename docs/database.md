@@ -49,6 +49,25 @@ See [`docs/security.md`](security.md) §1 for the full drift detail. In short:
 
 `Library.DAL/DataManager/` contains **four** near-duplicate connection/command helper classes — `DataAccessManager`, `DataAccessManagerAsync`, `DataAccessManagerOld`, `DataAccessManager_daaw` — plus `SqlUserAccess.cs` and `DB_Authentication.cs` above, and `EncryptDecrypt.cs` (unused, see [`security.md`](security.md)). Which one a given DAL class uses appears to depend on when that class was written rather than a deliberate per-case choice; `DataAccessManager`'s connection-string builder is the only one observed setting `Encrypt=True;TrustServerCertificate=True`.
 
+**⚠️ Temporary diagnostic change, not yet resolved (as of 2026-08-06):** `DataAccessManager.cs`'s
+`SqlConnectionOpen(string database)` (~line 119) originally caught `SqlException` and returned
+`false` silently (with a `//throw;` left commented out) — every caller of `SqlConnectionOpen`
+(e.g. `PanalClsDAL.Login`) ignores that `bool` return value and immediately calls a `Get*`/`Save*`
+method on the same `DataAccessManager`, which then throws a **misleading**
+`InvalidOperationException("Connection is not open.")` instead of the real underlying
+`SqlException` — this masked a live login failure (`Login.aspx.cs`) that reproduced consistently
+(three consecutive `POST /Login.aspx` → HTTP 500 in one test session) even though the same
+connection string opened successfully outside the app (via `sqlcmd` and a standalone
+`SqlConnection.Open()` test). The `//throw;` was uncommented to surface the real exception for
+debugging, and that change is **still active in the codebase** — it was not reverted before this
+note was written, and the actual root SqlException from inside IIS Express had not yet been
+captured. Before treating this as a permanent fix: (a) capture the real exception message next
+time this reproduces, (b) decide deliberately whether `SqlConnectionOpen` should throw or whether
+callers should instead start checking its `bool` return (the swallow-and-ignore pattern is used
+elsewhere in this class too, e.g. `SaveData`/`UpdateData`/`DeleteData` do check `EnsureOpen`
+failures via their own `catch (SqlException) { throw; }`, so `SqlConnectionOpen` alone was the
+outlier). Do not assume this is resolved without checking `Library.DAL/DataManager/DataAccessManager.cs` directly.
+
 `Library.DAL/InternalCls/`:
 - `ClsPrimaryKeyFind.cs` — computes the next primary-key value for a table, either by `SELECT MAX(column)+1` (built via string concatenation of the table/column name — see [`security.md`](security.md)) or `IDENT_CURRENT('table')` for identity columns. Confirms **not all tables use IDENTITY columns**; some rely on application-computed max+1, which is a concurrency consideration for any write path using it.
 - `ClsCommonInternalDAL.cs` — the lowest-level Dapper/ADO.NET wrapper: opens a `SqlConnection` from a named connection string and exposes generic run-SQL-text or run-named-stored-procedure helpers (including a legacy catch-all proc, `ExecuteAllSqlQueryByStoreProcedure`, for ad-hoc query strings), covering SELECT/INSERT/UPDATE/DELETE, identity-return inserts, DataTable/DataReader loading, and DropDownList binding.

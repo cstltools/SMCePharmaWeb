@@ -130,8 +130,7 @@ private static int SafeScalarToInt(object scalar)
             catch (SqlException)
             {
                 isException = true;
-                //throw;
-                return returnValue;
+                throw; // TEMP DEBUG: surface the real connection error instead of swallowing it
             }
         }
 

@@ -272,12 +272,13 @@ public partial class SInventory_UI_CustomerPayment : System.Web.UI.Page
         {
             CustomerMaster aCustomerMaster;
 
-            bool save = false;
-
-            List<CustPaymentDetail> aCustPaymentDetails = new List<CustPaymentDetail>();
+            bool anySaved = false;
+            bool anyFailed = false;
 
             for (int i = 0; i < orderGridView.Rows.Count; i++)
             {
+                bool save = false;
+                List<CustPaymentDetail> aCustPaymentDetails = new List<CustPaymentDetail>();
                 CheckBox ChkBoxRows = (CheckBox) orderGridView.Rows[i].Cells[0].FindControl("chkSelect");
                 CheckBox chkAdjust = (CheckBox)orderGridView.Rows[i].Cells[0].FindControl("chkAdjust");
                 TextBox payAmountTextBox = (TextBox) orderGridView.Rows[i].Cells[7].FindControl("payAmountTextBox");
@@ -382,14 +383,16 @@ public partial class SInventory_UI_CustomerPayment : System.Web.UI.Page
                     else
                     {
                         save = false;
+                        anyFailed = true;
                     }
 
                     if (save)
-                    { 
+                    {
                     if (aCustPaymentBll.SaveCustPayment(aCustPayment, aCustPaymentDetails))
                     {
 
                             custPayIdList.Add(aCustPayment.CustPayId.ToString());
+                            anySaved = true;
 
                             //foreach (var aDetail in aCustPaymentDetails)
                             //{
@@ -400,12 +403,16 @@ public partial class SInventory_UI_CustomerPayment : System.Web.UI.Page
                             //}
 
                         }
+                        else
+                        {
+                            anyFailed = true;
+                        }
 
                     }
                 }
             }
 
-            if (save)
+            if (anySaved)
             {
 
                 //MoneyRecitPrint();
@@ -414,12 +421,14 @@ public partial class SInventory_UI_CustomerPayment : System.Web.UI.Page
                 //LoadGridView();
                 //ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "ShowSuccesalert('" + "Operation successful!" + "','Success');", true);
                 ScriptManager.RegisterStartupScript(this, GetType(), "ShowModal", "$('#moneyModal').modal('show');", true);
-
-
             }
-            else
+
+            if (anyFailed)
             {
-                ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "faildalert('" + "Already Exist!" + "','Faild');", true);
+                string msg = anySaved
+                    ? "Some invoice(s) already paid today with same amount and were skipped!"
+                    : "Already Exist!";
+                ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "faildalert('" + msg + "','Faild');", true);
             }
 
 
@@ -479,7 +488,6 @@ public partial class SInventory_UI_CustomerPayment : System.Web.UI.Page
         {
             decimal _tpFinal = 0;
             decimal _VatFinal = 0;
-            decimal _tpPay = Convert.ToDecimal(aTable.Rows[0]["TP_Pay"].ToString());
             decimal _vatPay = Convert.ToDecimal(aTable.Rows[0]["Vat_Pay"].ToString());
 
             if (_vatPay > 0)
@@ -498,23 +506,22 @@ public partial class SInventory_UI_CustomerPayment : System.Web.UI.Page
                 }
 
             }
-
-            if (_vatPay == 0)
+            else
             {
-                if (_tpPay > 0)
-                {
-                    _tpFinal = mainamount;
-                    _VatFinal = 0;
-                }
-                else
-                {
-                    _VatFinal = 0;
-                    _tpFinal = mainamount - _vatPay;
-                }
+                // _vatPay <= 0: VAT already fully covered (or overpaid) - whole amount goes to TP.
+                _VatFinal = 0;
+                _tpFinal = mainamount;
             }
 
             hfTP_Pay.Value = _tpFinal.ToString();
             hfVat_Pay.Value = _VatFinal.ToString();
+        }
+        else
+        {
+            // SP returned nothing for this invoice/amount - don't leave a stale TP/VAT split
+            // from a previous row-edit or the initial grid bind sitting in the hidden fields.
+            hfTP_Pay.Value = "0";
+            hfVat_Pay.Value = "0";
         }
 
 
