@@ -199,7 +199,7 @@ delete conventions).
 
 Grouped by name-prefix convention (operational purpose is inferred from naming, not from reading every body). Alphabetical within each group.
 
-<details><summary><strong>Read (sp_Get*/sp_Rpt*)</strong> (696)</summary>
+<details><summary><strong>Read (sp_Get*/sp_Rpt*)</strong> (698)</summary>
 
 
 - `sp_GET_ActionStatusList`
@@ -306,6 +306,7 @@ Grouped by name-prefix convention (operational purpose is inferred from naming, 
 - `sp_GET_CustomerWiseNoSales_BI`
 - `sp_GET_CustomerWiseSalesAnalysis`
 - `sp_GET_CustomerWiseSalesAnalysis_BI`
+- `sp_GET_CustTaggedDoctorList`
 - `sp_GET_da_BankList`
 - `sp_GET_da_ConfirmationList`
 - `sp_GET_da_CustomerwiseAgingdashboard`
@@ -431,6 +432,7 @@ Grouped by name-prefix convention (operational purpose is inferred from naming, 
 - `sp_Get_DoctorGMPxRecordMonthlyDashboardZoneWise`
 - `sp_Get_DoctorList`
 - `sp_Get_DoctorList_Approval`
+- `sp_GET_DoctorList_ForCustTagging`
 - `sp_GET_DoctorMaster_ById`
 - `sp_Get_DoctorNGMPRecordMonthlyDashboard`
 - `sp_Get_DoctorNGMPxRecordMonthlyDashboard`
@@ -901,7 +903,7 @@ Grouped by name-prefix convention (operational purpose is inferred from naming, 
 
 </details>
 
-<details><summary><strong>Write (sp_Save*/sp_Update*/sp_I_*/sp_UD_*/sp_CS_*)</strong> (336)</summary>
+<details><summary><strong>Write (sp_Save*/sp_Update*/sp_I_*/sp_UD_*/sp_CS_*)</strong> (337)</summary>
 
 
 - `sp_CS_ASMInfo_Rpt`
@@ -986,6 +988,7 @@ Grouped by name-prefix convention (operational purpose is inferred from naming, 
 - `sp_Save_CustomerPropUpdateMaster`
 - `sp_Save_CustomerTypeInfo`
 - `sp_Save_CustProductLineDetail`
+- `sp_Save_CustTaggDoc`
 - `sp_Save_DAInfo`
 - `sp_Save_DcWiseTerritoryDetail`
 - `sp_Save_DcWiseTerritoryMaster`
@@ -1660,11 +1663,12 @@ Grouped by name-prefix convention (operational purpose is inferred from naming, 
 
 </details>
 
-<details><summary><strong>Delete (sp_Delete*)</strong> (54)</summary>
+<details><summary><strong>Delete (sp_Delete*)</strong> (55)</summary>
 
 
 - `sp_Delete_ByRoleIDTypeId`
 - `sp_Delete_CustomerTypeInfo`
+- `sp_Delete_CustTaggDoc`
 - `sp_Delete_DepartmnetInfo`
 - `sp_Delete_DesignationInfo`
 - `sp_Delete_DistrictCoordinator`

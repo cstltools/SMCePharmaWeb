@@ -20,7 +20,14 @@
       "Read(//c/Program Files \\\\\\(x86\\\\\\)/IIS Express/**)",
       "PowerShell(Start-Process -FilePath \"C:\\\\Program Files\\\\IIS Express\\\\iisexpress.exe\" -ArgumentList '/config:\"D:\\\\Projects\\\\SMCePharmaWeb\\\\.vs\\\\Solution\\\\config\\\\applicationhost.config\"','/site:Solution.Web' -PassThru | Select-Object -ExpandProperty Id)",
       "Bash(git commit *)",
-      "Bash(awk 'NR==24,NR==110{print NR\": \"$0}' \"D:\\\\Projects\\\\SMCePharmaWeb\\\\Solution.Web\\\\MasterSetup_UI\\\\CustomerEntry.aspx.cs\")"
+      "Bash(awk 'NR==24,NR==110{print NR\": \"$0}' \"D:\\\\Projects\\\\SMCePharmaWeb\\\\Solution.Web\\\\MasterSetup_UI\\\\CustomerEntry.aspx.cs\")",
+      "Bash(powershell -NoProfile -Command \"Get-Process iisexpress -ErrorAction SilentlyContinue | Select-Object Id,StartTime\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:58461/Login.aspx --max-time 5)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8080/Login.aspx --max-time 5)",
+      "Bash(powershell -NoProfile -Command \"Get-NetTCPConnection -OwningProcess 4336 -ErrorAction SilentlyContinue | Select-Object LocalPort,State\" 2>/dev/null)",
+      "Bash(powershell -NoProfile -Command \"netstat -ano | Select-String '4336'\" 2>/dev/null)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:58461/Login.aspx --max-time 8)",
+      "Bash(powershell -NoProfile -Command \"Stop-Process -Id 24892 -Force -ErrorAction SilentlyContinue; Write-Output done\")"
     ]
   }
 }

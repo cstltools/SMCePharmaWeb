@@ -3263,6 +3263,20 @@ Auto-generated from live schema (`SalesDisDB_SMC_NEWDB` on DESKTOP-MND72HJ) via 
 | UpdateBy | int | NULL |  |
 | UpdateDate | datetime | NULL |  |
 
+### `tblCustTaggDoc`
+
+Added 2026-08-09 for the CustomerEntry.aspx Doctor multi-select feature (see
+[`requirements.md`](requirements.md), [`business-rules.md`](business-rules.md) §3 "Customer Master
+Data"). Customer↔Doctor many-to-many mapping — no FK constraints, consistent with this database's
+convention (e.g. `tblCustProductLine` above has none either), but does carry a UNIQUE constraint on
+the pair (`UQ_tblCustTaggDoc_Customer_Doctor`) as a duplicate-mapping backstop.
+
+| Column | Type | Nullable | Key |
+|---|---|---|---|
+| CustTaggDocId | int | NOT NULL | PK, IDENTITY |
+| CustomerMasterId | int | NOT NULL | references `tblCustMaster.CustomerMasterId` |
+| DoctorId | int | NOT NULL | references `tblDoctorMaster.DoctorId` |
+
 ### `tblCustUpdateMarketLog`
 
 | Column | Type | Nullable | Key |

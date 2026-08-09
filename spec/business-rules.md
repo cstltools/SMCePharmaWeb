@@ -261,6 +261,15 @@ until traced to a single call site.
 - `CustomerEntry.aspx.cs:747-759` — Mobile number must be 11 digits: `"Mobile NO must be 11 digits!"`
 - **Disabled**: `CustomerEntry.aspx.cs:733-745` — NID length check commented out.
 - `CustomerView.aspx.cs:299-320` — Permission gate (role≠2 without permission row → redirect to Dashboard), same backdoor login override.
+- **Doctor tagging (added 2026-08-09)**: `CustomerEntry.aspx`'s `ddlDoctorTag` multi-select lets a
+  customer be tagged to zero or more doctors, following the same pattern as the page's existing
+  `ddlProLine` (product line) multi-select. Dropdown source is active+approved+coded doctors only
+  (`IsActive=1 AND DoctorCode IS NOT NULL AND ApprovalStatus='2'`, `sp_GET_DoctorList_ForCustTagging`).
+  `CustomerInfoDAL.SaveInfo` syncs the mapping table `tblCustTaggDoc` by delete-then-reinsert on
+  every save (not a diff/merge) — see `spec/database-tables.md` `tblCustTaggDoc` and
+  `spec/requirements.md` for the source requirement. Verified end-to-end against a running
+  instance (IIS Express): create with multiple doctors, edit-reload pre-selection, and
+  remove-then-resave correctly drops the removed mapping.
 - `CustomerListPending.aspx.cs:96-98`, `CustomerView.aspx.cs:159-161`, `CustomerChangeProgramType.aspx.cs:129-131` — DIC role auto-locks Distribution Center dropdown to `Session["DICCompanyUnitId"]`.
 - `CustomerChangeProgramType.aspx.cs:263-304` — Program Type required: `"Please Select Program Type!"`; `:295` generic failure mislabeled `"Already Exist!"`.
 - `Customer_Doctor_Transfer.aspx.cs:80-85,114-119` — Grid non-empty: `"Table can not be Empty!"`
