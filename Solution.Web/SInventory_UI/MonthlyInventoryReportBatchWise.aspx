@@ -127,10 +127,10 @@
                                                 <asp:BoundField DataField="ProductCode" HeaderText="Product Code" />
                                                 <asp:BoundField DataField="ProductName" HeaderText="Product Name" />
                                                 <asp:BoundField DataField="BatchNo" HeaderText="Batch No" />
-                                                <asp:BoundField DataField="BaseUnit" HeaderText="Base Unit" />
+                                                <asp:BoundField DataField="BaseUnit" HeaderText="Base Unit" Visible="false" />
                                                 <asp:BoundField DataField="ComUnitName" HeaderText="Sales Center" />
-                                                <asp:BoundField DataField="fromDate" HeaderText="From Date" />
-                                                <asp:BoundField DataField="toDate" HeaderText="To Date" />
+                                                <asp:BoundField DataField="fromDate" HeaderText="From Date" Visible="false" />
+                                                <asp:BoundField DataField="toDate" HeaderText="To Date" Visible="false" />
                                                 <asp:BoundField DataField="OpeningStock" HeaderText="Opening Stock" />
                                                 <asp:BoundField DataField="ReceiveFromCentralWarehouse" HeaderText="Receive From Central Warehouse" />
                                                 <asp:BoundField DataField="ReceiveFromAreaOfficeInterTransfer" HeaderText="Receive From Area Office (Inter Transfer)" />
@@ -140,13 +140,13 @@
                                                 <asp:BoundField DataField="IssuedToAreaOfficeInterTransfer" HeaderText="Issued To Area Office (Inter Transfer)" />
                                                 <asp:BoundField DataField="IssuedToDamageAndOthers" HeaderText="Issued To Damage/Others" />
                                                 <asp:BoundField DataField="Blocked" HeaderText="Blocked" />
-                                                <asp:BoundField DataField="ClosingStock" HeaderText="Closing Stock" />
-                                                <asp:BoundField DataField="WHReturn" HeaderText="WH Return" />
-                                                <asp:BoundField DataField="SubdepoTransfer" HeaderText="Subdepo Transfer" />
-                                                <asp:BoundField DataField="Subdeporeturn" HeaderText="Subdepo Return" />
+                                                <asp:BoundField DataField="WHReturn" HeaderText="WH Return" Visible="false" />
+                                                <asp:BoundField DataField="SubdepoTransfer" HeaderText="Subdepo Transfer" Visible="false" />
+                                                <asp:BoundField DataField="Subdeporeturn" HeaderText="Subdepo Return" Visible="false" />
                                                 <asp:BoundField DataField="StockOutQty" HeaderText="Stock Out Qty" />
-                                                <asp:BoundField DataField="BookforDeliveryQty" HeaderText="Book For Delivery Qty" />
+                                                <asp:BoundField DataField="BookforDeliveryQty" HeaderText="Book For Delivery Qty" Visible="false" />
                                                 <asp:BoundField DataField="ReturnQty" HeaderText="Return Qty" />
+                                                <asp:BoundField DataField="ClosingStock" HeaderText="Closing Stock" />
                                             </Columns>
                                         </asp:GridView>
 

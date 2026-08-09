@@ -92,6 +92,7 @@ could not be traced to a literal `.rpt` filename (noted in the technical appendi
 | Loading Report (`SInventory_UI/LoadingReport`, viewer `LoadingReportViewer`) | Goods loaded for dispatch on a given run | Date, vehicle/route | Crystal (`rptLoadingReport.rpt`) or grid+Excel | Loading/dispatch BLL |
 | In-Transit Report (`InTransitReportViewer`, `AgingInTransitReportViewer`, `MIOwiseInTransitReportViewer`, `SInventory_UI/InTransitReport`) | Goods currently in transit between locations, with an aging variant and MIO-wise breakdown | Date range, DC/MIO | Crystal (`INTransitReport.rpt`) | Transit/logistics BLL |
 | Stock Receive Report / Transfer Stock Receive Report | Stock received at destination against a transfer | Date range, DC | Crystal (dynamic path) | Stock transfer BLL/DAL |
+| Monthly Inventory Report (Batch Wise) (`SInventory_UI/MonthlyInventoryReportBatchWise.aspx`, added 2026-08-09) | Batch-wise opening/received/issued/closing stock movement per product, one row per (product, batch) | Sales Center (required), From Date (required, fixed minimum/default 31-Jul-2026 — the proc's opening-balance join is hardcoded to that snapshot date), To Date (required, ≥ From Date) | GridView + Excel export (Mechanism B) | `TotalSummaryBLL.LoadMonthlyInventoryReportBatchWise` → `sp_Get_MonthlyInventoryReportBatchWise` (`@fromDate`, `@toDate`, `@CiD` only — see `spec/database/procs/`, no product-type parameter despite the DC-level "Monthly Inventory Report (DC)" and this page sharing a "Reports" menu group) |
 
 ## 4. Field-force / Visit / Doctor-programme reports (`Reports_UI`)
 
@@ -226,7 +227,9 @@ usages, all in `SInventory_UI` with no Crystal-viewer counterpart: `TerritoryWis
 `SC_PaymentReport`, `ProformaReport`, `MoneyReceipt`, `MoneyReceiptAfterPayment`, `LoadingReport`,
 `GpSalesReport`, `DynamicSalesReport`, `DeliveryPaymentReport`, `DeliveryPaymentReportNew`,
 `DZSMTotalSummary` (plus a stray uncompiled backup file, `"DZSMTotalSummary.aspx - Copy.cs"`),
-`DHB_DeliveryPaymentReport`.
+`DHB_DeliveryPaymentReport`, `MonthlyInventoryReportBatchWise` (added 2026-08-09, modeled directly
+on `DepositSlipReport`'s layout — itself the same mechanism though not listed above, an omission in
+this pass rather than a different pattern).
 
 All 16 `Reports_UI` field-force/doctor-programme reports (§4) also use this GridView pattern — a
 `loadGridView` control bound to a DAL-returned `DataTable`, with `btnExportToExcel_Click` handlers

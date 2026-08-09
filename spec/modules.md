@@ -188,7 +188,7 @@ into the rendered `<ul>`); this listing is the full unfiltered tree, not what an
 
 ### Prescription
 
-- Prescription �Type — `../DoctorModule_UI/PrescriptionTypeView.aspx`
+- Prescription �Type — `../DoctorModule_UI/PrescriptionTypeView.aspx`
 - Prescription List — `../DoctorModule_UI/PrescriptionView.aspx`
 - RX Report — `../Reports_UI/RXDoctoriseMonthlypt.aspx`
 
@@ -310,6 +310,7 @@ into the rendered `<ul>`); this listing is the full unfiltered tree, not what an
 - Sales Rejection Report — `../SInventory_UI/SalesRejecionReport.aspx`
 - Pharma Sales, Collection & Deposition Statement Report — `../SInventory_UI/DepositSlipReport.aspx`
 - Territory wise Sales Report — `../SInventory_UI/TerritoryWiseSalesReport.aspx`
+- Monthly Inventory Report (Batch Wise) — `../SInventory_UI/MonthlyInventoryReportBatchWise.aspx` (added 2026-08-09)
 - Monthly Inventory Report (WH) — `../SInventory_UI/MonthlyWarehouseReportCW.aspx`
 - Organogram Report — `../Reports_UI/OrganogramReport.aspx`
 - SMC Family Doctor Report — `../Reports_UI/DoctorInfoReport.aspx`
@@ -377,7 +378,7 @@ into the rendered `<ul>`); this listing is the full unfiltered tree, not what an
 - Sales Confirmation Report (SAP) — `../SInventory_UI/DeliveryPaymentReportNew.aspx`
 - SAP Integration Point — `../SAP_Integration/SAP_IntrigationPoint.aspx`
 - Sales Return Report (SAP) — `../SInventory_UI/SalesReturnReportSAP.aspx`
-- Deposit Transfer to�Sap — `http://103.244.247.179:184/`
+- Deposit Transfer to�Sap — `http://103.244.247.179:184/`
 - SAP Dashboard — `../SInventory_UI/SAPDashboard.aspx`
 
 ### Archive Intrigration
