@@ -482,7 +482,18 @@
                                                        <div class="row">
                             
                                        <div class="col-6">
-                                
+                                <div class="form-group row">
+                                    <label for="ddlDoctorTag" class="col-sm-5 col-form-label">Doctor:</label>
+
+                                    <div class="col-sm-7">
+                                          <div class="input-group">
+
+                                                <asp:ListBox runat="server" id="ddlDoctorTag" SelectionMode="Multiple" class="form-select form-select-sm mb-3 multiple-select" name="ddlDoctorTag"></asp:ListBox>
+
+                                              </div>
+
+                                    </div>
+                                </div>
                                            </div>
                                          
                                        <div class="col-6">

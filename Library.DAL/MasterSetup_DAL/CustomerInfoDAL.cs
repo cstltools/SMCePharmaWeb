@@ -202,6 +202,47 @@ namespace Library.DAL.MasterSetup_DAL
             return aInformation;
         }
 
+        // Doctors eligible for tagging on Customer Entry (active, approved, coded) - see spec/requirements.md.
+        public DataTable GetDoctorListForTagging()
+        {
+            try
+            {
+                accessManager.SqlConnectionOpen(DataBase.SalesDB);
+                DataTable dt = accessManager.GetDataTable("sp_GET_DoctorList_ForCustTagging");
+                return dt;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+            finally
+            {
+                accessManager.SqlConnectionClose();
+            }
+        }
+
+        // Doctors currently tagged to a customer, for pre-selecting the multi-select on edit.
+        public DataTable GetTaggedDoctorList(int customerMasterId)
+        {
+            try
+            {
+                accessManager.SqlConnectionOpen(DataBase.SalesDB);
+                List<SqlParameter> aSqlParameterlist = new List<SqlParameter>();
+                aSqlParameterlist.Add(new SqlParameter("@CustomerMasterId", customerMasterId));
+
+                DataTable dt = accessManager.GetDataTable("sp_GET_CustTaggedDoctorList", aSqlParameterlist);
+                return dt;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+            finally
+            {
+                accessManager.SqlConnectionClose();
+            }
+        }
+
         public ResultInfo SaveProductDist( int ProductId , String _ProLineArray)
         {
             int pk = ProductId;
@@ -255,7 +296,7 @@ namespace Library.DAL.MasterSetup_DAL
             return aInformation;
         }
 
-        public ResultInfo SaveInfo(CustMasterInfoDAO master, String _ProLineArray, string sessionUser)
+        public ResultInfo SaveInfo(CustMasterInfoDAO master, String _ProLineArray, String _DoctorArray, string sessionUser)
         {
             int pk = 0;
             ResultInfo aInformation = new ResultInfo();
@@ -375,6 +416,28 @@ namespace Library.DAL.MasterSetup_DAL
 
 
 
+                    }
+
+                    // Doctor tagging (see spec/requirements.md): sync = delete all existing
+                    // mappings for this customer, then re-insert the currently selected set.
+                    List<SqlParameter> aSQLDelDoc = new List<SqlParameter>();
+                    aSQLDelDoc.Add(new SqlParameter("@CustomerMasterId", pk));
+                    accessManager.SaveData("sp_Delete_CustTaggDoc", aSQLDelDoc);
+
+                    if (_DoctorArray != "")
+                    {
+                        string[] DoctorIds = _DoctorArray.Split(',');
+
+                        foreach (String item in DoctorIds)
+                        {
+                            if (item != "")
+                            {
+                                List<SqlParameter> aSQLDoc = new List<SqlParameter>();
+                                aSQLDoc.Add(new SqlParameter("@CustomerMasterId", pk));
+                                aSQLDoc.Add(new SqlParameter("@DoctorId", item));
+                                accessManager.SaveData("sp_Save_CustTaggDoc", aSQLDoc);
+                            }
+                        }
                     }
                 }
 

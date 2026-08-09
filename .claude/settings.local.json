@@ -18,7 +18,9 @@
       "Bash(where.exe iisexpress *)",
       "Read(//c/Program Files/IIS Express/**)",
       "Read(//c/Program Files \\\\\\(x86\\\\\\)/IIS Express/**)",
-      "PowerShell(Start-Process -FilePath \"C:\\\\Program Files\\\\IIS Express\\\\iisexpress.exe\" -ArgumentList '/config:\"D:\\\\Projects\\\\SMCePharmaWeb\\\\.vs\\\\Solution\\\\config\\\\applicationhost.config\"','/site:Solution.Web' -PassThru | Select-Object -ExpandProperty Id)"
+      "PowerShell(Start-Process -FilePath \"C:\\\\Program Files\\\\IIS Express\\\\iisexpress.exe\" -ArgumentList '/config:\"D:\\\\Projects\\\\SMCePharmaWeb\\\\.vs\\\\Solution\\\\config\\\\applicationhost.config\"','/site:Solution.Web' -PassThru | Select-Object -ExpandProperty Id)",
+      "Bash(git commit *)",
+      "Bash(awk 'NR==24,NR==110{print NR\": \"$0}' \"D:\\\\Projects\\\\SMCePharmaWeb\\\\Solution.Web\\\\MasterSetup_UI\\\\CustomerEntry.aspx.cs\")"
     ]
   }
 }

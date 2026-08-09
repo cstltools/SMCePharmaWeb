@@ -221,6 +221,20 @@ public partial class MasterSetup_UI_CustomerEntry : System.Web.UI.Page
                     }
                 }
 
+                using (DataTable dtTaggedDoctor = _DAL.GetTaggedDoctorList(Convert.ToInt32(Id)))
+                {
+                    foreach (ListItem item in ddlDoctorTag.Items)
+                    {
+                        foreach (DataRow row in dtTaggedDoctor.Rows)
+                        {
+                            if (item.Value == row["DoctorId"].ToString())
+                            {
+                                item.Selected = true;
+                            }
+                        }
+                    }
+                }
+
 
                 try
                 {
@@ -369,6 +383,14 @@ public partial class MasterSetup_UI_CustomerEntry : System.Web.UI.Page
 
         try
         {
+            using (DataTable dtDoctor = _DAL.GetDoctorListForTagging())
+            {
+                foreach (DataRow row in dtDoctor.Rows)
+                {
+                    ddlDoctorTag.Items.Add(new ListItem(row["DoctorCode"] + " : " + row["DoctorName"], row["DoctorId"].ToString()));
+                }
+            }
+
             using (DataTable dt = _seedRepo.GetProLineDataTableList())
             {
                 ddlProLine.DataSource = dt;
@@ -847,10 +869,20 @@ public partial class MasterSetup_UI_CustomerEntry : System.Web.UI.Page
 
             ProLineArray = ProLineArray.TrimEnd(',');
 
+            string DoctorArray = "";
+
+            foreach (ListItem item in ddlDoctorTag.Items)
+            {
+                if (item.Selected)
+                {
+                    DoctorArray = DoctorArray + item.Value + ",";
+                }
+            }
+
+            DoctorArray = DoctorArray.TrimEnd(',');
 
 
-
-            ResultInfo Res = _DAL.SaveInfo(aMaster, ProLineArray, Session["UserId"].ToString());
+            ResultInfo Res = _DAL.SaveInfo(aMaster, ProLineArray, DoctorArray, Session["UserId"].ToString());
             if (Res.isSuccess == true)
             {
                 ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "successalert('" + "Operation successful!" + "','Success','CustomerView.aspx');", true);
