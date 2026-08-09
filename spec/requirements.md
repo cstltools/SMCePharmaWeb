@@ -1,709 +1,533 @@
-# Customer Entry – Doctor Tagging Requirement
+# Monthly Inventory Report – Batch Wise
 
 ## 1. Requirement Overview
 
-**Page:**
+Create a **new report page** for the Monthly Inventory Report (Batch Wise).
+
+### Existing Stored Procedure
+
+The report data must be generated using:
 
 ```text
-MasterSetup_UI/CustomerEntry.aspx
+sp_Get_MonthlyInventoryReportBatchWise
 ```
 
-Customer Entry page-এ `tblDoctorMaster` থেকে approved এবং active doctors load করে একটি **multi-select Doctor dropdown** যোগ করতে হবে।
+### New Page
 
-একজন Customer-এর সাথে একাধিক Doctor tag করা যাবে।
-
-Doctor tagging information একটি নতুন mapping table-এ সংরক্ষণ করতে হবে:
+Create a new ASP.NET Web Forms page under:
 
 ```text
-tblCustTaggDoc
+SInventory_UI/
+```
+
+Suggested page name:
+
+```text
+MonthlyInventoryReportBatchWise.aspx
+```
+
+Before creating the page, inspect the existing `SInventory_UI` folder and follow the project's existing report page naming convention.
+
+---
+
+# 2. UI / Design
+
+The new report page must follow the existing design, layout, controls, styling, and report interaction pattern of:
+
+```text
+SInventory_UI/DepositSlipReport.aspx
+```
+
+IMPORTANT:
+
+* First inspect `DepositSlipReport.aspx`.
+* Inspect its `.aspx.cs` code-behind.
+* Inspect the related JavaScript/CSS.
+* Follow the same page structure.
+* Reuse existing common controls/components where possible.
+* Do not redesign the report UI from scratch.
+* Do not introduce a new UI framework.
+
+---
+
+# 3. Report Filters
+
+The report page must contain the following filters:
+
+```text
+Sales Center: *
+From Date:   *
+To Date:     *
+```
+
+Expected layout:
+
+```text
+Sales Center: [________________________] *
+
+From Date:    [31-Jul-2026_____________] *
+
+To Date:      [________________________] *
+```
+
+The exact visual layout should follow:
+
+```text
+SInventory_UI/DepositSlipReport.aspx
 ```
 
 ---
 
-# 2. Doctor List
+# 4. Sales Center
 
-Doctor dropdown-এর data source হবে:
-
-```sql
-SELECT *
-FROM tblDoctorMaster
-WHERE IsActive = 1
-  AND DoctorCode IS NOT NULL
-  AND ApprovalStatus = 2
-```
-
-শুধুমাত্র এই condition পূরণ করা doctors dropdown-এ দেখাবে।
-
-### Display Format
-
-Dropdown-এ Doctor দেখাতে হবে:
-
-```text
-DoctorCode : DoctorName
-```
-
-Example:
-
-```text
-D001 : Dr. Rahman
-D002 : Dr. Karim
-D003 : Dr. Hasan
-```
-
-### Dropdown Value
-
-Dropdown-এর selected value হিসেবে `tblDoctorMaster`-এর **actual primary key / Doctor ID** ব্যবহার করতে হবে।
-
-`DoctorCode` কে database relationship key হিসেবে ব্যবহার করা যাবে না।
-
-Implementation-এর আগে existing `tblDoctorMaster` schema inspect করে actual primary key column identify করতে হবে।
-
----
-
-# 3. Multi-Select Doctor Dropdown
-
-`CustomerEntry.aspx` page-এ একটি Doctor multi-select dropdown যোগ করতে হবে।
+Sales Center is a mandatory filter.
 
 Requirements:
 
-* Multiple doctors select করা যাবে।
-* একজন customer-এর সাথে 1 বা একাধিক doctor tag করা যাবে।
-* কোনো doctor select না করেও customer save করা যাবে।
-* Existing project-এ যদি কোনো multi-select dropdown library/component already থাকে, সেটিই ব্যবহার করতে হবে।
-* নতুন unnecessary JavaScript/plugin/library add করা যাবে না।
+* Load Sales Center using the existing project/master-data mechanism.
+* Inspect `DepositSlipReport.aspx` and other inventory report pages to determine how Sales Center is currently loaded.
+* Reuse the existing Sales Center dropdown/data-loading pattern.
+* Do not hard-code Sales Center values.
 
-Example:
+Validation:
 
 ```text
-Doctor
---------------------------------
-☑ D001 : Dr. Rahman
-☑ D002 : Dr. Karim
-☐ D003 : Dr. Hasan
-☑ D004 : Dr. Ahmed
---------------------------------
+Sales Center is required.
 ```
+
+If the user tries to generate the report without selecting a Sales Center, show the project's standard validation message.
 
 ---
 
-# 4. Database Mapping Table
+# 5. From Date
 
-নতুন table:
+The **From Date must be fixed to 31-July-2026**.
 
-```text
-tblCustTaggDoc
-```
-
-Table-এর মূল উদ্দেশ্য হলো:
+Initial/default value:
 
 ```text
-Customer ↔ Multiple Doctors
+31-Jul-2026
 ```
 
-প্রস্তাবিত structure:
+The user must not be allowed to select a date earlier than:
 
 ```text
-tblCustTaggDoc
----------------------------
-CustomerMasterId
-DoctorId
+31-Jul-2026
 ```
 
-### Relationship
+Prefer setting the date control's minimum date to:
 
 ```text
-tblCustMaster
-      |
-      | CustomerMasterId
-      |
-      v
-tblCustTaggDoc
-      |
-      | DoctorId
-      |
-      v
-tblDoctorMaster
+31-Jul-2026
 ```
 
-`DoctorId` অবশ্যই `tblDoctorMaster`-এর actual primary key/ID reference করবে।
+and defaulting the From Date to:
 
-`CustomerMasterId` অবশ্যই existing `tblCustMaster` customer ID reference করবে।
+```text
+31-Jul-2026
+```
 
-Implementation-এর আগে existing database schema এবং naming/datatype/constraint convention inspect করতে হবে।
+### Important
+
+Do not assume whether the date should be editable after 31-Jul-2026.
+
+Inspect existing report/date-filter patterns in the project.
+
+Minimum business rule:
+
+```text
+From Date >= 31-Jul-2026
+```
+
+If the user enters/selects a date before 31-Jul-2026, prevent report generation and show an appropriate validation message.
 
 ---
 
-# 5. Multiple Doctor Relationship
+# 6. To Date
 
-একজন customer-এর সাথে multiple doctors থাকতে পারবে।
+To Date is mandatory.
 
-Example:
-
-```text
-CustomerMasterId = 1001
-```
-
-এর জন্য:
+Validation:
 
 ```text
-CustomerMasterId | DoctorId
------------------|---------
-1001             | 25
-1001             | 31
-1001             | 45
+To Date >= From Date
 ```
 
-অর্থাৎ:
+Invalid example:
 
 ```text
-Customer 1001
-    ├── Doctor 25
-    ├── Doctor 31
-    └── Doctor 45
-```
-
----
-
-# 6. Customer Save Logic
-
-Customer নতুনভাবে save করার সময়:
-
-### Step 1
-
-Existing customer save logic অনুযায়ী `tblCustMaster`-এ customer save করতে হবে।
-
-### Step 2
-
-Customer-এর `CustomerMasterId` পাওয়া যাবে।
-
-### Step 3
-
-Selected doctors থেকে প্রতিটি Doctor ID নিয়ে `tblCustTaggDoc`-এ mapping insert করতে হবে।
-
-Example:
-
-```text
-CustomerMasterId = 1001
-
-Selected Doctor IDs:
-25
-31
-45
-```
-
-Save হবে:
-
-```text
-1001 | 25
-1001 | 31
-1001 | 45
-```
-
-### Step 4
-
-Customer এবং Doctor mapping save সম্ভব হলে একই database transaction-এর মধ্যে করতে হবে।
-
-Customer save সফল হলেও Doctor mapping save ব্যর্থ হলে transaction rollback করতে হবে, যদি existing architecture transaction support করে।
-
----
-
-# 7. Customer Edit Logic
-
-Existing customer edit করার সময়:
-
-1. Customer information load হবে।
-2. `tblCustTaggDoc` থেকে ওই customer-এর tagged doctors load করতে হবে।
-3. Multi-select dropdown-এ existing doctors automatically selected থাকবে।
-
-Example:
-
-```text
-CustomerMasterId = 1001
-
-Existing mappings:
-25
-31
-45
-```
-
-Dropdown:
-
-```text
-☑ D001 : Dr. Rahman
-☑ D002 : Dr. Karim
-☑ D003 : Dr. Hasan
-```
-
-User চাইলে:
-
-* নতুন doctor add করতে পারবে।
-* Existing doctor remove করতে পারবে।
-* সব doctor remove করতে পারবে।
-
----
-
-# 8. Doctor Mapping Update Logic
-
-Customer edit করে save করার সময় mapping synchronize করতে হবে।
-
-Recommended approach:
-
-```text
-1. Save/Update Customer
-2. Delete existing tblCustTaggDoc records for CustomerMasterId
-3. Insert currently selected Doctor IDs
-4. Commit transaction
-```
-
-Example:
-
-### Before
-
-```text
-CustomerMasterId | DoctorId
------------------|---------
-1001             | 25
-1001             | 31
-1001             | 45
-```
-
-User যদি শুধু Doctor `25` এবং `45` রাখে:
-
-### After
-
-```text
-CustomerMasterId | DoctorId
------------------|---------
-1001             | 25
-1001             | 45
-```
-
-Doctor `31` automatically removed হবে।
-
----
-
-# 9. No Doctor Selected
-
-Customer-এর জন্য কোনো Doctor selected না থাকলেও customer save করতে হবে।
-
-Example:
-
-```text
-CustomerMasterId = 1002
-```
-
-No selected doctor:
-
-```text
-tblCustTaggDoc
----------------------------
-No record
-```
-
-এটি valid scenario।
-
----
-
-# 10. Duplicate Prevention
-
-একই customer-এর সাথে একই doctor একাধিকবার mapping করা যাবে না।
-
-Invalid:
-
-```text
-CustomerMasterId | DoctorId
------------------|---------
-1001             | 25
-1001             | 25
-```
-
-Valid:
-
-```text
-CustomerMasterId | DoctorId
------------------|---------
-1001             | 25
-1001             | 31
-1001             | 45
-```
-
-Database level-এ সম্ভব হলে:
-
-```text
-UNIQUE(CustomerMasterId, DoctorId)
-```
-
-unique constraint/index ব্যবহার করতে হবে, যদি existing project/database convention-এর সাথে compatible হয়।
-
----
-
-# 11. Doctor Filtering
-
-Doctor dropdown অবশ্যই নিচের condition অনুযায়ী load হবে:
-
-```sql
-SELECT *
-FROM tblDoctorMaster
-WHERE IsActive = 1
-  AND DoctorCode IS NOT NULL
-  AND ApprovalStatus = 2
-```
-
-Therefore:
-
-| Condition             | Result      |
-| --------------------- | ----------- |
-| `IsActive = 1`        | Show        |
-| `IsActive = 0`        | Do not show |
-| `DoctorCode IS NULL`  | Do not show |
-| `ApprovalStatus = 2`  | Show        |
-| `ApprovalStatus != 2` | Do not show |
-
----
-
-# 12. Existing Code Inspection
-
-Implementation শুরু করার আগে Claude Code অবশ্যই নিচের বিষয়গুলো inspect করবে:
-
-### Page
-
-```text
-MasterSetup_UI/CustomerEntry.aspx
-```
-
-### Code Behind
-
-```text
-MasterSetup_UI/CustomerEntry.aspx.cs
-```
-
-### Database
-
-Inspect:
-
-```text
-tblCustMaster
-tblDoctorMaster
-```
-
-### Existing Stored Procedures
-
-Customer Entry-এর existing:
-
-```text
-Insert
-Update
-Get
-Edit
-Save
-```
-
-stored procedures identify করতে হবে।
-
-### Existing UI Pattern
-
-Project-এ অন্য কোনো page-এ:
-
-```text
-Multi Select
-MultiSelect Dropdown
-Select2
-Bootstrap Multiselect
-Checkbox Dropdown
-```
-
-ব্যবহার করা হয়ে থাকলে একই pattern follow করতে হবে।
-
----
-
-# 13. Stored Procedure Convention
-
-Project যদি stored procedure-based architecture ব্যবহার করে, তাহলে existing architecture follow করতে হবে।
-
-Unnecessary direct SQL code-behind-এ add করা যাবে না।
-
-যদি নতুন stored procedure প্রয়োজন হয়, existing naming convention follow করতে হবে।
-
-Possible operations:
-
-```text
-Get Customer Tagged Doctors
-Save Customer Tagged Doctors
-```
-
-তবে existing architecture inspect না করে নতুন procedure name assume করা যাবে না।
-
----
-
-# 14. UI Requirements
-
-Doctor field customer entry form-এর existing UI design-এর সাথে consistent হতে হবে।
-
-Field label:
-
-```text
-Doctor
-```
-
-or existing project naming convention অনুযায়ী appropriate label ব্যবহার করতে হবে।
-
-Multi-select dropdown:
-
-* Search করা গেলে ভালো।
-* Multiple selection clearly visible হতে হবে।
-* Existing selected doctors edit mode-এ দেখাতে হবে।
-* Dropdown responsive হতে হবে।
-* Existing page layout break করা যাবে না।
-
----
-
-# 15. Validation
-
-Implementation শেষে নিচের test cases অবশ্যই verify করতে হবে।
-
-### Test Case 1 – No Doctor
-
-```text
-Create Customer
-Doctor = None
-Save
+From Date = 31-Jul-2026
+To Date   = 30-Jul-2026
 ```
 
 Expected:
 
 ```text
-Customer saved successfully.
-No tblCustTaggDoc record.
+Invalid date range.
+To Date cannot be earlier than From Date.
 ```
 
-### Test Case 2 – One Doctor
+To Date should normally default according to the existing report page convention.
+
+Do not invent a different default date without checking the existing reporting pages.
+
+---
+
+# 7. Stored Procedure
+
+The report must use:
 
 ```text
-Select Doctor 25
-Save
+sp_Get_MonthlyInventoryReportBatchWise
 ```
 
-Expected:
+Before implementing the report, inspect the stored procedure definition and determine:
+
+* Required parameters
+* Parameter names
+* Parameter datatypes
+* Sales Center parameter
+* From Date parameter
+* To Date parameter
+* Result columns
+* Sorting/order
+* Any additional required parameters
+
+Do not guess the stored procedure parameters.
+
+---
+
+# 8. Stored Procedure Parameter Mapping
+
+Expected logical mapping:
 
 ```text
-CustomerMasterId | DoctorId
------------------|---------
-1001             | 25
+Sales Center → Sales Center parameter
+From Date    → From Date parameter
+To Date      → To Date parameter
 ```
 
-### Test Case 3 – Multiple Doctors
+The actual parameter names must be taken directly from:
 
 ```text
-Select:
-25
-31
-45
+sp_Get_MonthlyInventoryReportBatchWise
 ```
 
-Expected:
+Example only:
 
 ```text
-1001 | 25
-1001 | 31
-1001 | 45
+@SalesCenterId
+@FromDate
+@ToDate
 ```
 
-### Test Case 4 – Edit Customer
+Do NOT assume these exact names until the stored procedure is inspected.
 
-Existing:
+---
+
+# 9. Report Result
+
+The report should display all columns returned by:
 
 ```text
-1001 | 25
-1001 | 31
+sp_Get_MonthlyInventoryReportBatchWise
 ```
 
-Open edit page.
+Do not manually omit important result columns without a business requirement.
 
-Expected:
+Inspect the existing report implementation pattern and determine whether the project uses:
+
+* GridView
+* Repeater
+* DataTable
+* ReportViewer
+* HTML table
+* Excel export
+* Print view
+
+Use the same mechanism already used by:
 
 ```text
-Doctor 25 = Selected
-Doctor 31 = Selected
+SInventory_UI/DepositSlipReport.aspx
 ```
 
-### Test Case 5 – Add Doctor
+or the closest existing inventory report.
 
-Existing:
+---
 
-```text
-25
-31
-```
+# 10. Report Generation Flow
 
-Add:
+Expected flow:
 
 ```text
-45
-```
-
-Expected:
-
-```text
-25
-31
-45
-```
-
-### Test Case 6 – Remove Doctor
-
-Existing:
-
-```text
-25
-31
-45
-```
-
-Remove:
-
-```text
-31
-```
-
-Expected:
-
-```text
-25
-45
-```
-
-### Test Case 7 – Remove All
-
-Remove all selected doctors.
-
-Expected:
-
-```text
-tblCustTaggDoc
-```
-
-এর ওই customer-এর জন্য কোনো record থাকবে না।
-
-### Test Case 8 – Duplicate Prevention
-
-Save একই customer একাধিকবার।
-
-Expected:
-
-```text
-No duplicate CustomerMasterId + DoctorId
-```
-
-### Test Case 9 – Inactive Doctor
-
-```text
-IsActive = 0
-```
-
-Expected:
-
-```text
-Doctor not visible in dropdown.
-```
-
-### Test Case 10 – Unapproved Doctor
-
-```text
-ApprovalStatus != 2
-```
-
-Expected:
-
-```text
-Doctor not visible.
-```
-
-### Test Case 11 – NULL DoctorCode
-
-```text
-DoctorCode IS NULL
-```
-
-Expected:
-
-```text
-Doctor not visible.
+User opens report
+        ↓
+Sales Center loaded
+        ↓
+From Date = 31-Jul-2026
+        ↓
+User selects Sales Center
+        ↓
+User selects To Date
+        ↓
+User clicks Search/Generate
+        ↓
+Validate filters
+        ↓
+Execute sp_Get_MonthlyInventoryReportBatchWise
+        ↓
+Display report
 ```
 
 ---
 
-# 16. Important Implementation Rules
+# 11. Validation Rules
 
-Claude Code must follow these rules:
+Before executing the stored procedure:
 
-1. Do not rewrite unrelated Customer Entry functionality.
-2. Do not change existing customer business logic unnecessarily.
-3. Do not assume primary key column names.
-4. Inspect database schema before creating relationships.
-5. Use the existing project coding pattern.
-6. Use existing dropdown/multi-select component if available.
-7. Do not add unnecessary packages.
-8. Do not store DoctorCode as `DoctorId`.
-9. Store the actual `tblDoctorMaster` primary key in `tblCustTaggDoc.DoctorId`.
-10. Customer can have zero, one, or multiple doctors.
-11. Existing customer edit must load previously tagged doctors.
-12. Updating customer doctor tags must remove obsolete mappings.
-13. Prevent duplicate customer-doctor mappings.
-14. Do not modify unrelated modules/pages.
+### Sales Center
+
+```text
+Required
+```
+
+### From Date
+
+```text
+Required
+Minimum = 31-Jul-2026
+```
+
+### To Date
+
+```text
+Required
+To Date >= From Date
+```
+
+Validation should follow the existing validation/message style of the project.
 
 ---
 
-# 17. Expected Final Result
+# 12. Page Naming
 
-After implementation:
+Create a new page.
 
-```text
-Customer Entry
-------------------------------------------------
-
-Customer Name: [________________________]
-
-Customer Code: [________________________]
-
-Doctor:
-┌──────────────────────────────────────────┐
-│ ☑ D001 : Dr. Rahman                    │
-│ ☑ D002 : Dr. Karim                     │
-│ ☐ D003 : Dr. Hasan                     │
-│ ☑ D004 : Dr. Ahmed                     │
-└──────────────────────────────────────────┘
-
-                    [ Save ]
-```
-
-Database:
+Preferred:
 
 ```text
-tblCustMaster
-      |
-      | CustomerMasterId
-      |
-      v
-tblCustTaggDoc
-      |
-      | DoctorId
-      |
-      v
-tblDoctorMaster
+SInventory_UI/MonthlyInventoryReportBatchWise.aspx
 ```
 
-Final relationship:
+with:
 
 ```text
-One Customer
-     |
-     +---- Doctor 1
-     |
-     +---- Doctor 2
-     |
-     +---- Doctor 3
-     |
-     +---- Doctor N
+SInventory_UI/MonthlyInventoryReportBatchWise.aspx.cs
 ```
 
-This is a **many-to-many style mapping structure**, where one customer can be associated with multiple doctors and the same doctor can potentially be associated with multiple customers.
+However, first inspect existing page naming conventions and use the closest consistent naming pattern if one exists.
+
+---
+
+# 13. Existing Page Inspection
+
+Before implementation Claude Code must inspect:
+
+```text
+SInventory_UI/DepositSlipReport.aspx
+SInventory_UI/DepositSlipReport.aspx.cs
+```
+
+Also inspect:
+
+```text
+sp_Get_MonthlyInventoryReportBatchWise
+```
+
+and relevant existing inventory reports.
+
+Identify:
+
+* Page layout
+* Master page
+* CSS
+* JavaScript
+* Date picker
+* Sales Center dropdown
+* Search button
+* Report/grid component
+* Export functionality
+* Print functionality
+* Data access pattern
+* Stored procedure execution pattern
+* Error handling
+* Validation pattern
+
+Then implement the new page using the same architecture.
+
+---
+
+# 14. Important Implementation Rules
+
+1. This is a **NEW report page**.
+2. Do not modify `DepositSlipReport.aspx` unless absolutely required.
+3. `DepositSlipReport.aspx` is the design/reference page only.
+4. Use `sp_Get_MonthlyInventoryReportBatchWise` as the report data source.
+5. Do not duplicate existing business logic unnecessarily.
+6. Reuse existing controls and utilities wherever possible.
+7. Do not introduce unnecessary packages/libraries.
+8. Do not guess stored procedure parameters.
+9. Inspect the stored procedure first.
+10. From Date minimum must be **31-Jul-2026**.
+11. From Date must default to **31-Jul-2026**.
+12. To Date cannot be earlier than From Date.
+13. Sales Center is mandatory.
+14. Follow existing project coding conventions.
+
+---
+
+# 15. Test Cases
+
+### TC-01: Page Load
+
+Expected:
+
+```text
+Sales Center: Loaded
+From Date: 31-Jul-2026
+To Date: Existing project default behavior
+```
+
+---
+
+### TC-02: No Sales Center
+
+Leave Sales Center empty and generate report.
+
+Expected:
+
+```text
+Validation message.
+Report should not execute.
+```
+
+---
+
+### TC-03: From Date Before Minimum
+
+Try:
+
+```text
+From Date = 30-Jul-2026
+```
+
+Expected:
+
+```text
+Validation error.
+From Date cannot be earlier than 31-Jul-2026.
+```
+
+---
+
+### TC-04: Valid Date Range
+
+```text
+From Date = 31-Jul-2026
+To Date   = 09-Aug-2026
+```
+
+Expected:
+
+```text
+sp_Get_MonthlyInventoryReportBatchWise executes successfully.
+Report data displayed.
+```
+
+---
+
+### TC-05: Invalid Date Range
+
+```text
+From Date = 05-Aug-2026
+To Date   = 04-Aug-2026
+```
+
+Expected:
+
+```text
+Validation error.
+Report should not execute.
+```
+
+---
+
+### TC-06: Multiple Sales Centers
+
+Select a valid Sales Center and generate report.
+
+Expected:
+
+```text
+Report contains data for the selected Sales Center
+according to the stored procedure result.
+```
+
+---
+
+### TC-07: No Data
+
+Select valid filters where no records exist.
+
+Expected:
+
+```text
+No data found.
+```
+
+Use the existing project's standard no-data behavior.
+
+---
+
+# 16. Final Deliverables
+
+After implementation, provide:
+
+1. New page name.
+2. Files created/modified.
+3. Stored procedure used.
+4. Parameter mapping.
+5. UI/filter details.
+6. Validation implemented.
+7. Test cases executed.
+8. Test results.
+9. Any assumptions made.
+
+---
+
+# 17. Implementation Instruction
+
+**First inspect, then implement.**
+
+Do not immediately start coding.
+
+The required sequence is:
+
+```text
+1. Inspect DepositSlipReport.aspx
+2. Inspect DepositSlipReport.aspx.cs
+3. Inspect existing inventory report pages
+4. Inspect sp_Get_MonthlyInventoryReportBatchWise
+5. Identify SP parameters/result columns
+6. Identify existing Sales Center loading pattern
+7. Identify existing date-picker/validation pattern
+8. Create new report page
+9. Implement filters
+10. Implement SP execution
+11. Implement report display
+12. Build/compile
+13. Test the report
+14. Report changed files and test results
+```
+
+The final implementation should be the **smallest clean change** that fits the existing application architecture.

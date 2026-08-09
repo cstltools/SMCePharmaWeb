@@ -141,7 +141,12 @@ namespace Library.BLL.SInventory_BLL
         {
             return aTotalSummaryDAL.LoadDepositSlipSummary(fromdate, todate, comUnitId);
         }
-        
+
+        public DataTable LoadMonthlyInventoryReportBatchWise(DateTime fromDate, DateTime toDate, string comUnitId)
+        {
+            return aTotalSummaryDAL.LoadMonthlyInventoryReportBatchWise(fromDate, toDate, comUnitId);
+        }
+
         public DataTable LoadSalesReturnReportSAP(DateTime fromdate, DateTime todate)
         {
             return aTotalSummaryDAL.LoadSalesReturnReportSAP(fromdate, todate);

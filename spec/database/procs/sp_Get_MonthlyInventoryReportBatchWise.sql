@@ -1,8 +1,22 @@
-﻿CREATE PROCEDURE [dbo].[sp_Get_MonthlyInventoryReportBatchWise]
+-- Corrected 2026-08-09 to match the LIVE deployed definition (dumped via
+-- OBJECT_DEFINITION on the dev DB) after the MonthlyInventoryReportBatchWise.aspx report page work
+-- found this file had drifted from what's actually running:
+--   - The @ProTypId NVARCHAR(MAX) parameter documented below is NOT present on the live proc - it's
+--     commented out there. The live proc takes exactly 3 params: @fromDate, @toDate, @CiD.
+--   - Consequently there is no caller-supplied product-type filter; the live WHERE clause hardcodes
+--     P.ProductGroupId = COALESCE(NULLIF(1, 0), P.ProductGroupId) (i.e. always ProductGroupId = 1)
+--     instead of using COALESCE(NULLIF(@ProTypId, 0), ...) against a parameter.
+--   - The live "IssuedToSales" SELECT expression only subtracts tblD.DelQty (not tblDRT.DelQty /
+--     tblDRTsub.DelQty like the ClosingStock calc a few lines below does) - kept as-is, not "fixed",
+--     since this file documents what's deployed, not a redesign.
+-- Any caller of this proc (see Library.DAL/SInventory_DAL/TotalSummaryDAL.cs
+-- LoadMonthlyInventoryReportBatchWise) must pass exactly @fromDate/@toDate/@CiD.
+
+CREATE PROCEDURE [dbo].[sp_Get_MonthlyInventoryReportBatchWise]
     @fromDate  DATETIME,
     @toDate    DATETIME,
-    @CiD       NVARCHAR(MAX),
-    @ProTypId  NVARCHAR(MAX)
+    @CiD       NVARCHAR(MAX)
+    --@ProTypId  NVARCHAR(MAX)
 AS
 BEGIN
 
@@ -25,15 +39,14 @@ SELECT
         + ISNULL(vTblOBfreez.Quantity,   0)                                         AS TotalReceived,
     ( ISNULL(vTblsales.Sales, 0)
         - ( ISNULL(tblD.DelQty,      0)
-          + ISNULL(tblDRT.DelQty,    0)
-          + ISNULL(tblDRTsub.DelQty, 0) ) )                                        AS IssuedToSales,
+          ) )                                        AS IssuedToSales,
     ( ISNULL(vTblProductBonus.Sales, 0)
         - ISNULL(tblreturnBonus.DelQty,    0) )
         - ISNULL(tblreturnBonusold.DelQty, 0)                                      AS IssuedToProductBonus,
     ISNULL(vTblChallan.Challan,           0)                                        AS IssuedToAreaOfficeInterTransfer,
     0                                                                               AS IssuedToDamageAndOthers,
     ISNULL(vTblFreez2.Freeze,             0)                                        AS Blocked,
-    /* ── Closing Stock ── */
+    /* -- Closing Stock -- */
     (
         ( ISNULL(vTblOB.Quantity,          0)
         + ISNULL(vTblOBfreez.Quantity,     0)
@@ -58,9 +71,9 @@ SELECT
 
 FROM dbo.tblProduct P WITH (NOLOCK)
 
-/* ════════════════════════════════════════════════════════════════
-   BatchNo ANCHOR  –  one row per (ProductCode, BatchNo)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- BatchNo ANCHOR - one row per (ProductCode, BatchNo)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo
     FROM     dbo.tblDCStore WITH (NOLOCK)
@@ -69,9 +82,9 @@ LEFT JOIN (
 ) tbldcstr ON tbldcstr.ProductCode = P.ProductCode
 
 
-/* ════════════════════════════════════════════════════════════════
-   OPENING BALANCE
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- OPENING BALANCE
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo, SUM(StockQty) AS Quantity
     FROM     dbo.tblDCStore_OpeningBalance WITH (NOLOCK)
@@ -82,9 +95,9 @@ LEFT JOIN (
         AND vTblOB.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   OPENING BALANCE (FREEZE)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- OPENING BALANCE (FREEZE)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo, SUM(StockQty) AS Quantity
     FROM     dbo.tblDCStoreFreeze WITH (NOLOCK)
@@ -95,12 +108,16 @@ LEFT JOIN (
              AND vTblOBfreez.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   SUB-INVOICE RETURN  (SalesDisDB_SMC)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- SUB-INVOICE RETURN  (SalesDisDB_SMC)
+-- NOTE: cross-database reference to SalesDisDB_SMC (the legacy DB) - that database does not exist
+-- on the local dev SQL instance used for this repo's dev testing (only SalesDisDB_SMC_NEWDB does),
+-- so this proc fails with "Invalid object name 'SalesDisDB_SMC..tblSubInvoiceMaster'" there. Not a
+-- caller bug - confirmed via direct sqlcmd EXEC with valid parameters.
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode,
-            
+
              (SUM(ID.Quantity) - SUM(ID.DeliveryQuantity))                              AS DelQty,
              ( (SUM(ID.NetAmount) - SUM(ID.TotalPriceVatAmount))
                - SUM(ID.DeliveryNetAmount - ID.DeliveryTotalPriceVatAmount) )            AS SumofNetReturnAmount,
@@ -108,7 +125,7 @@ LEFT JOIN (
              SUM(ID.TotalPriceVatAmount) - SUM(ID.DeliveryTotalPriceVatAmount)           AS TotalPriceVatAmount
     FROM     SalesDisDB_SMC..tblSubInvoiceMaster  I  WITH (NOLOCK)
     JOIN     SalesDisDB_SMC..tblSubInvoiceDetail  ID WITH (NOLOCK) ON ID.InvoiceId = I.InvoiceId
-  
+
     WHERE    I.ComUnitId = COALESCE(NULLIF(@CiD, 0), I.ComUnitId)
       AND    ID.ISGiftProduct   = 0
       AND    ID.DeliveryStatus IN ('Reject', 'Partial')
@@ -116,12 +133,12 @@ LEFT JOIN (
       AND    I.TpGrandTotal     > 0
     GROUP BY ID.ProductCode
 ) tblDRTsub ON tblDRTsub.ProductCode = P.ProductCode
-       
 
 
-/* ════════════════════════════════════════════════════════════════
-   RECEIVE FROM CENTRAL WAREHOUSE
-   ════════════════════════════════════════════════════════════════ */
+
+-- ====================================================================
+-- RECEIVE FROM CENTRAL WAREHOUSE
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo, SUM(TotalQuantity) AS TotalStockReceiveQty
     FROM     dbo.tblDCStore WITH (NOLOCK)
@@ -134,9 +151,9 @@ LEFT JOIN (
                 AND vTblStoReceive.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   RECEIVE FROM AREA OFFICE (INTER TRANSFER)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- RECEIVE FROM AREA OFFICE (INTER TRANSFER)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo, SUM(TotalQuantity) AS TotalStockReceiveQty
     FROM     dbo.tblDCStore WITH (NOLOCK)
@@ -148,9 +165,9 @@ LEFT JOIN (
                     AND vTblChallanReceive.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   TOTAL STOCK RECEIVE  (used in TotalReceived formula)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- TOTAL STOCK RECEIVE  (used in TotalReceived formula)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo, SUM(TotalQuantity) AS TotalStockReceiveQty
     FROM     dbo.tblDCStore WITH (NOLOCK)
@@ -161,9 +178,9 @@ LEFT JOIN (
                   AND vTblStockReceive.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   SALES  (Issued to Sales)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- SALES  (Issued to Sales)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode, ds.BatchNo, SUM(ID.Quantity) AS Sales
     FROM     dbo.tblInvoiceDetail ID WITH (NOLOCK)
@@ -177,9 +194,9 @@ LEFT JOIN (
            AND vTblsales.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   DELIVERY RETURN  (tblD  – current DB)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- DELIVERY RETURN  (tblD - current DB)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode,
              ds.BatchNo,
@@ -201,9 +218,9 @@ LEFT JOIN (
       AND tblD.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   BOOK FOR DELIVERY
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- BOOK FOR DELIVERY
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode, ds.BatchNo, SUM(ID.Quantity) AS BookforDeliveryQty
     FROM     dbo.tblInvoice       I
@@ -217,9 +234,9 @@ LEFT JOIN (
                        AND tblBookforDeliveryQty.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   PRODUCT BONUS  (Gift)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- PRODUCT BONUS  (Gift)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode, ds.BatchNo, SUM(ID.TotalQuantity) AS Sales
     FROM     dbo.tblInvoiceDetail ID WITH (NOLOCK)
@@ -233,9 +250,9 @@ LEFT JOIN (
                   AND vTblProductBonus.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   RETURN BONUS  (Gift return – current DB)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- RETURN BONUS  (Gift return - current DB)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode,
              ds.BatchNo,
@@ -257,9 +274,9 @@ LEFT JOIN (
                AND tblreturnBonus.BatchNo       = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   RETURN BONUS OLD  (Gift return – SalesDisDB_SMC)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- RETURN BONUS OLD  (Gift return - SalesDisDB_SMC)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode,
              ds.BatchNo,
@@ -281,9 +298,9 @@ LEFT JOIN (
                    AND tblreturnBonusold.BatchNo       = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   ISSUED TO AREA OFFICE  (Inter Transfer Challan)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- ISSUED TO AREA OFFICE  (Inter Transfer Challan)
+-- ====================================================================
 LEFT JOIN (
     SELECT   CD.ProductCode, CD.BatchNo, SUM(CD.Quantity) AS Challan
     FROM     dbo.tblChalanDetail CD WITH (NOLOCK)
@@ -295,9 +312,9 @@ LEFT JOIN (
              AND vTblChallan.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   FREEZE  (date range – vTblFreez, kept for reference)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- FREEZE  (date range - vTblFreez, kept for reference)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo,
              (SUM(StockQty) + SUM(DamageQty)) AS Freeze
@@ -309,9 +326,9 @@ LEFT JOIN (
            AND vTblFreez.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   BLOCKED STOCK
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- BLOCKED STOCK
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo,
              (SUM(StockQty) + SUM(DamageQty)) AS Freeze
@@ -324,9 +341,9 @@ LEFT JOIN (
             AND vTblFreez2.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   CURRENT STOCK  (reference only – not used in SELECT)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- CURRENT STOCK  (reference only - not used in SELECT)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo, SUM(StockQty) AS Closingstock
     FROM     dbo.tblDCStore WITH (NOLOCK)
@@ -336,9 +353,9 @@ LEFT JOIN (
               AND currentStock.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   WH RETURN
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- WH RETURN
+-- ====================================================================
 LEFT JOIN (
     SELECT   CD.ProductCode, CD.BatchNo, SUM(CD.Quantity) AS qty
     FROM     dbo.tblDepotToWHChalanInfo   CI WITH (NOLOCK)
@@ -351,9 +368,9 @@ LEFT JOIN (
                  AND vTblChallantoWH.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   SUBDEPO TRANSFER
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- SUBDEPO TRANSFER
+-- ====================================================================
 LEFT JOIN (
     SELECT   CD.ProductCode, CD.BatchNo, SUM(CD.Quantity) AS qty1
     FROM     dbo.tblSubDepotChalanInfo   CI WITH (NOLOCK)
@@ -366,9 +383,9 @@ LEFT JOIN (
                        AND vTblSubdeportTransfer.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   SUBDEPO RETURN
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- SUBDEPO RETURN
+-- ====================================================================
 LEFT JOIN (
     SELECT   CD.ProductCode, CD.BatchNo, SUM(CD.Quantity) AS qty2
     FROM     dbo.tblSubDepotChalanReturnInfo    CI WITH (NOLOCK)
@@ -382,9 +399,9 @@ LEFT JOIN (
                      AND vTblSubdeportReturn.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   DIRECT STOCK OUT / ADJUSTMENT VOUCHER
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- DIRECT STOCK OUT / ADJUSTMENT VOUCHER
+-- ====================================================================
 LEFT JOIN (
     SELECT   DD.ProductCode, DD.BatchNo, SUM(DD.StackOutQty) AS StockOutQty
     FROM     dbo.tblDeStockOutMaster  DM WITH (NOLOCK)
@@ -397,9 +414,9 @@ LEFT JOIN (
                     AND vTblDirectStockOut.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   FREEZE STOCK  (tblfreez – date range, no ComUnitId filter – kept as original)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- FREEZE STOCK  (tblfreez - date range, no ComUnitId filter - kept as original)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ProductCode, BatchNo, SUM(StockQty) AS StockQty
     FROM     dbo.tblDCStoreFreeze WITH (NOLOCK)
@@ -409,9 +426,9 @@ LEFT JOIN (
           AND tblfreez.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   OLD DELIVERY RETURN  (SalesDisDB_SMC – tblDRT)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- OLD DELIVERY RETURN  (SalesDisDB_SMC - tblDRT)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode,
              ds.BatchNo,
@@ -433,9 +450,9 @@ LEFT JOIN (
         AND tblDRT.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   2ND RETURN
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- 2ND RETURN
+-- ====================================================================
 LEFT JOIN (
     SELECT   ivD.ProductCode,
              ds.BatchNo,
@@ -453,9 +470,9 @@ LEFT JOIN (
            AND tbl2ndrtn.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   INVOICE ACTUAL QTY
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- INVOICE ACTUAL QTY
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode, ds.BatchNo, SUM(ID.Quantity) AS InvActualQty
     FROM     dbo.tblInvoiceDetail ID WITH (NOLOCK)
@@ -469,9 +486,9 @@ LEFT JOIN (
               AND TblInvActual.BatchNo      = tbldcstr.BatchNo
 
 
-/* ════════════════════════════════════════════════════════════════
-   RETURN QTY  (tblreturn)
-   ════════════════════════════════════════════════════════════════ */
+-- ====================================================================
+-- RETURN QTY  (tblreturn)
+-- ====================================================================
 LEFT JOIN (
     SELECT   ID.ProductCode,
              ds.BatchNo,
@@ -487,10 +504,10 @@ LEFT JOIN (
 ) tblreturn ON tblreturn.ProductCode = P.ProductCode
            AND tblreturn.BatchNo      = tbldcstr.BatchNo
 
-/* ════════════════════════════════════════════════════════════════
-   WHERE / ORDER
-   ════════════════════════════════════════════════════════════════ */
-WHERE  P.ProductGroupId = COALESCE(NULLIF(@ProTypId, 0), P.ProductGroupId) and tbldcstr.BatchNo is not null and 
+-- ====================================================================
+-- WHERE / ORDER
+-- ====================================================================
+WHERE  P.ProductGroupId = COALESCE(NULLIF(1, 0), P.ProductGroupId) and tbldcstr.BatchNo is not null and
 
  (( ISNULL(vTblsales.Sales, 0)
         - ( ISNULL(tblD.DelQty,      0)

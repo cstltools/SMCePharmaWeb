@@ -27,7 +27,10 @@
       "Bash(powershell -NoProfile -Command \"Get-NetTCPConnection -OwningProcess 4336 -ErrorAction SilentlyContinue | Select-Object LocalPort,State\" 2>/dev/null)",
       "Bash(powershell -NoProfile -Command \"netstat -ano | Select-String '4336'\" 2>/dev/null)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:58461/Login.aspx --max-time 8)",
-      "Bash(powershell -NoProfile -Command \"Stop-Process -Id 24892 -Force -ErrorAction SilentlyContinue; Write-Output done\")"
+      "Bash(powershell -NoProfile -Command \"Stop-Process -Id 24892 -Force -ErrorAction SilentlyContinue; Write-Output done\")",
+      "Bash(sqlcmd -S \"TOWSIF\\\\MSSQLSERVER2019\" -U sa -P sa1234 -d SalesDisDB_SMC_NEWDB -Q \"DECLARE @cid NVARCHAR\\(MAX\\) = \\(SELECT TOP 1 CAST\\(ComUnitId AS NVARCHAR\\) FROM tblCompanyUnit\\); EXEC sp_Get_MonthlyInventoryReportBatchWise @fromDate='2026-07-31', @toDate='2026-08-31', @CiD=@cid;\" -W -w 300 -y 0)",
+      "Bash(sqlcmd -S \"TOWSIF\\\\MSSQLSERVER2019\" -U sa -P sa1234 -d SalesDisDB_SMC_NEWDB -Q \"DECLARE @cid NVARCHAR\\(MAX\\) = \\(SELECT TOP 1 CAST\\(ComUnitId AS NVARCHAR\\) FROM tblCompanyUnit\\); SELECT @cid AS UsedComUnitId; EXEC sp_Get_MonthlyInventoryReportBatchWise @fromDate='2026-07-31', @toDate='2026-08-31', @CiD=@cid;\" -W -w 300)",
+      "Bash(sqlcmd *)"
     ]
   }
 }

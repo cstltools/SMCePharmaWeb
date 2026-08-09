@@ -208,6 +208,18 @@ WHERE I.TpGrandTotal>0 AND I.InvoiceDate BETWEEN @FromDate and @ToDate  GROUP BY
                 aSqlParameterList.Add(new SqlParameter("@ComUnitId", comUnitId));
             return aCommonInternalDal.GetDataTableAction("sp_Rep_DepopsitSlip_BusinessSummary", aSqlParameterList, "SSIDB");
         }
+
+        // sp_Get_MonthlyInventoryReportBatchWise takes exactly 3 params (@fromDate, @toDate, @CiD) -
+        // its @ProTypId parameter is commented out in the live proc definition (ProductGroupId is
+        // hardcoded to 1 in the proc's WHERE clause instead), so there is no product-type filter to pass.
+        public DataTable LoadMonthlyInventoryReportBatchWise(DateTime fromDate, DateTime toDate, string comUnitId)
+        {
+            List<SqlParameter> aSqlParameterList = new List<SqlParameter>();
+            aSqlParameterList.Add(new SqlParameter("@fromDate", fromDate));
+            aSqlParameterList.Add(new SqlParameter("@toDate", toDate));
+            aSqlParameterList.Add(new SqlParameter("@CiD", comUnitId));
+            return aCommonInternalDal.GetDataTableAction("sp_Get_MonthlyInventoryReportBatchWise", aSqlParameterList, "SSIDB");
+        }
         public int LoadDepositSlipSummaryProcess(DateTime fromdate, DateTime todate, string comUnitId = null)
         {
 
