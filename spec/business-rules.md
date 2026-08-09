@@ -66,6 +66,13 @@ action is blocked but no message is shown to the user (CSS/focus only).
 - `Solution.Web/SInventory_UI/InvoiceCreationForCustomerByOrder.aspx.cs:2469` — `InvalidOperationException` hard invariant for unique InvoiceId/InvoiceDetailId sequencing.
 - `Solution.Web/SInventory_UI/InvoiceGenerationRestricted.aspx.cs:436-439` — **Invoice value approval-limit gate**: `grandTotal > 50000 && !chbOverrideLimit.Checked` blocks save unless an override checkbox is checked: `"Invoice value exceeds BDT 50,000. Authorized override required."` (This is a UI-level parallel to the DB-level `CustomerInvoiceLimitService` gate in §3 — the two are not obviously wired together; verify before assuming a single source of truth for invoice limits.)
 - `Solution.Web/SInventory_UI/InvoiceGenerationRestricted.aspx.cs:339` — Duplicate product row guard.
+- `Solution.Web/SInventory_UI/InvoiceCreationByOrder_daaw.aspx.cs` (manual order → invoice, via
+  `OrderInfoBLL_daaw.GenerateInvoiceByOrderId` → `sp_Process_ProformaInvoiceByOrderId`) — **Fixed
+  2026-08-08**: insufficient stock for a selected order (either mid-allocation, or a product with no
+  stock row at all in the depot) used to still commit a partial/empty invoice and always show
+  "Invoice Generated Successfully!". The proc now reports real success/failure per order via a
+  `@Success` OUTPUT parameter (see `spec/workflow.md` §4.2), and the page now shows a distinct
+  message when some/all selected orders fail the stock check vs. all succeeding.
 
 ### Payment Partial / Partial Dues
 - `Solution.Web/SInventory_UI/PaymentPartial.aspx.cs:47,52,69,82` — Order Number/Date, valid data, Reason required.
@@ -80,6 +87,13 @@ action is blocked but no message is shown to the user (CSS/focus only).
 - `Solution.Web/SInventory_UI/CustomerPayment.aspx.cs:467-526` (`PayAmountChange`) — **Fixed (2026-08-06)**: the TP/VAT split for a partial payment (previously) fell through to `TPAmount=0, VATAmount=0` whenever the invoice's remaining VAT due was `<= 0` (VAT already fully covered or overpaid) instead of routing the full amount to TP — silently saving a wrong TP/VAT split. Also, when `sp_GET_PaymentInvSPTPVATAmt` returned zero rows for the current invoice/amount, the TP/VAT hidden fields were left holding a stale value from a previous edit or the initial grid bind instead of being reset; both now handled explicitly.
 - `Solution.Web/SInventory_UI/CustomerPayment.aspx.cs:539` — `(mainamount+prevamount) > delamount` blocked (textbox reset to `"0"`): `"Cannot Be Greater then Invoice Quantity "`
 - **Weak/disabled enforcement (separate, untouched class)**: `Library.BLL/SInventory_BLL/dadtlsCustPaymentBLL.cs:88-102` (`SaveCustPayment`) — a parallel/duplicate implementation used by other pages, **not** `CustomerPayment.aspx.cs`'s own `CustPaymentBLL.cs` above — duplicate-existence check is an empty block; method always `return true` with no error surfaced. Duplicate payments can silently fail to save with no user feedback. Not part of the 2026-08-06 fix; still open.
+- `Solution.Web/SInventory_UI/CustomerPayment.aspx.cs:282-297` (`saveButton_Click`, row-control
+  lookup) — **Fixed 2026-08-09**: row controls (`chkSelect`, `chkAdjust`, `payAmountTextBox`,
+  hidden fields, `ddlCollectionBy`, etc.) were looked up via a hardcoded `.Cells[0]`/`.Cells[7]`
+  index into `orderGridView.Rows[i]`, which breaks silently (wrong cell → `FindControl` returns
+  `null` → `NullReferenceException` or wrong control) if the grid's column layout ever changes. Now
+  looked up directly on the row (`Rows[i].FindControl(...)`, no cell index), with a null-check that
+  skips the row instead of throwing if a control genuinely isn't found.
 
 ### Customer Master Entry / Edit
 - `Solution.Web/SInventory_UI/CustMasterEntry.aspx.cs:102-194` — Long required-field chain (Name, Address, Mobile, Representative, Region, DC, FE, Area, MIO, Market, Category, Code, Address2, Contact No, City, Contact Person, etc).

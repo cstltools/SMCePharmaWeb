@@ -243,9 +243,23 @@ This is the full state sequence, grounded in the actual column definitions
   pass of this document (before live-schema verification) used that name by mistake; `tblOrder` is
   the correct table.
 - Conversion procs: `sp_AutoInvoiceGeneration`, `sp_I_InvoiceMaster`,
-  `sp_Process_ProformaInvoiceByOrderId` (and DC/sub-depot/sample variants) — not read in full for
-  this pass; the exact trigger condition for auto vs. manual invoice generation is **Not Found**
-  beyond "happens after order approval."
+  `sp_Process_ProformaInvoiceByOrderId` (and DC/sub-depot/sample variants) — the DC/sub-depot/sample
+  variants are still not read in full; the exact trigger condition for auto vs. manual invoice
+  generation is **Not Found** beyond "happens after order approval."
+- `sp_Process_ProformaInvoiceByOrderId` (manual order → invoice path, called from
+  `InvoiceCreationByOrder_daaw.aspx.cs` via `OrderInfoBLL_daaw.GenerateInvoiceByOrderId`) **read in
+  full and fixed 2026-08-08** (see
+  `spec/database/procs/sp_Process_ProformaInvoiceByOrderId.sql` FIX #5-#8, backup of the pre-fix
+  definition at `spec/database/procs/_backups/`). Previously, running out of FEFO-eligible stock
+  mid-allocation for a line, or failing the order-level stock pre-check for a product with **no**
+  `tblDCStore` row at all (`NULL` compared with `<0` evaluates to `UNKNOWN`, not `TRUE`, so the
+  pre-check silently skipped it), still hit `COMMIT` — a partial or empty invoice, reported to the
+  caller as success regardless. The proc now sets `@ErrorStat=1` on both paths so they roll back,
+  and gained a fail-closed `@Success BIT OUTPUT` parameter (only set to 1 on the real commit) since
+  the old caller relied on `RunStoreProcedure`'s rows-affected count, which is meaningless for a
+  multi-statement `SET NOCOUNT ON` proc. `GenerateInvoiceByOrderId` (BLL/DAL) now returns that
+  `bool` instead of the old (also-meaningless) `Int32`, and `InvoiceCreationByOrder_daaw.aspx.cs`
+  surfaces per-order success/failure instead of always showing "Invoice Generated Successfully!".
 
 ### 4.3 Invoice DA-side sub-statuses (three independently rejectable tracks)
 
