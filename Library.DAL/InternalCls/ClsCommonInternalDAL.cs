@@ -303,6 +303,19 @@ namespace Library.DAL.InternalCls
             }
         }
 
+        // Like RunStoreProcedure, but reads back a BIT OUTPUT parameter instead of trusting
+        // rows-affected as a success signal (rows-affected is unusable for procs with multiple
+        // INSERT/UPDATE statements and SET NOCOUNT ON).
+        internal bool RunStoreProcedureWithSuccessOutput(string sp, List<SqlParameter> aSqlParameterlist, string outputParameterName, string dataBaseName)
+        {
+            using (var connection = new SqlConnection(ConnStr(dataBaseName)))
+            {
+                var dp = ToDynamicParameters(aSqlParameterlist);
+                connection.Execute(sp, dp, commandTimeout: 99000000, commandType: CommandType.StoredProcedure);
+                return dp.Get<bool?>(outputParameterName) ?? false;
+            }
+        }
+
         // SP Insert Method
         bool ActionStatus;
         internal int SaveAction(string StoreProcedureName, List<SqlParameter> SqlParameterlist,

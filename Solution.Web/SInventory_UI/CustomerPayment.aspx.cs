@@ -279,24 +279,30 @@ public partial class SInventory_UI_CustomerPayment : System.Web.UI.Page
             {
                 bool save = false;
                 List<CustPaymentDetail> aCustPaymentDetails = new List<CustPaymentDetail>();
-                CheckBox ChkBoxRows = (CheckBox) orderGridView.Rows[i].Cells[0].FindControl("chkSelect");
-                CheckBox chkAdjust = (CheckBox)orderGridView.Rows[i].Cells[0].FindControl("chkAdjust");
-                TextBox payAmountTextBox = (TextBox) orderGridView.Rows[i].Cells[7].FindControl("payAmountTextBox");
-                HiddenField hfCustomerMasterId = (HiddenField) orderGridView.Rows[i].Cells[7].FindControl("hfCustomerMasterId");
+                CheckBox ChkBoxRows = (CheckBox) orderGridView.Rows[i].FindControl("chkSelect");
+                CheckBox chkAdjust = (CheckBox)orderGridView.Rows[i].FindControl("chkAdjust");
+                TextBox payAmountTextBox = (TextBox) orderGridView.Rows[i].FindControl("payAmountTextBox");
+                HiddenField hfCustomerMasterId = (HiddenField) orderGridView.Rows[i].FindControl("hfCustomerMasterId");
 
-                HiddenField hfMarketId = (HiddenField)orderGridView.Rows[i].Cells[7].FindControl("hfMarketId");
-                HiddenField hfTP_Pay = (HiddenField)orderGridView.Rows[i].Cells[7].FindControl("hfTP_Pay");
-                HiddenField hfVat_Pay = (HiddenField)orderGridView.Rows[i].Cells[7].FindControl("hfVat_Pay");
-                DropDownList ddlCollectionBy = (DropDownList)orderGridView.Rows[i].Cells[7].FindControl("ddlCollectionBy");
+                HiddenField hfMarketId = (HiddenField)orderGridView.Rows[i].FindControl("hfMarketId");
+                HiddenField hfTP_Pay = (HiddenField)orderGridView.Rows[i].FindControl("hfTP_Pay");
+                HiddenField hfVat_Pay = (HiddenField)orderGridView.Rows[i].FindControl("hfVat_Pay");
+                DropDownList ddlCollectionBy = (DropDownList)orderGridView.Rows[i].FindControl("ddlCollectionBy");
 
-                 
-
-
-                HiddenField hfDistributionRouteId = (HiddenField)orderGridView.Rows[i].Cells[7].FindControl("hfDistributionRouteId");
+                HiddenField hfDistributionRouteId = (HiddenField)orderGridView.Rows[i].FindControl("hfDistributionRouteId");
                 decimal prevamount = 0;
                 decimal TotalDelivery = 0;
-                Label lbl_PrvAmount = (Label)orderGridView.Rows[i].Cells[7].FindControl("lblPaymentAmount");
-                Label lblTotalDelivery = (Label)orderGridView.Rows[i].Cells[7].FindControl("lblTotalDelivery");
+                Label lbl_PrvAmount = (Label)orderGridView.Rows[i].FindControl("lblPaymentAmount");
+                Label lblTotalDelivery = (Label)orderGridView.Rows[i].FindControl("lblTotalDelivery");
+
+                if (ChkBoxRows == null || chkAdjust == null || payAmountTextBox == null || hfCustomerMasterId == null ||
+                    hfMarketId == null || hfTP_Pay == null || hfVat_Pay == null || ddlCollectionBy == null ||
+                    hfDistributionRouteId == null || lbl_PrvAmount == null || lblTotalDelivery == null)
+                {
+                    // Row template controls not found (unexpected markup change) - skip this row rather than crash.
+                    continue;
+                }
+
                 if (lbl_PrvAmount.Text != "")
                 {
                      prevamount = Convert.ToDecimal(lbl_PrvAmount.Text);

@@ -36,7 +36,7 @@ namespace Library.BLL.SInventory_BLL
             return aOrderInfoDal.LoadDoctorOrderForOrderCreation(comunitId);
         }
 
-        public Int32 GenerateInvoiceByOrderId(int orderId, int userId, string batchn, string DANameId, int? saForSelectedSick = null)
+        public bool GenerateInvoiceByOrderId(int orderId, int userId, string batchn, string DANameId, int? saForSelectedSick = null)
         {
             return aOrderInfoDal.GenerateInvoiceByOrderId(orderId, userId, batchn, DANameId, saForSelectedSick);
         }

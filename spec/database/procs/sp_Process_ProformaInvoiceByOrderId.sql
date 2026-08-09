@@ -25,6 +25,40 @@
          the same allocation decision (root cause of possible negative /
          over-deducted stock, see audit report section 4 & 6).
 
+ ---- Applied 2026-08-08 (stock-validation fix, backup at
+ ---- spec/database/procs/_backups/sp_Process_ProformaInvoiceByOrderId_backup_20260808_pre_stockfix.sql):
+
+ FIX #5  In the per-line FEFO allocation loop, the branch reached when no
+         batch remains with StockQty<>0 for the product (i.e. requested
+         qty exceeds available stock) now sets @ErrorStat=1 before
+         breaking out of the loop. Previously it only did SET @MainQty=0;
+         BREAK, so running out of stock mid-allocation left @ErrorStat=0
+         and the transaction still COMMITted a partial/under-fulfilled
+         invoice instead of rolling back.
+ FIX #6  The order-level stock pre-check (@NegativeQtyCount) now compares
+         ISNULL(tblt.Qty,0)-tblt.OrdQty<0 instead of tblt.Qty-tblt.OrdQty<0.
+         tblt.Qty comes from a LEFT JOIN to tblDCStore, so a product with
+         NO stock row at all for that ComUnitId produced NULL, and
+         NULL-OrdQty<0 evaluates to UNKNOWN (excluded by WHERE) rather
+         than TRUE - silently skipping the insufficient-stock count for
+         products the depot has never stocked. ISNULL(...,0) makes "no
+         stock row" correctly compare as zero available stock.
+
+ ---- Applied 2026-08-08 (return-value follow-up):
+
+ FIX #7  New @Success BIT OUTPUT parameter, defaulted to 0 (fail-closed)
+         and set to 1 only on the actual COMMIT path, so the caller can
+         finally distinguish "invoice created" from "silently did
+         nothing" instead of always getting an unusable rows-affected
+         count back (RunStoreProcedure returns rows-affected, not the
+         SP's RETURN value, so a bare RETURN code was never going to be
+         readable by the caller - an OUTPUT parameter is).
+ FIX #8  The IF(@NegativeQtyCount<1 AND @CreditAmount=0) gate previously
+         had no ELSE - failing the pre-check fell through to an empty
+         COMMIT with @ErrorStat still 0, which would have made the new
+         @Success flag lie (report success) for the single most common
+         insufficient-stock rejection path. Added ELSE SET @ErrorStat=1.
+
  Test in a non-production environment first. Back up the current
  definition before running:
    SELECT OBJECT_DEFINITION(OBJECT_ID('sp_Process_ProformaInvoiceByOrderId'));
@@ -37,13 +71,16 @@ CREATE PROCEDURE [dbo].[sp_Process_ProformaInvoiceByOrderId]
  @UserId INT,
  @DANameId INT,
  @BatchNo1 NVARCHAR(MAX),
- @SAforSelectedSick INT = NULL
+ @SAforSelectedSick INT = NULL,
+ @Success BIT = NULL OUTPUT   -- FIX #7
 
 AS
 BEGIN
 
 SET NOCOUNT ON;
 SET XACT_ABORT ON;   -- FIX #1
+
+SET @Success = 0;   -- FIX #7: fail-closed default, only flipped to 1 on the actual COMMIT below
 
 DECLARE @NegativeQtyCount INT=0
 DECLARE @CreditAmount DECIMAL(18,2)=0
@@ -52,7 +89,7 @@ SELECT @NegativeQtyCount=COUNT(*)  FROM (SELECT tblt.Qty,ProductId,SUM(Quantity)
 LEFT JOIN dbo.tblOrderDetail ON tblOrderDetail.OrderId = tblOrder.OrderId
 LEFT JOIN (SELECT ProductCode,ComUnitId,SUM(StockQty)Qty FROM dbo.tblDCStore GROUP BY ProductCode,ComUnitId)
 AS tblt ON tblt.ProductCode = tblOrderDetail.ProductCode AND tblt.ComUnitId = tblOrder.ComUnitId
-WHERE  tblOrder.OrderId=@OrderId GROUP BY tblt.Qty,ProductId) AS tblt WHERE tblt.Qty-tblt.OrdQty<0
+WHERE  tblOrder.OrderId=@OrderId GROUP BY tblt.Qty,ProductId) AS tblt WHERE ISNULL(tblt.Qty,0)-tblt.OrdQty<0  -- FIX #6: NULL stock (no tblDCStore row) now counts as 0, not "unknown"
 
 declare @CustId int
 
@@ -604,6 +641,7 @@ BEGIN
 				END
 				ELSE
                 BEGIN
+				SET @ErrorStat=1  -- FIX #5: no batch left to cover the remaining requested qty -> flag failure instead of silently under-fulfilling
 				SET @MainQty=0
 				BREAK
 
@@ -699,6 +737,10 @@ BEGIN
 		end
 
 	END
+	ELSE
+	BEGIN
+	SET @ErrorStat=1  -- FIX #8: pre-check found insufficient stock (or outstanding credit) - flag it so @Success correctly reports failure instead of falling through to an empty COMMIT
+	END
 
 	Declare @ProblemStat bit=0
 	Declare @InvoiceDetId2 int
@@ -749,6 +791,7 @@ else
 begin
 
 commit transaction orderprocess
+SET @Success = 1   -- FIX #7: only the real commit path reports success
 end
 
 END TRY                                                              -- FIX #2

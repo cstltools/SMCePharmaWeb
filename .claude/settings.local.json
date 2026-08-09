@@ -3,7 +3,22 @@
     "allow": [
       "Bash(git commit -m ' *)",
       "Bash(git add *)",
-      "Bash(grep -n \"^### \\\\`tblOrder\" database-tables.md)"
+      "Bash(grep -n \"^### \\\\`tblOrder\" database-tables.md)",
+      "Bash(rm -f \"D:\\\\Projects\\\\SMCePharmaWeb\\\\build_custpayment.log\")",
+      "Bash(git -C \"D:\\\\Projects\\\\SMCePharmaWeb\" status --short)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(sqlcmd *)",
+      "PowerShell(sqlcmd -S \"TOWSIF\\\\MSSQLSERVER2019\" -U sa -P sa1234 -d SalesDisDB_SMC_NEWDB -Q $sql -W -w 300 2>&1)",
+      "PowerShell(Resolve-DnsName *)",
+      "Bash(python3 -m graphify.cli export html)",
+      "Bash(PYTHONIOENCODING=utf-8 python3 -c ' *)",
+      "Bash(graphify export *)",
+      "PowerShell(& \"C:\\\\Program Files\\\\IIS Express\\\\iisexpress.exe\" /path:\"D:\\\\Projects\\\\SMCePharmaWeb\\\\Solution.Web\" /port:8088)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\18\\\\Community\\\\MSBuild\\\\Current\\\\Bin\\\\amd64\\\\MSBuild.exe\" Solution.sln /p:Configuration=Release /m /v:minimal)",
+      "Bash(where.exe iisexpress *)",
+      "Read(//c/Program Files/IIS Express/**)",
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/IIS Express/**)",
+      "PowerShell(Start-Process -FilePath \"C:\\\\Program Files\\\\IIS Express\\\\iisexpress.exe\" -ArgumentList '/config:\"D:\\\\Projects\\\\SMCePharmaWeb\\\\.vs\\\\Solution\\\\config\\\\applicationhost.config\"','/site:Solution.Web' -PassThru | Select-Object -ExpandProperty Id)"
     ]
   }
 }

@@ -642,24 +642,36 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
                     }
                 }
 
+                bool anySucceeded = false;
+                bool anyFailed = false;
+
                 for (int i = 0; i < orderGridView.Rows.Count; i++)
                 {
                     string orderIdStr = orderGridView.DataKeys[i]["OrderId"].ToString();
                     if (selectedIds.Contains(orderIdStr))
                     {
                         Int32 orderId = Convert.ToInt32(orderIdStr);
-                        aOrderInfoBll.GenerateInvoiceByOrderId(orderId, Convert.ToInt32(Session["UserId"].ToString()), batchn, selectedDANameId, replacementSaId);
+                        bool invoiceCreated = aOrderInfoBll.GenerateInvoiceByOrderId(orderId, Convert.ToInt32(Session["UserId"].ToString()), batchn, selectedDANameId, replacementSaId);
 
-                        ProformaOrInvoiceReturnBLL_daaw aIn = new ProformaOrInvoiceReturnBLL_daaw();
-                        DataTable dtInvo = aOrderInfoBll.GetInvoNOGetByInvoID(orderId.ToString());
-
-                        if (dtInvo.Rows.Count > 0 && dtInvo.Rows[0]["InvoiceId"].ToString() != "")
+                        if (invoiceCreated)
                         {
-                            DataTable dtMarket = _dataLoad.Check_anomalyInvoiceDetails(dtInvo.Rows[0]["InvoiceId"].ToString(), orderId.ToString());
-                            if (dtMarket.Rows.Count > 0)
+                            anySucceeded = true;
+
+                            ProformaOrInvoiceReturnBLL_daaw aIn = new ProformaOrInvoiceReturnBLL_daaw();
+                            DataTable dtInvo = aOrderInfoBll.GetInvoNOGetByInvoID(orderId.ToString());
+
+                            if (dtInvo.Rows.Count > 0 && dtInvo.Rows[0]["InvoiceId"].ToString() != "")
                             {
-                                aIn.DeleteProforma(dtInvo.Rows[0]["InvoiceNo"].ToString().Trim());
+                                DataTable dtMarket = _dataLoad.Check_anomalyInvoiceDetails(dtInvo.Rows[0]["InvoiceId"].ToString(), orderId.ToString());
+                                if (dtMarket.Rows.Count > 0)
+                                {
+                                    aIn.DeleteProforma(dtInvo.Rows[0]["InvoiceNo"].ToString().Trim());
+                                }
                             }
+                        }
+                        else
+                        {
+                            anyFailed = true;
                         }
                     }
                     batchno.Text = batchn.ToString();
@@ -678,7 +690,18 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
                     GridView();
                 }
 
-                ShowSuccessAlert("Invoice Generated Successfully!");
+                if (anySucceeded && !anyFailed)
+                {
+                    ShowSuccessAlert("Invoice Generated Successfully!");
+                }
+                else if (anySucceeded && anyFailed)
+                {
+                    ShowFailedAlert("Some order(s) could not be invoiced due to insufficient stock. The remaining order(s) were invoiced successfully.");
+                }
+                else
+                {
+                    ShowFailedAlert("Invoice could not be generated - insufficient stock for the selected order(s).");
+                }
             }
             catch (Exception ex)
             {

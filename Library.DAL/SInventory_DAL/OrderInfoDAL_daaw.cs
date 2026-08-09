@@ -115,7 +115,10 @@ WHERE invdt.InvoiceDetailId= '" + OrderDetailId + "' and dtl.CampaignName='Seaco
 
             return aCommonInternalDal.DataContainerDataTable(query, "SSIDB");
         }
-        public Int32 GenerateInvoiceByOrderId(int orderId, int userId, string batchno, string DANameId, int? saForSelectedSick = null)
+        // Returns whether sp_Process_ProformaInvoiceByOrderId actually committed an invoice.
+        // Reads the proc's @Success OUTPUT parameter rather than RunStoreProcedure's rows-affected
+        // count, which is meaningless for this proc's multi-statement transaction.
+        public bool GenerateInvoiceByOrderId(int orderId, int userId, string batchno, string DANameId, int? saForSelectedSick = null)
         {
             List<SqlParameter> aSqlParameterList = new List<SqlParameter>();
             aSqlParameterList.Add(new SqlParameter("@OrderId", orderId));
@@ -123,7 +126,8 @@ WHERE invdt.InvoiceDetailId= '" + OrderDetailId + "' and dtl.CampaignName='Seaco
             aSqlParameterList.Add(new SqlParameter("@BatchNo1", batchno));
             aSqlParameterList.Add(new SqlParameter("@DANameId", DANameId));
             aSqlParameterList.Add(new SqlParameter("@SAforSelectedSick", (object)saForSelectedSick ?? DBNull.Value));
-            return aCommonInternalDal.RunStoreProcedure("sp_Process_ProformaInvoiceByOrderId", aSqlParameterList, "SSIDB");
+            aSqlParameterList.Add(new SqlParameter("@Success", SqlDbType.Bit) { Direction = ParameterDirection.Output });
+            return aCommonInternalDal.RunStoreProcedureWithSuccessOutput("sp_Process_ProformaInvoiceByOrderId", aSqlParameterList, "@Success", "SSIDB");
         }
         public DataTable LoadSubInvoiceReturn(string invoiceId)
         {

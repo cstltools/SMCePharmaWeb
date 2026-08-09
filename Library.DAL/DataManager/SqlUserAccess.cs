@@ -51,7 +51,7 @@ namespace Library.DAL.DataManager
         //public static string DataSource = @"NASA-PC\MSSQLSERVER2019";
         //public static string UserName = @"sa";
         //public static string PassWord = @"sa1234";
-        public static string DataSource = @"DESKTOP-MND72HJ";
+        public static string DataSource = @"TOWSIF\MSSQLSERVER2019";
         public static string UserName = @"sa";
         public static string PassWord = @"sa1234";
 
