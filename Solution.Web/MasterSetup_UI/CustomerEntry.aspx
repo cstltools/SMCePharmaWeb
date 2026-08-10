@@ -88,7 +88,7 @@
 
                                     <div class="col-sm-7">
                                           <div class="input-group">
-                                       <asp:DropDownList  CssClass="form-select form-select-sm mb-3 mySelect2 "  runat="server" id="ddlChemisType" ></asp:DropDownList>
+                                       <asp:DropDownList  CssClass="form-select form-select-sm mb-3 mySelect2 "  runat="server" id="ddlChemisType" AutoPostBack="true" OnSelectedIndexChanged="ddlChemisType_SelectedIndexChanged" ></asp:DropDownList>
                                                <script type="text/javascript">
                                                    function pageLoad() {
                                                        $('.multiple-select').select2({

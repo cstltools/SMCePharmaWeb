@@ -56,6 +56,7 @@ public partial class MasterSetup_UI_CustomerEntry : System.Web.UI.Page
         {
 
             LoadInitialInfo();
+            ToggleDoctorTagByCustomerType();
 
 
             if (!string.IsNullOrEmpty(Request.QueryString["MID"]))
@@ -116,6 +117,7 @@ public partial class MasterSetup_UI_CustomerEntry : System.Web.UI.Page
 
                 txtChemistName.Text = dt.Rows[0]["CustomerName"].ToString();
                 ddlChemisType.SelectedValue = dt.Rows[0]["CustomerTypeId"].ToString();
+                ToggleDoctorTagByCustomerType();
 
                 ddlDistributionRoute.SelectedValue = dt.Rows[0]["DistributionRouteId"].ToString();
 
@@ -221,15 +223,18 @@ public partial class MasterSetup_UI_CustomerEntry : System.Web.UI.Page
                     }
                 }
 
-                using (DataTable dtTaggedDoctor = _DAL.GetTaggedDoctorList(Convert.ToInt32(Id)))
+                if (ddlDoctorTag.Enabled)
                 {
-                    foreach (ListItem item in ddlDoctorTag.Items)
+                    using (DataTable dtTaggedDoctor = _DAL.GetTaggedDoctorList(Convert.ToInt32(Id)))
                     {
-                        foreach (DataRow row in dtTaggedDoctor.Rows)
+                        foreach (ListItem item in ddlDoctorTag.Items)
                         {
-                            if (item.Value == row["DoctorId"].ToString())
+                            foreach (DataRow row in dtTaggedDoctor.Rows)
                             {
-                                item.Selected = true;
+                                if (item.Value == row["DoctorId"].ToString())
+                                {
+                                    item.Selected = true;
+                                }
                             }
                         }
                     }
@@ -383,14 +388,6 @@ public partial class MasterSetup_UI_CustomerEntry : System.Web.UI.Page
 
         try
         {
-            using (DataTable dtDoctor = _DAL.GetDoctorListForTagging())
-            {
-                foreach (DataRow row in dtDoctor.Rows)
-                {
-                    ddlDoctorTag.Items.Add(new ListItem(row["DoctorCode"] + " : " + row["DoctorName"], row["DoctorId"].ToString()));
-                }
-            }
-
             using (DataTable dt = _seedRepo.GetProLineDataTableList())
             {
                 ddlProLine.DataSource = dt;
@@ -896,6 +893,43 @@ public partial class MasterSetup_UI_CustomerEntry : System.Web.UI.Page
 
         }
 
+    }
+
+    private void LoadDoctorTagList()
+    {
+        using (DataTable dtDoctor = _DAL.GetDoctorListForTagging())
+        {
+            ddlDoctorTag.Items.Clear();
+            foreach (DataRow row in dtDoctor.Rows)
+            {
+                ddlDoctorTag.Items.Add(new ListItem(row["DoctorCode"] + " : " + row["DoctorName"], row["DoctorId"].ToString()));
+            }
+        }
+    }
+
+    // Doctor tagging only applies to the MDC customer type. Matched by name prefix, not the
+    // full display text, since MDC's suffix changes every fiscal year (e.g. "MDC (FY 26-27)")
+    // and there is no dedicated IsMDC flag on tblCustomerType.
+    private void ToggleDoctorTagByCustomerType()
+    {
+        bool isMdc = ddlChemisType.SelectedIndex > 0
+            && ddlChemisType.SelectedItem.Text.Trim().StartsWith("MDC", StringComparison.OrdinalIgnoreCase);
+
+        ddlDoctorTag.Enabled = isMdc;
+
+        if (isMdc)
+        {
+            LoadDoctorTagList();
+        }
+        else
+        {
+            ddlDoctorTag.Items.Clear();
+        }
+    }
+
+    protected void ddlChemisType_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        ToggleDoctorTagByCustomerType();
     }
 
     protected void ddlDivision_SelectedIndexChanged(object sender, EventArgs e)
