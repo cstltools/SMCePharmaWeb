@@ -1192,11 +1192,14 @@ public partial class dadtlsSInventory_UI_DelivaryInvoiceDetailsCreation_DA : Sys
         }
     }
 
-    /// Releases the session-owned lock taken by AcquireDaDeliveryInvoiceSubmitLock once the submit
-    /// finishes (success or failure) so other submits are not blocked behind it.
-    private static void ReleaseDaDeliveryInvoiceSubmitLock(SqlConnection connection, SqlTransaction transaction)
+    /// Releases the session-owned lock taken by AcquireDaDeliveryInvoiceSubmitLock. Must only be
+    /// called after the transaction that did the duplicate recheck has already been committed or
+    /// rolled back (never before), so a concurrent submit waiting on this lock cannot start its own
+    /// recheck until our commit/rollback is fully visible. No SqlTransaction is taken here on
+    /// purpose: by the time this runs, the connection has no pending transaction left to attach to.
+    private static void ReleaseDaDeliveryInvoiceSubmitLock(SqlConnection connection)
     {
-        using (SqlCommand cmd = new SqlCommand("sp_releaseapplock", connection, transaction))
+        using (SqlCommand cmd = new SqlCommand("sp_releaseapplock", connection))
         {
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@Resource", "DaDeliveryInvoiceSubmit_Global");
@@ -1251,6 +1254,10 @@ public partial class dadtlsSInventory_UI_DelivaryInvoiceDetailsCreation_DA : Sys
                                     if (existingDelivery.Rows.Count > 0)
                                     {
                                         transaction.Rollback();
+                                        // Lock is released only now, after the rollback is fully applied -
+                                        // any submit waiting on this lock will see this invoice's true
+                                        // (still-unprocessed) state, not a stale pre-rollback snapshot.
+                                        ReleaseDaDeliveryInvoiceSubmitLock(connection);
                                         ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "faildalert('" + "Already Exist!" + "','Faild');", true);
                                         Clear();
                                         return;
@@ -1267,10 +1274,15 @@ public partial class dadtlsSInventory_UI_DelivaryInvoiceDetailsCreation_DA : Sys
                                         aInvoiceBll.UpdateDICApprovalStatus(hfSalesConfirmationAppLogId.Value, "Approved", Session["LoginName"].ToString(), transaction);
                                     }
 
-                                    ReleaseDaDeliveryInvoiceSubmitLock(connection, transaction);
-
                                     transaction.Commit();
                                     committed = true;
+
+                                    // Only release the lock AFTER the commit is durable. Releasing it
+                                    // earlier (the previous bug) let a concurrent submit for the same
+                                    // invoice acquire the lock and run its own duplicate recheck against
+                                    // not-yet-committed data, so it could pass the check and re-apply the
+                                    // additive StockQty=StockQty+qty stock return a second time.
+                                    ReleaseDaDeliveryInvoiceSubmitLock(connection);
 
                                     //if(autopayment.Checked)
                                     //{
@@ -1285,6 +1297,7 @@ public partial class dadtlsSInventory_UI_DelivaryInvoiceDetailsCreation_DA : Sys
                                     {
                                         try { transaction.Rollback(); } catch { /* connection/transaction may already be dead; nothing left to roll back */ }
                                     }
+                                    try { ReleaseDaDeliveryInvoiceSubmitLock(connection); } catch { /* connection may already be dead; closing it below releases the session-scoped lock anyway */ }
                                     System.Diagnostics.Trace.TraceError(
                                         "DA Delivery Invoice Submit failed for InvoiceId={0}: {1}", invoiceHiddenField.Value, ex);
                                     throw;
