@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[sp_SAP_StockInTransfer]  --- exec sp_StockInMIGOtoCentralStore 1
+CREATE PROCEDURE [dbo].[sp_SAP_StockInTransfer]  --- exec sp_StockInMIGOtoCentralStore 1
     @WHStockInMasterID INT,
     @ReqId INT
 AS
@@ -21,119 +21,175 @@ BEGIN
     DECLARE @ReceiveId INT;
     DECLARE @IsIssue NVARCHAR(50);
 
-    --------------------------------------------------------
+    -- Serializes repeated/concurrent executions of this procedure for the SAME @ReqId so
+    -- the "already in tblStockInTransfar?" check below and the inserts that follow it act
+    -- as one atomic unit. A prior duplicate submission for the same ReqId (confirmed for
+    -- ANM01/batch 004-24 under ReqId 6295 - see docs/ReceiveQty_RootCause_Analysis.md) was
+    -- able to insert every ReqChildId twice because two overlapping executions both read
+    -- the NOT IN check before either had committed. Scoped per @ReqId (not global) so
+    -- unrelated Requisitions still process fully in parallel - this only blocks a second
+    -- call from racing a first call that targets the identical @ReqId.
+    -- LockOwner='Transaction' releases automatically on COMMIT or ROLLBACK, so there is no
+    -- separate release step to forget on any exit path.
+    --
+    -- This does NOT protect against the same physical SAP shipment being synced under a
+    -- DIFFERENT ChalanNo/@ReqId (see docs/ReceiveQty_RootCause_Analysis.md root cause #1,
+    -- CRITICAL, still open) - by the time this procedure runs, that duplicate ReqId chain
+    -- already exists, created several procedures earlier, and this procedure has no field
+    -- available to it that reliably identifies "this ReqId is secretly the same shipment
+    -- as that other ReqId" without risking false positives against legitimate repeat
+    -- shipments of the same product/batch.
+    DECLARE @LockResource NVARCHAR(255) = N'sp_SAP_StockInTransfer_ReqId_' + CONVERT(NVARCHAR(20), @ReqId);
+    DECLARE @LockResult INT;
+
     DECLARE @MyCursor CURSOR;
 
-    SET @MyCursor = CURSOR FAST_FORWARD
-    FOR
-    WITH CTE AS
-    (
-        SELECT
-            ReqChildId,
-            PD.ProductCode,
-            PD.ProductName,
-            PD.PackSize,
-            Batch,
-            Qty,
-            D.ExpDate,
-            D.MfgDate,
-            Price,
-            VAT,
-            CS.ReceiveDate,
-            ReceiveId,
-            IsIssue,
-            ROW_NUMBER() OVER (PARTITION BY RD.ReqChildId ORDER BY RD.ReqChildId) AS rn
-        FROM tblWHStockInDetail AS D
-        LEFT JOIN tblCentralStore AS CS ON D.WHStockInDetailID = CS.MigoDetailID
-        LEFT JOIN tblWHStockInMaster AS M ON D.WHStockInMasterID = M.WHStockInMasterID
-        LEFT JOIN tblProduct AS PD ON D.ProductId = PD.ProductId
-        LEFT JOIN SAP_API_Data..tblSAP_StockMovementMaster AS SM
-               ON UPPER(RTRIM(LTRIM(M.ChallanNo))) = UPPER(RTRIM(LTRIM(SM.challan_code)))
-        LEFT JOIN tblCompanyUnit AS UT ON Sm.to_plant_code = UT.SAP_Code
-        LEFT JOIN tblRequsitionChild AS RD ON PD.ProductCode = RD.ProductCode AND RD.BatchNO = CS.BatchNO
-        WHERE
-            RD.ReqChildId NOT IN (SELECT DISTINCT ReqChildId FROM tblStockInTransfar WHERE ReqChildId IS NOT NULL)
-            AND M.WHStockInMasterID = @WHStockInMasterID
-            AND ReqId = @ReqId
-    )
-    SELECT
-        ReqChildId,
-        ProductCode,
-        ProductName,
-        PackSize,
-        Batch,
-        Qty,
-        ExpDate,
-        MfgDate,
-        Price,
-        VAT,
-        ReceiveDate,
-        ReceiveId,
-        IsIssue
-    FROM CTE
-    WHERE rn = 1;
+    BEGIN TRY
+        BEGIN TRANSACTION;
 
-    OPEN @MyCursor;
+        EXEC @LockResult = sp_getapplock
+            @Resource = @LockResource,
+            @LockMode = 'Exclusive',
+            @LockOwner = 'Transaction',
+            @LockTimeout = 15000;
 
-    FETCH NEXT FROM @MyCursor
-    INTO @ReqChildId, @ProductCode, @ProductName, @PackSize, @Batch, @Qty, @ExpDate, @MfgDate,
-         @Price, @VAT, @ReceiveDate, @ReceiveId, @IsIssue;
+        IF @LockResult < 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+            RAISERROR('sp_SAP_StockInTransfer: could not acquire the per-ReqId lock for ReqId=%d (sp_getapplock result=%d). Another synchronization for this requisition is already in progress.', 16, 1, @ReqId, @LockResult);
+            RETURN -1;
+        END
 
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        SELECT @ReceiveIdMAX = (ISNULL(MAX(StockInTransfarId), 0) + 1)
-        FROM tblStockInTransfar;
-
-        INSERT INTO [dbo].[tblStockInTransfar]
+        SET @MyCursor = CURSOR FAST_FORWARD
+        FOR
+        WITH CTE AS
         (
-            StockInTransfarId,
-            ReqId,
+            SELECT
+                ReqChildId,
+                PD.ProductCode,
+                PD.ProductName,
+                PD.PackSize,
+                Batch,
+                Qty,
+                D.ExpDate,
+                D.MfgDate,
+                Price,
+                VAT,
+                CS.ReceiveDate,
+                ReceiveId,
+                IsIssue,
+                ROW_NUMBER() OVER (PARTITION BY RD.ReqChildId ORDER BY RD.ReqChildId) AS rn
+            FROM tblWHStockInDetail AS D
+            LEFT JOIN tblCentralStore AS CS ON D.WHStockInDetailID = CS.MigoDetailID
+            LEFT JOIN tblWHStockInMaster AS M ON D.WHStockInMasterID = M.WHStockInMasterID
+            LEFT JOIN tblProduct AS PD ON D.ProductId = PD.ProductId
+            LEFT JOIN SAP_API_Data..tblSAP_StockMovementMaster AS SM
+                   ON UPPER(RTRIM(LTRIM(M.ChallanNo))) = UPPER(RTRIM(LTRIM(SM.challan_code)))
+            LEFT JOIN tblCompanyUnit AS UT ON Sm.to_plant_code = UT.SAP_Code
+            -- WHStockInDetailID (populated by sp_SAP_STODetails going forward) is the real
+            -- 1:1 key between a ReqChildId and the exact detail row it was created from.
+            -- Prefer it whenever present; only fall back to the old ProductCode+BatchNo
+            -- match (ambiguous when >1 detail row shares the same product+batch - see
+            -- docs/ReceiveQty_Permanent_Fix_Plan.md Problem 3) for legacy ReqChildId rows
+            -- created before this column existed, so already-in-flight data isn't disturbed.
+            LEFT JOIN tblRequsitionChild AS RD
+                   ON (RD.WHStockInDetailID IS NOT NULL AND RD.WHStockInDetailID = D.WHStockInDetailID)
+                   OR (RD.WHStockInDetailID IS NULL AND PD.ProductCode = RD.ProductCode AND RD.BatchNO = CS.BatchNO)
+            WHERE
+                RD.ReqChildId NOT IN (SELECT DISTINCT ReqChildId FROM tblStockInTransfar WHERE ReqChildId IS NOT NULL)
+                AND M.WHStockInMasterID = @WHStockInMasterID
+                AND ReqId = @ReqId
+        )
+        SELECT
             ReqChildId,
             ProductCode,
             ProductName,
             PackSize,
-            BatchNo,
-            Quantity,
-            PickingQty,
-            UnitPrice,
-            PriceAmount,
-            VATAmount,
-            TotalPriceAmount,
+            Batch,
+            Qty,
             ExpDate,
+            MfgDate,
+            Price,
+            VAT,
             ReceiveDate,
-            IsIssue,
             ReceiveId,
-            MfgDate
-        )
-        VALUES
-        (
-            @ReceiveIdMAX,
-            @ReqId,
-            @ReqChildId,
-            @ProductCode,
-            @ProductName,
-            @PackSize,
-            @Batch,
-            @Qty,
-            @Qty,
-            @Price,
-            @Qty * @Price,
-            @Qty * @Vat,
-            (@Qty * @Price) + (@Qty * @Vat),
-            @ExpDate,
-            @ReceiveDate,
-            @IsIssue,
-            @ReceiveId,
-            @MfgDate
-        );
+            IsIssue
+        FROM CTE
+        WHERE rn = 1;
+
+        OPEN @MyCursor;
 
         FETCH NEXT FROM @MyCursor
         INTO @ReqChildId, @ProductCode, @ProductName, @PackSize, @Batch, @Qty, @ExpDate, @MfgDate,
              @Price, @VAT, @ReceiveDate, @ReceiveId, @IsIssue;
-    END
 
-    CLOSE @MyCursor;
-    DEALLOCATE @MyCursor;
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            SELECT @ReceiveIdMAX = (ISNULL(MAX(StockInTransfarId), 0) + 1)
+            FROM tblStockInTransfar;
+
+            INSERT INTO [dbo].[tblStockInTransfar]
+            (
+                StockInTransfarId,
+                ReqId,
+                ReqChildId,
+                ProductCode,
+                ProductName,
+                PackSize,
+                BatchNo,
+                Quantity,
+                PickingQty,
+                UnitPrice,
+                PriceAmount,
+                VATAmount,
+                TotalPriceAmount,
+                ExpDate,
+                ReceiveDate,
+                IsIssue,
+                ReceiveId,
+                MfgDate
+            )
+            VALUES
+            (
+                @ReceiveIdMAX,
+                @ReqId,
+                @ReqChildId,
+                @ProductCode,
+                @ProductName,
+                @PackSize,
+                @Batch,
+                @Qty,
+                @Qty,
+                @Price,
+                @Qty * @Price,
+                @Qty * @Vat,
+                (@Qty * @Price) + (@Qty * @Vat),
+                @ExpDate,
+                @ReceiveDate,
+                @IsIssue,
+                @ReceiveId,
+                @MfgDate
+            );
+
+            FETCH NEXT FROM @MyCursor
+            INTO @ReqChildId, @ProductCode, @ProductName, @PackSize, @Batch, @Qty, @ExpDate, @MfgDate,
+                 @Price, @VAT, @ReceiveDate, @ReceiveId, @IsIssue;
+        END
+
+        CLOSE @MyCursor;
+        DEALLOCATE @MyCursor;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF CURSOR_STATUS('variable', '@MyCursor') >= 0
+            CLOSE @MyCursor;
+        IF CURSOR_STATUS('variable', '@MyCursor') >= -1
+            DEALLOCATE @MyCursor;
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
 
     RETURN @ReceiveIdMAX;
 END

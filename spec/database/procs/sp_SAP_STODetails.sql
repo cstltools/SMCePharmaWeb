@@ -48,20 +48,28 @@ BEGIN
 	
 	SELECT @ReceiveIdMAX = (ISNULL(MAX(ReqChildId),0)+1) FROM tblRequsitionChild
 
+	-- WHStockInDetailID is threaded through so sp_SAP_StockInTransfer can pair this
+	-- ReqChildId back to the exact tblWHStockInDetail row it came from, instead of
+	-- re-deriving the match via ProductCode+BatchNo (ambiguous when more than one
+	-- detail row shares the same product+batch - see docs/ReceiveQty_Permanent_Fix_Plan.md
+	-- Problem 3). This cursor already iterates tblWHStockInDetail one row at a time,
+	-- so @WHStockInDetailID is already the correct 1:1 source for this new row.
 	INSERT INTO [dbo].[tblRequsitionChild]
            (ReqChildId
            ,ProductCode
            ,ProductName
            ,PackSize
            ,ReqQty
-           ,ReqId,BatchNO)
+           ,ReqId,BatchNO
+           ,WHStockInDetailID)
      VALUES
            (@ReceiveIdMAX
            ,@ProductCode
            ,@ProductName
            ,@PackSize
            ,@Qty
-           ,@ReqMasterId,@Batch)
+           ,@ReqMasterId,@Batch
+           ,@WHStockInDetailID)
 	
 	 
 	FETCH NEXT FROM @MyCursor
