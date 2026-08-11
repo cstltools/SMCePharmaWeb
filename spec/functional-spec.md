@@ -8,7 +8,17 @@ A user logs in with a username/password on `Login.aspx`. On success, ~14 pieces 
 
 ## 2. Menu & permissions
 
-Each logged-in user sees a nav menu built specifically for them: `Solution.Web/CommonUI/UserPermission.aspx` lets an admin grant/revoke individual menu items per user (not per role), and the master page renders only granted items (with `UserId == 1` as an unfiltered superuser). This is presentation-layer filtering, not access control — see [`docs/security.md`](../docs/security.md) for the distinction.
+**Corrected/expanded this revision**: three overlapping menu-generation systems coexist, not one. A
+legacy per-user system (`Solution.Web/CommonUI/UserPermission.aspx` lets an admin grant/revoke
+individual menu items per user, not per role) is joined by a current per-role system
+(`Solution.Web/UserPermission/UserPermission.aspx`, `tblMainMenuNew`/`tblMenuRole`, with granular
+Add/View/Edit/Delete flags that are mostly decorative — the menu-render logic only checks row
+existence, not the flag values) and a T-SQL-function mirror of the legacy system with no confirmed
+live caller. **All three independently hardcode the same `UserId == 1` superadmin bypass.** This is
+presentation-layer filtering, not access control — per-page authorization beyond "a session exists"
+is opt-in and applied on only a minority of the application's ~700 pages. See
+[`business-rules.md`](business-rules.md) §0.1 and [`docs/security.md`](../docs/security.md) for the
+distinction and full detail.
 
 ## 3. Master data management
 
@@ -44,7 +54,7 @@ Two parallel reporting capabilities — formal printable documents via Crystal R
 
 ## 11. SAP reconciliation & loyalty program
 
-Internal staging-table reconciliation screens for data destined for/from a separate SAP integration process, plus a retail-outlet "e-Program" loyalty scheme's dropout-request tracking — see [`integrations.md`](integrations.md). The actual SAP-side connector is outside this repository.
+Internal staging-table reconciliation screens for data destined for/from a separate SAP integration process, plus a retail-outlet "e-Program" loyalty scheme's dropout-request tracking — see [`integrations.md`](integrations.md). **Correction this revision**: the SAP-side connector is not entirely outside this repository as previously stated — one stored procedure, `MakeRESTRequest`, makes a genuine live outbound HTTPS call to a SAP REST endpoint directly from SQL Server (via OLE Automation), with hardcoded plaintext credentials in the procedure body, called from live (non-commented) code in `SInventory_UI`. See `integrations.md` §1a-revised for the full finding.
 
 ## 12. Administration
 

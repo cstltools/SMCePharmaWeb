@@ -1,14 +1,17 @@
 # IIS Deployment Guide
 
 This pipeline deploys a **precompiled ASP.NET Web Site project** (`Solution.Web`,
-.NET Framework 4.0, built via `AspNetCompiler` — not a Web Application Project)
-to IIS using **Web Deploy (msdeploy)**. This is one-time setup per server.
+built via `AspNetCompiler` — not a Web Application Project) to IIS using
+**Web Deploy (msdeploy)**. The four class-library projects (`Library.DAL`,
+`Library.BLL`, `Library.DAO`, `Library.CrystalReports`) target .NET Framework
+4.8; `Solution.Web/packages.config` itself targets `net40` (a version
+mismatch worth knowing about, not necessarily a build blocker) — see
+[`deployment.md`](deployment.md). This is one-time setup per server.
 
 ## 1. Prerequisites on each target IIS server (Staging / Production)
 
-1. **IIS** with ASP.NET 4.0/4.8 feature enabled (`.NET Framework 4.0` targets
-   the 4.x CLR; install the ASP.NET 4.8 role feature — .NET 4.0 runtime is
-   serviced in-place by 4.5–4.8).
+1. **IIS** with the ASP.NET 4.8 feature enabled (covers the `net40`/`v4.8`
+   mix above — the 4.5–4.8 in-place CLR update services both).
 2. **Web Deploy 3.6** installed (enables both the client `msdeploy.exe` and,
    if the server IS the deploy target, the **Web Management Service (WMSvc)**):
    - Download: https://www.iis.net/downloads/microsoft/web-deploy

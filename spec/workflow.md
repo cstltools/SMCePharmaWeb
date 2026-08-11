@@ -165,6 +165,39 @@ having one row per `SL`/`MenuId` — if both workflows really share `MenuId=381`
 role and a Leave-submitter role with the same `FromRoleId` would be routed through the *same* chain
 definition. Still flagged as a likely data-modeling bug, not verified as intentional.
 
+### 2a. A second, independently-live "legacy bulk approve" mechanism sits alongside the chain engine above (new, this revision)
+
+Reading the Doctor-module stored procedures directly (not just the C# call sites) surfaced a
+**second approval mechanism**, structurally simpler than the routing-chain engine in §1, that is
+genuinely live for several of the same entity types listed in the table above:
+
+| Legacy proc | Entity | Shape | Live from UI? |
+|---|---|---|---|
+| `sp_ApproveTourPlanInformation` | Tour plan (`tbl_TourPlanMaster`) | Single bulk `UPDATE ... WHERE Id IN (fnSplit(@Ids,','))`, no chain | **Live** — `TourPlannedApprovalList.aspx.cs:98` |
+| `sp_ApproveVisitPlanInformation` | Doctor visit plan (`tbl_DoctorTourPlanMaster` — a **different table** from the one above) | Same bulk shape; `@Status='3'` (Reject) also resets `IsFinalSubmit=0`, unlocking the plan for edit/resubmit | **Live** — `VisitPlannedApprovalList.aspx.cs:101` |
+| `sp_ApprovePrescriptionInformation` | Prescription | Same bulk shape | **Live** — `DoctorModule_UI/Setup.aspx.cs:72-75` |
+| `sp_ApproveAttendanceInformation` | Attendance | Same bulk shape | **Live** — `AttendanceListApproval.aspx.cs:474`, alongside that same page's chain-based approval (two approve mechanisms on one page) |
+| `sp_Approve_DoctorInformation` | Doctor master | Hardcodes `ApprovalStatus='Approved'`, no `@Status`/reject path | Dead — caller commented out (`Setup.aspx.cs:1556`) |
+| `sp_Approve_TADAClaim` | TA/DA claim | Same, no reject path | Dead — caller commented out (`Setup.aspx.cs:1571`) |
+| `sp_ApproveExpenseClaimInformation` | Expense claim | Same bulk shape | Dead — caller commented out (`Setup.aspx.cs:89-92`) |
+| `sp_ApproveMileageClaimInformation` | Mileage claim | Same bulk shape | Dead — caller commented out (`Setup.aspx.cs:97-100`) |
+
+**Practical implication**: for Tour Plan, Visit Plan, Prescription, and Attendance, there are **two
+independently-reachable code paths that can each mutate the same approval status** — the chain-based
+engine in §1 (multi-step, role-routed, append-only audit log) and this flat single-step bulk-approve
+mechanism (§1's `hfToRoleTypeId` gate does not apply here at all). Which one a given user actually
+hits depends entirely on which page they're on (`Approval_UI/TourPlanApproval.aspx` vs.
+`DoctorModule_UI/TourPlannedApprovalList.aspx`, for example) — both are real, live pages. For Doctor
+and TADA claim approval specifically, only the chain-based engine is reachable today; the bulk-approve
+proc exists but its only caller is commented out.
+
+Also newly confirmed: `tbl_DoctorTourPlanMaster`/`tbl_DoctorTourPlanDetail` (doctor-visit tour plans)
+and `tbl_TourPlanMaster`/`tbl_TourPlanInfo` (general/market tour plans) are **two separate master
+tables**, both using the identical `0=Pending,1=Verified,2=Approved,3=Rejected` status vocabulary —
+easy to conflate as one feature, but they are independent entities with independent approval
+mechanics (the general one gets the bulk proc above; the market one gets `workflow.md` §1's chain via
+`sp_webapi_SaveVisitPlanAppLog`, per the `DCPCVPApproval` row in the table above).
+
 ---
 
 ## 3. Stock / warehouse approval workflows
@@ -215,6 +248,63 @@ This one is a **receiving** approval, not an outbound one, and it moves stock **
 actual physical stock-quantity mutation inline in the same proc call** (decrement for stock-out,
 insert-as-received for stock-in) → status column updated last. Reject never touches quantities.
 
+### 3.4 SAP Chalan → Requisition → Stock Receive sync, and two confirmed open findings (new, this revision)
+
+Distinct from §3.1-3.3's DC/Sub-Depot/Warehouse approval flows, this is the pipeline behind
+**Stock Receive against a Chalan/DC** on
+`Solution.Web/SInventory_UI/ReceiveProductByChalanByDC.aspx`. Investigated and written up in full
+at [`docs/ReceiveQty_RootCause_Analysis.md`](../docs/ReceiveQty_RootCause_Analysis.md) — **not
+fixed**, investigation only, per explicit instruction to review the root cause before any fix.
+Both findings below are open, not resolved.
+
+```
+SAP (external, not in this repo)
+  -> SAP_API_Data.tblSAP_StockMovementMaster/Detail   (keyed only by free-text challan_code,
+                                                        no unique constraint, no SAP document/
+                                                        line number, no movement-type column)
+  -> staff clicks "Receive" on SAP_Integration/SAP_StockReceive.aspx
+     -> SAP_IntrigationPointDAL.SaveStockReceive(challanNo) -> sp_SAP_StockReceive, which
+        orchestrates, in order:
+          sp_SAP_WhStockInMaster   (INSERT tblWHStockInMaster; guard: challan_code NOT IN
+                                     existing ChallanNo values -- literal-string match only)
+          sp_SAP_WhStockInDetails  (INSERT tblWHStockInDetail, one row per Master x Detail match)
+          sp_SAP_WHStockInApprove
+          sp_SAP_STOMaster         (INSERT tblRequisition -> creates ReqId)
+          sp_SAP_STODetails        (INSERT tblRequsitionChild, ReqQty = tblWHStockInDetail.Qty)
+          sp_SAP_StockInTransfer   (INSERT tblStockInTransfar, Quantity = ReqQty, via a CTE join
+                                     keyed on ProductCode+BatchNo; "already inserted?" guard is a
+                                     plain check-then-insert, no lock/unique constraint)
+  -> ReceiveProductByChalanByDC.aspx.cs binds tblStockInTransfar rows (WHERE IsTransfared IS
+     NULL AND ReqId=@ReqId) verbatim; RcvQty = Eval("Quantity") with no independent cross-check
+  -> clerk confirms Receive -> tblDCStore/tblDCStoreFreeze updated, tblStockInTransfar.IsTransfared='OK'
+```
+
+**Open finding 1 — no duplicate-shipment detection anywhere in this chain (CRITICAL)**: the SAP
+side can (and, in a confirmed live example, did) sync the exact same physical shipment twice under
+two different `challan_code` strings 10 days apart. Each independently matches the app's
+literal-string `NOT IN` guard, so each becomes its own fully-valid, independently-processed
+`tblRequisition`/`tblStockInTransfar` chain — one already received into `tblDCStore`, the other
+still sitting pending, both showing identical products/batches/quantities. Nothing on
+`ReceiveProductByChalanByDC.aspx` distinguishes the still-pending duplicate from a genuine new
+delivery; receiving it would silently double-count stock already received. See
+`docs/ReceiveQty_RootCause_Analysis.md` §8-10, §16 root cause #1 (CONFIRMED), §19.
+
+**Open finding 2 — `sp_SAP_StockInTransfer`'s duplicate-insert guard is unsafe under repeated/
+concurrent execution (HIGH)**: its guard is a plain `WHERE ReqChildId NOT IN (SELECT DISTINCT
+ReqChildId FROM tblStockInTransfar ...)` check with no application lock, no transaction scope, and
+no uniqueness constraint on `tblStockInTransfar(ReqChildId)` — safe only if the proc never runs
+twice for the same input without the first run's inserts being visible yet. Confirmed live
+consequence: one product/batch line within a single, still-pending Chalan is represented by 4
+`tblStockInTransfar` rows instead of 2, even though the upstream `tblRequsitionChild` table holds
+only the correct 2 source rows — the duplication was introduced by this proc's own insert, not by
+duplicated source data. This is the same class of check-then-insert-without-a-lock bug as the DA
+delivery-invoice double-stock-return race documented in `spec/business-rules.md` §1 ("DA Delivery
+Invoice Submission") — that one **was** fixed (2026-08-11, by widening a `sp_getapplock` to span
+the whole commit); this one has not been. See `docs/ReceiveQty_RootCause_Analysis.md` §14-16 root
+cause #2 (CONFIRMED as to the duplicate rows and their consequence; the exact trigger — repeated
+manual click vs. a genuine concurrency race — is unconfirmed, no execution/audit log was
+available).
+
 ---
 
 ## 4. Order-to-invoice-to-payment-to-collection lifecycle
@@ -261,6 +351,30 @@ This is the full state sequence, grounded in the actual column definitions
   `bool` instead of the old (also-meaningless) `Int32`, and `InvoiceCreationByOrder_daaw.aspx.cs`
   surfaces per-order success/failure instead of always showing "Invoice Generated Successfully!".
 
+### 4.2a `sp_UP_LoadingSummary` — the actual loading→delivery→payment orchestration hub (new, this revision)
+
+Not previously documented in this file. `sp_UP_LoadingSummary` (called from `InvoiceDAL.cs`/
+`InvoiceDAL_daaw.cs`/`SalesReturnDAL.cs`/`dadtlsInvoiceDAL.cs`) is the real dispatcher that sits
+between order→invoice conversion (§4.2) and the DA-side sub-statuses (§4.3), branching on the
+caller-supplied `@LoadingSummaryStatus`:
+
+- **`'Rejection'`**: if the invoice isn't yet delivered, archives it to `tblRejectionInvoiceMaster`/
+  `Detail`, then internally calls `sp_Delete_ProformaInvoice` (which reverses the stock deduction —
+  see §4.2's proc) and sets `tblOrder.isInvoice=1, IsRejectionInvoice=1`.
+- **`'Cash'`**: internally calls `sp_DeliveryConformationFull` (marks the invoice fully delivered)
+  immediately followed by `sp_PaymentConformationFull` (marks it fully paid) — **cash sales skip the
+  separate delivery-confirmation and payment-confirmation UI steps entirely**, both are stamped
+  automatically in one call.
+- **Any other value**: stamps `LoadingSummaryStatus` to whatever was passed, and still calls
+  `sp_PaymentConformationFull` regardless.
+
+**This proc chains 2-3 further procs internally with no shared transaction across the chain** — a
+failure partway through (e.g. after the delete-proforma call succeeds but before the loading-summary
+log write) can leave the invoice in an inconsistent intermediate state with no automatic rollback.
+`sp_DeliveryConformationFull` itself exists in three near-identical versions (`_New`, `_OldData`, plus
+the base version) all still referenced by live callers — which one is authoritative for a given code
+path was not resolved in this pass.
+
 ### 4.3 Invoice DA-side sub-statuses (three independently rejectable tracks)
 
 `tblInvoice` carries three parallel status columns that a **Delivery Associate (DA)** progresses
@@ -272,13 +386,27 @@ independently, each with its own approval-log table and its own reject proc:
 | `DA_PaymentCollection` | DA has collected payment for the invoice (`DA_PaymentCollectionBy`/`Date` stamp who/when) | (payment collection app-log, not read in full) | `sp_RejectInvoiceDAPaymentCollection` |
 | `DA_SalesReturn` | DA has recorded a sales return against the invoice (`DA_SalesReturnDate`/`By`/`Type` stamp) | `tblSalesReturn_appLog`, `tblSalesReturn_appLogDetail` | `sp_RejectInvoiceDASalesReturn` |
 
-Each reject proc follows the identical shape (verified for `sp_RejectInvoiceDASalesConfirmStatus`,
-assumed identical for the Payment/SalesReturn siblings by naming/column symmetry): set the relevant
-`tblInvoice` status column to `'Rejected'`, then **hard-delete** the corresponding app-log and
-app-log-detail rows for that invoice — the only place in this system observed to delete audit rows
-rather than append a `'Rejected'` log row (contrast with §1.3 step 5's append-only pattern). A
-rejected DA sub-status effectively erases its submission history, requiring the DA to resubmit from
-scratch rather than see a rejected entry in their log.
+Two of the three reject procs follow the identical shape (verified directly for both this revision):
+set the relevant `tblInvoice` status column to `'Rejected'`, then **hard-delete** the corresponding
+app-log and app-log-detail rows for that invoice — the only place in this system observed to delete
+audit rows rather than append a `'Rejected'` log row (contrast with §1.3 step 5's append-only
+pattern). A rejected DA sub-status effectively erases its submission history, requiring the DA to
+resubmit from scratch rather than see a rejected entry in their log.
+
+**Correction (this revision) — the Payment sibling does NOT match this shape.** The prior version of
+this document assumed `sp_RejectInvoiceDAPaymentCollection` mirrors
+`sp_RejectInvoiceDASalesConfirmStatus` "by naming/column symmetry," without reading its body. Having
+now read it directly: its `UPDATE dbo.tblInvoice SET DA_PaymentCollection='Rejected'` statement is
+**commented out** — the proc only deletes the `tblPaymentCollection_appLog` row (`@InvoiceId` is
+barely used, its own `WHERE`-clause reference is also commented out). **Rejecting a DA payment
+collection therefore does not actually flip `tblInvoice.DA_PaymentCollection` back to `'Rejected'`**
+— the invoice is left showing whatever status it had before, while the audit-log row is deleted
+regardless. `sp_RejectInvoiceDASalesReturn` (the third sibling) is, by contrast, **more defensive
+than the others**: it resolves `@InvoiceId` from `@SalesReturnAppLogId` when not directly passed, and
+does correctly set `tblInvoice.DA_SalesReturn='Rejected'` when an invoice ID is resolvable. So of the
+three "identical-looking" reject procs, one is exactly as documented, one silently fails to update
+its status column, and one is more defensive than its name suggests — do not assume symmetry across
+this table without checking each proc individually.
 
 ### 4.4 DIC re-approval layer
 
@@ -364,6 +492,27 @@ Employee submits leave request                  ApprovalStatus = NULL, Days rese
 
 ---
 
+## 5a. Market-structure transfer workflow, and a confirmed live bug in two of its six screens (new, this revision)
+
+`TransferUI` implements a propose→approve two-step pattern for reassigning Market/Sub-Territory/
+Territory/Area/Zone nodes between organizational units — structurally distinct from both the chain
+engine (§1) and the stock-approval pattern (§3): a proposal is written to `tblMarketStructureTranfer`
+by `sp_Update_MarketStructure_Transfer` (`@Type` selects which hierarchy level), then a **separate**
+step, `sp_Update_MarketStructure_Approve`, reads the pending row back and applies the actual mutation
+to `tblMarket`/`tblSubTerritory`/`tblTerritory` only on approval — a flat single-"ApprovedBy"-stamp
+approval, not a routed chain.
+
+**Confirmed live bug**: `sp_Update_MarketStructure_Transfer`'s body only has `IF` branches for
+`@Type='Market'`, `'Sub-Territory'`, and `'Territory'` — **there is no branch, and no `ELSE`, for
+`@Type='Area'` or `@Type='Zone'`**. But `Area_Transfer.aspx.cs` and `Zone_Transfer.aspx.cs` both call
+this same proc with exactly those two `@Type` values. When hit, none of the proc's `IF` blocks match,
+so it does nothing — no row is written, no error is raised. This is compounded by
+`DataAccessManager.ExecuteNonQueryVoid` (the underlying save-call wrapper), which never checks
+`SqlCommand.ExecuteNonQuery()`'s rows-affected return value and reports success on "no exception
+thrown" alone. **Net effect: the Area Transfer and Zone Transfer screens show a success message while
+persisting nothing** — a genuine, user-facing functional defect in 2 of the 6 `TransferUI` screens,
+not merely a theoretical gap. Not previously documented anywhere in this spec set.
+
 ## 6. Known data-quality issues in the chain workflows
 
 These were flagged from C# call sites in the prior `business-rules.md` pass; nothing in the proc
@@ -395,3 +544,5 @@ purposes.
   `tblOrder`, `tblInvoice`, and all other tables referenced above.
 - [`spec/database/procs/`](database/procs/) — proc source for every stored procedure named in this
   document.
+- [`docs/ReceiveQty_RootCause_Analysis.md`](../docs/ReceiveQty_RootCause_Analysis.md) — full
+  investigation backing §3.4's two open SAP stock-receive findings.

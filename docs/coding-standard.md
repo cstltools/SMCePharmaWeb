@@ -13,7 +13,7 @@ This describes the conventions actually present in the codebase (observed, not p
 
 - Module folders repeat identically across `Solution.Web` (`*_UI`), `Library.BLL` (`*_BLL`), `Library.DAL` (`*_DAL`), and `Library.DAO` (`*_DAO`/`*_Entities`) — e.g. `SInventory_UI` ↔ `SInventory_BLL` ↔ `SInventory_DAL` ↔ `SInventory_Entities`. When adding a feature to an existing module, follow its established folder name across all four projects rather than inventing a new one.
 - `Library.DAL/DataManager/` holds shared plumbing (four connection/command-execution variants, encryption helper, database-name constants) used across all module DAL folders.
-- `Library.DAL/InternalCls/` holds cross-cutting utilities: `ClsPrimaryKeyFind` (computes next primary-key value via `MAX()+1` rather than IDENTITY columns, in at least some tables), `ClsCommonInternalDAL`, `EncryptDecrypt` (unused — see [`docs/security.md`](security.md)), `clsNum2Word` (converts a decimal amount to English words in Crore/Lac/Taka/Paisa denominations, for printed documents).
+- `Library.DAL/InternalCls/` holds cross-cutting utilities: `ClsPrimaryKeyFind` (computes next primary-key value via `MAX()+1` rather than IDENTITY columns, in at least some tables), `ClsCommonInternalDAL`, `clsNum2Word` (converts a decimal amount to English words in Crore/Lac/Taka/Paisa denominations, for printed documents). (`EncryptDecrypt` — unused, see [`docs/security.md`](security.md) — lives in `Library.DAL/DataManager/`, not here.)
 
 ## Data access style
 

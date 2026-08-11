@@ -4,8 +4,8 @@ Every top-level feature folder under `Solution.Web`, with page counts (`.aspx` f
 
 | Module folder | Pages | Purpose |
 |---|---|---|
-| `Approval_UI` | 12 | Central multi-workflow approval inbox — customer, DA claim, doctor, DCR, expense, leave, mileage, order, RX, tour plan, and doctor/customer-transfer approvals. See [`workflow.md`](workflow.md). |
-| `SInventory_UI` | 318 | The core ERP module: master data (product, customer, area/region/zone, pricing), order-to-cash (order, invoice, delivery, proforma, sales return), stock/warehouse operations, and the majority of sales/collection/receivables reports. |
+| `Approval_UI` | 12 | Central multi-workflow approval inbox — customer, DA claim, doctor, doctor visit plan (DCP/CVP), DCR, expense, leave, mileage, order, RX, tour plan, and doctor/customer-transfer approvals. See [`workflow.md`](workflow.md). |
+| `SInventory_UI` | 319 | The core ERP module: master data (product, customer, area/region/zone, pricing), order-to-cash (order, invoice, delivery, proforma, sales return), stock/warehouse operations, and the majority of sales/collection/receivables reports. |
 | `SubDepot_UI` | 19 | Sub-depot channel — mirrors `SInventory_UI`'s stock transfer, invoicing, and payment logic for the sub-depot distribution channel. |
 | `MasterSetup_UI` | 44 | System-wide master data: customers, doctors, DA/employee setup, campaigns, program types, route/territory-depot mapping, order tracking. |
 | `DoctorModule_UI` | 102 | Field-force/HR master data and operations for the sales-rep hierarchy (NSM/RSM/ASM/DZSM/MIO/AM — see [`../knowledge/glossary.md`](../knowledge/glossary.md)): leave, expense/mileage claims, tour planning, training, attendance, prescriptions, org-structure setup. Largest single module by page count after `SInventory_UI`. |
@@ -48,7 +48,7 @@ Every top-level feature folder under `Solution.Web`, with page counts (`.aspx` f
 | `DoctorVisit_UI` | — | `DoctorVisit_DAL` | — |
 | `DWSP` | — | `DWSP_DAL` | `DWSP_DAO` |
 | `Approval_UI` / `UserPermission` | `Panal_BLL` (menu/login), various | `UserRoleDAL`, `PanalCls`, `Panal_DAL` | `UserRoleDAO`, `Panal_Entities` |
-| `TransferUI` | — | `Transer_DAL` (sic) | — |
+| `TransferUI` | — | `Transfer_DAL` | — |
 | `Thana_UI` | — | `Thana_DAL` | — |
 | `SAP_Integration` / `eProgram_UI` | — | `SAP_IntegrationDAL` | — |
 
@@ -57,8 +57,11 @@ Not every UI folder has a same-named BLL folder — several legacy pages call DA
 ## Live menu structure (from `tblMainMenuNew`, ground truth for what a logged-in user actually sees)
 
 The code-folder inventory above is the *implementation* view. This is the *business* view — the
-actual menu tree served to users, pulled directly from the `tblMainMenuNew` table (326 rows, 33
-top-level categories) in the live database. See [`database-spec.md`](database-spec.md) for the
+actual menu tree served to users, pulled directly from the `tblMainMenuNew` table (327 rows — up
+from 326 since SL=2048, the Monthly Inventory Report (Batch Wise) row, was added — re-verified live
+this revision; 34 top-level categories, corrected this revision from a prior undercount of 33 that
+didn't match this same document's own 34 `###` section headings below) in the live database. See
+[`database-spec.md`](database-spec.md) for the
 table's full schema. Per-role visibility is a separate layer on top of this tree (`tblMenuRole`/
 `tblMenuDistribution` — see [`MainMenu2`](database/functions/MainMenu2.sql) for how the two combine
 into the rendered `<ul>`); this listing is the full unfiltered tree, not what any single role sees.
@@ -294,6 +297,55 @@ into the rendered `<ul>`); this listing is the full unfiltered tree, not what an
 - DWSP Approval — `../SInventory_UI/DcStockOutApproval.aspx`
 - Stock Receive From SAP — `../SAP_Integration/SAP_IntrigationPointDIC.aspx`
 
+**Live pages not present in this menu table (found by direct source analysis, this revision):**
+`Solution.Web/DoctorModule_UI/TourPlannedApprovalList.aspx` and
+`Solution.Web/DoctorModule_UI/VisitPlannedApprovalList.aspx` are real, DAL/proc-backed pages (calling
+`sp_ApproveTourPlanInformation`/`sp_ApproveVisitPlanInformation` respectively — a **separate, legacy
+bulk-approve mechanism** from the chain-based `Approval_UI/TourPlanApproval.aspx`/`DCPCVPApproval.aspx`
+listed above) that do not appear anywhere in `tblMainMenuNew`. Since this menu table is this
+document's stated ground truth for navigation, their absence here is expected/correct — but they are
+genuinely reachable (by direct URL, or by a link from another page not traced in this pass) and
+functionally live, so do not read "not in the menu" as "doesn't exist." See
+[`business-rules.md`](business-rules.md) §0.1 for the dual-approval-mechanism finding this relates to.
+
+**Menu entries pointing to retired pages (found by direct source analysis, this revision):** five of
+the `.aspx` paths listed in this document's own menu-tree transcription no longer exist as buildable
+pages — only a `.aspx.exclude`/`.aspx.cs.exclude` pair remains on disk, with no live file of that
+exact name anywhere in `Solution.Web`:
+
+- `../SInventory_UI/BacktoReturnPage.aspx` — referenced by two separate menu rows that share the
+  same (non-unique) `SL`: "Process Inventory Balance" (Process section) and "Back to Return" (Sales
+  confirmation Info section) — corrected this revision from an earlier mistranscription that showed
+  "Process Inventory Balance" listed twice under Process and dropped the "Back to Return" row
+  entirely
+- `../SInventory_UI/InvoiceCreationByOrder.aspx` ("Invoice Creation", Sales Center Operation section)
+  — a differently-named page, `InvoiceCreationByOrder_daaw.aspx`, is the live file that appears to
+  have replaced it; confirmed this revision that the menu row itself was never repointed to it
+- `../SInventory_UI/LoadingSummary.aspx` ("Delivery confirmation", Sales confirmation Info section —
+  distinct from the live `LoadingSummary_DA.aspx` already listed separately under Sales Assistant
+  Approval Process)
+- `../SInventory_UI/DeliveryExcelUpload.aspx` ("Delivery Invoice Excel Upload", Sales Center Operation
+  section) — `DeliveryExcelUploadOldData.aspx` is the only live file with a related name
+- `../SInventory_UI/SalesReturnList_new.aspx` ("Second Time Return", Sales confirmation Info section)
+
+**Confirmed this revision** with a fresh `tblMainMenuNew` read against the live dev DB: all five rows
+are still present verbatim (`InvoiceCreationByOrder.aspx` at SL=324, `DeliveryExcelUpload.aspx` at
+SL=342, `LoadingSummary.aspx` at SL=20275, `SalesReturnList_new.aspx` at SL=3029016,
+`BacktoReturnPage.aspx` at SL=3029014) — the database was never repointed to the live replacement
+files; these are genuinely stale leftovers still served as-is, i.e. a live 404/compile-error menu
+link for any user who clicks them. One incidental data-quality finding surfaced while confirming
+this: `BacktoReturnPage.aspx`'s two menu rows ("Back to Return" under parent 7000 and "Process
+Inventory Balance" under parent 7000021) share the identical `SL` value 3029014 — consistent with
+`SL` being a plain, non-`IDENTITY` int as noted elsewhere in this repo (see
+[`database/menu/MonthlyInventoryReportBatchWise_menu.sql`](database/menu/MonthlyInventoryReportBatchWise_menu.sql)),
+so collisions across different parents are apparently possible and this appears to be one. This repo
+also has many more `.exclude`-suffixed file
+pairs than the two documented in [`business-rules.md`](business-rules.md) §"Inactive files" and the
+eight in [`reports.md`](reports.md) — most of the others are superseded backup copies coexisting
+alongside a same-purpose live file under a different name (e.g. `MarketRecords.aspx.exclude` next to
+the live `MarketRecords.aspx`, `RXDoctoriseMonthlypt.aspx.exclude` next to the live
+`RXDoctoriseMonthlypt.aspx`) and don't affect any menu entry above.
+
 ### Reports
 
 - Stock Report — `../SInventory_UI/DCStockReport.aspx`
@@ -363,7 +415,7 @@ into the rendered `<ul>`); this listing is the full unfiltered tree, not what an
 - Return — `../SInventory_UI/DelivaryInvoiceCreationAfterSalesConfirm.aspx`
 - Sales confirmation Report — `../SInventory_UI/SalesConfirmationReport_New.aspx`
 - Receivable Report — `../SInventory_UI/NewReceiveableReport.aspx`
-- Pending Sales Confirmation Report — `../SInventory_UI/PendingSalesConfirmationReport.aspx`
+- Back to Return — `../SInventory_UI/BacktoReturnPage.aspx`
 - Money Receipt Report — `../SInventory_UI/MoneyReceiptAfterPayment.aspx`
 - Sales Rejection Report — `../SInventory_UI/SalesRejectionReport.aspx`
 - Sales Return Report — `../SInventory_UI/SalesReturnReport.aspx`
@@ -395,7 +447,6 @@ into the rendered `<ul>`); this listing is the full unfiltered tree, not what an
 
 - Process Inventory Balance — `../SInventory_UI/BacktoReturnPage.aspx`
 - Pending Sales Opening — `../SInventory_UI/PendingSalesOpening.aspx`
-- Process Inventory Balance — `../SInventory_UI/BacktoReturnPage.aspx`
 
 ### Sales Assistant Approval Process
 

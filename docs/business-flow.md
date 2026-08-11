@@ -55,7 +55,7 @@ Invoice generated (tblInvoice, linked by OrderId)
    ▼
 DA Sales Confirmation (tblInvoice.DA_SalesConfirmStatus + tblSalesConfirmation_appLog)
    │  + a DIC (Distribution-In-Charge) re-approval layer on top of the DA's own confirmation
-   │    (tblSalesConfirmation_appLog.DICApprovalStatus, sp_UpdateDICApprovalStatus.sql)
+   │    (tblSalesConfirmation_appLog.DICApprovalStatus, sp_UpdateDICApprovalStatus)
    ▼
 Delivery Challan (ChalanInfo / tblChalanInfo — driver, track no, totals)
    │
@@ -64,10 +64,10 @@ Payment Collection (tblInvoice.DA_PaymentCollection + tblPaymentCollection_appLo
    │
    ▼
 [optional] Sales Return (tblInvoice.DA_SalesReturn + tblSalesReturn_appLog,
-            also DIC-reapproved via sp_UpdateDICApprovalStatus_SalesReturn.sql)
+            also DIC-reapproved via sp_UpdateDICApprovalStatus_SalesReturn — see docs/database.md)
 ```
 
-Each stage that can be rejected has a dedicated "reject" stored procedure at the repo root (`sp_RejectInvoiceDASalesConfirmStatus.sql`, `sp_RejectInvoiceDAPaymentCollection.sql`, `sp_RejectInvoiceDASalesReturn.sql`) that flips the relevant `tblInvoice` status column back and deletes the corresponding in-progress app-log rows, effectively resetting that stage for resubmission.
+Each stage that can be rejected has a dedicated "reject" stored procedure (`sp_RejectInvoiceDASalesConfirmStatus`, `sp_RejectInvoiceDAPaymentCollection`, `sp_RejectInvoiceDASalesReturn` — source now in [`spec/database/procs/`](../spec/database/procs/), not the repo root; see [`docs/database.md`](database.md)) that flips the relevant `tblInvoice` status column back and deletes the corresponding in-progress app-log rows, effectively resetting that stage for resubmission.
 
 **Gap, now closed**: the full column list of `tblOrder`, `tblInvoice`, and the challan tables is
 **not** fully mirrored in the C# DAO classes (confirmed: `Invoice.cs` is missing
@@ -76,6 +76,25 @@ directly) — but this is no longer a documentation gap, since the actual column
 [`spec/database-tables.md`](../spec/database-tables.md) regardless of what the DAO class shows.
 Treat any `Library.DAO` class in this codebase as a **possibly partial** view of its table, and
 check the schema file directly when a DAO class's shape is in question.
+
+## Warehouse stock-in — SAP-to-DC receiving pipeline
+
+A separate pipeline moves goods *into* the distribution center, parallel to (and feeding the stock
+behind) the order-to-cash flow above, but with no role-routed approval chain of its own: an
+external SAP-side process (not in this repo) posts shipment data into a separate staging database,
+`SAP_API_Data` (see [`docs/database.md`](database.md)); a chain of `sp_SAP_*` stored procedures
+(`sp_SAP_StockReceive` orchestrating `sp_SAP_WhStockInMaster`/`Details` →
+`sp_SAP_STOMaster`/`Details` → `sp_SAP_StockInTransfer`) copies that data through
+`tblWHStockInMaster`/`Detail` → `tblRequisition`/`tblRequsitionChild` → `tblStockInTransfar`, which a
+warehouse clerk then confirms on `SInventory_UI/ReceiveProductByChalanByDC.aspx`. The only human
+gate here is the clerk keying an observed shortage into `UnRcvQty` at receive time — there's no
+`Approval_UI`-style multi-step sign-off.
+[`docs/ReceiveQty_RootCause_Analysis.md`](ReceiveQty_RootCause_Analysis.md) traces this whole
+pipeline end-to-end and documents two confirmed data-integrity defects found in it: the same
+shipment synced into the app twice under two different Chalan-number strings (so it could be
+received twice), and a duplicate-insert bug inside `sp_SAP_StockInTransfer` backed only by an unsafe
+check-then-insert guard. See that doc for the full trace and root-cause detail rather than
+duplicating it here.
 
 ## Leave approval — a workflow with a real side effect beyond status
 

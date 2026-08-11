@@ -19,6 +19,17 @@ There is no consistent auth scheme across any of this: everything relies on an A
 `NullReferenceException` if invoked without one. No API-key/token auth, no rate limiting, no
 versioning.
 
+**Verification note (this revision):** this catalog was re-checked by directly reading
+`SInventoryWebService.cs` in full alongside all three `.ashx` handlers — every entry below was
+confirmed accurate, no discrepancies found. One clarification worth surfacing: `CLAUDE.md` describes
+`SInventoryWebService` as what "the Flutter app and jQuery autocomplete widgets call," but every one
+of its 21 methods is shaped as a plain-string-array typeahead query with no JSON envelope,
+pagination, or versioning — a mobile app consuming this directly would be unusual. The far more
+likely mobile-facing data layer is the `sp_Webapi_*`/`sp_SalesAPI_*` stored-procedure family (see
+[`integrations.md`](integrations.md) §4), but no REST/controller code exposing that family over HTTP
+was found anywhere in this repository — so `CLAUDE.md`'s specific claim about this service remains
+unresolved rather than confirmed or refuted.
+
 ## 1. `.asmx` service — `SInventoryWebService`
 
 - **Class**: `Solution.Web/App_Code/SInventoryWebService.cs`
@@ -115,7 +126,7 @@ charts) unless noted, all take date-range/filter strings (`fromdt`, `todt`, `par
 | `GetExpanseClaimMonthlyChartData` | `fromdt, todt, param` | Monthly expense claim chart |
 | `GetExpanseClaimMonthlyChartDataDayWise` | `fromdt, todt, param` | Day-wise variant |
 
-### `DoctorMaster_UI` (16 methods across 12 files)
+### `DoctorMaster_UI` (16 files, ~30 methods — corrected this revision, was previously miscounted as "12 files")
 
 CRUD + lookup pairs for doctor-related master data (chambers, categories, degrees, designations,
 specialities, patient types, prescription types, special days). Pattern is consistently

@@ -28,7 +28,7 @@ template.
 | MIA-wise Sales (`MiaWiseSalesReportViewer`) | Sales by Market Information Area | Date range, MIA | Crystal (`rptMiaWiseSales.rpt`) | `View_MIAWiseSalesReport` |
 | Day-Wise Business / Sales Comparison (`DayWiseBusinessReportViewer`, `SalesComparisoneReportViewer`) | Day-by-day sales, compared across periods | Date range(s) | Excel export (`crpDayWiseBusinessExcelReport.rpt`) | Sales BLL/DAL |
 | Employee-wise Product Sales (`EmployeewiseProductSalesReportViewer`) | Sales broken down by MIO/rep and product | Date range, employee | Crystal (`crpEmployeewiseProductSales.rpt`) | Sales BLL/DAL |
-| Business Summary (`BusinessSummaryViewer`, `BusinessSummaryViewer2`-`5`) | Consolidated business KPIs (order/invoice/sales/return/collection amounts) for a period — 5 layout variants (overall, branch, marketwise) | Date range, type (SC/other), zone/area/territory | Crystal (`crpBusinessSummary.rpt`, `rptBranchSales.rpt`, `rptMarketwiseBusinessSummary.rpt`) | `sp_RPT_MIS_BusinessSummary`/`sp_RPT_BusinessSummaryMISReport` family (also `sp_BusinessSummaryMISReport_*` variants: All, Zone, Loading, TT) and `View_BusinessSummary` |
+| Business Summary (`BusinessSummaryViewer`, `BusinessSummaryViewer2`-`5`) | Consolidated business KPIs (order/invoice/sales/return/collection amounts) for a period — 5 layout variants (overall, branch, marketwise) | Date range, type (SC/other), zone/area/territory | Crystal (`crpBusinessSummary.rpt`, `rptBranchSales.rpt`, `rptMarketwiseBusinessSummary.rpt`) | `sp_RPT_MIS_BusinessSummary`/`sp_RPT_BusinessSummaryMISReport` family (also `sp_BusinessSummaryMISReport_*` variants: All, Zone, Loading, TT) and `View_BusinessSummary` — **note (this revision): `View_BusinessSummary`'s own definition has a hardcoded literal `BETWEEN '5/1/2018' AND '5/30/2018'` date filter baked into its SQL, effectively freezing that specific view to May 2018 data regardless of any date-range parameter passed by the caller; if any of the Business Summary viewers actually read from this view rather than the `sp_RPT_*` proc family, their output would be silently wrong for any other period — confirm which data source each variant actually uses before trusting a non-2018 Business Summary report** |
 | MIS Business Summary — Accounts variant | Same business summary metrics filtered for accounts/finance view | Date range, type, geography | Proc-driven grid | `sp_RPT_MIS_BusinessSummary_Acc` |
 | MIO-wise Business Summary | Business summary rolled up per MIO (rep) | Date range, MIO | Grid | `sp_RPT_MIOWiseBusinessSummary` |
 | Proforma Report / Proforma & Sales Report (`ProformaReportViewer`, `InvoicewiseDetailssalesReport`, `ProformaandSalesreportViewer`, `ProformaReportPrintViewer`) | Proforma invoices, optionally paired against realized sales | Order/proforma no., date range | Crystal (`rptProformaReport.rpt`, `ProformaandsalesReport.rpt`) | `View_ProformaInvoiceReportList`, Order/Invoice BLL |
@@ -188,7 +188,7 @@ cataloged in [`business-rules.md`](business-rules.md).
 
 Two independent reporting mechanisms are used, chosen per-report rather than by a documented rule.
 
-### Mechanism A — Crystal Reports (`SInventory_RPTVIEW`, 94 viewer pages)
+### Mechanism A — Crystal Reports (95 viewer pages: 94 in `SInventory_RPTVIEW` + 1 in `SInventory_UI`)
 
 Each page loads a `CrystalDecisions.CrystalReports.Engine.ReportDocument`, sets its
 `.ReportSource` to a `CrystalDecisions.Web.CrystalReportViewer` control, and feeds it an in-memory
@@ -196,10 +196,16 @@ Each page loads a `CrystalDecisions.CrystalReports.Engine.ReportDocument`, sets 
 `SInventory_RPTVIEW/DCStockReceiveReportViewer.aspx.cs`). `.rpt` files live under
 `Solution.Web/Reports/CrystalReports/`; typed `DataSet` shapes live under
 `Library.CrystalReports/*_DS/`. The `.rpt` source templates themselves live in
-`Library.CrystalReports/SInventory_RPT/` (41 files, mapped to viewers throughout the tables above).
+`Library.CrystalReports/SInventory_RPT/` (40 files, mapped to viewers throughout the tables
+above — corrected this revision from a previous count of 41).
 
-93 of the 94 Crystal-viewer pages are in `SInventory_RPTVIEW`; one
-(`TransferStockReceiveReportViewer.aspx`) is in `SInventory_UI`.
+**Corrected this revision:** the folder `SInventory_RPTVIEW` itself directly contains 94 active
+`.aspx` viewer pages (confirmed by direct directory listing, not 93 as a prior revision stated) —
+one of them is `TransferStockReceiveReportViewer.aspx`. A second, separate, independently-active
+page of the same name (`SInventory_UI/TransferStockReceiveReportViewer.aspx`) also exists; both
+declare `Inherits="SInventory_RPTVIEW_DCStockReceiveReportViewer"` in their `.aspx` directive,
+i.e. both reuse the DC Stock Receive Report's code-behind class rather than each defining their
+own. 94 + 1 = **95 total active Crystal-viewer pages**, not 94.
 
 The following viewer pages resolve their `.rpt` path dynamically at runtime rather than as a
 literal string, so the specific file is not traceable by static grep: `AllProductCountryStockReportViewer`,

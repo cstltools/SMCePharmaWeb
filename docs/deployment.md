@@ -31,14 +31,15 @@ Per `docs/CI-CD-README.md`'s own setup checklist: rotating the plaintext `sa` cr
 
 ## Docker (local/dev)
 
-**Currently missing from the working tree.** `docker-compose.yml` and `docker-compose.prod.yml` are
-tracked by git but do not exist on disk in this checkout as of this pass (confirmed via `git status`
-showing them as locally deleted, alongside ~45 other root-level `.sql`/`.ps1`/`.txt` files) — the
-description below is reconstructed from git history / what the tracked files were expected to
-contain, not verified against a file currently present. If you need to restore them, `git checkout
--- docker-compose.yml docker-compose.prod.yml` will bring back the last-committed version; confirm
-with whoever deleted them first, since a large simultaneous deletion of root scripts is unusual and
-may be intentional cleanup rather than an accident.
+**No longer present at all — removed from git, not just the working tree.** `docker-compose.yml`
+and `docker-compose.prod.yml` are untracked by `git ls-files` and absent on disk; both were deleted
+and the deletion committed in `ddd28c0` ("Point CustPayment flow and DB config at local dev DB;
+clean up scratch scripts"), alongside the root-level `.sql`/`.ps1` scratch scripts documented in
+[`testing.md`](testing.md). This is a committed removal, not an uncommitted local deletion — a plain
+`git checkout -- docker-compose.yml docker-compose.prod.yml` will **not** bring them back; they'd
+need to be recovered from the pre-`ddd28c0` commit (`git show ddd28c0~1:docker-compose.yml`) and
+re-added deliberately if this path is still wanted. The description below is reconstructed from that
+git history, not verified against a file currently present in the repo.
 
 Both files, when present, define a two-service stack:
 

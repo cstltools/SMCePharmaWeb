@@ -12,6 +12,80 @@ action is blocked but no message is shown to the user (CSS/focus only).
 
 ---
 
+## 0. Verification pass — full re-analysis against live database + source (this revision)
+
+This revision re-verified this document against **direct introspection of the live development
+database** (`TOWSIF\MSSQLSERVER2019` / `SalesDisDB_SMC_NEWDB` — the instance the app's active
+`web.config` connection string points at) plus a fresh read of every stored-procedure body behind
+this codebase's 1,870 procedures, cross-referenced against actual C# call sites, executed as six
+parallel module-scoped analyses (SInventory; DoctorModule half A; DoctorModule half B +
+DoctorVisit/DoctorMaster/DoctorInfo/Doctor_Monitoring; MasterSetup/Thana/SubDepot; the smaller
+transactional modules — DWSP/SAP/PromoAlloc/Transfer/MarketUpload/SettingPanel/UserRole/InternalCls;
+and platform/auth/API/all-views/all-functions). Every existing claim in this file that fell inside
+one of those six scopes was checked directly against current source, not assumed correct.
+
+**Result: the overwhelming majority of this document's existing claims were confirmed accurate**
+(see per-agent [VERIFIED] tables in the source reports) — this file was demonstrably not a "generic"
+or stale document before this pass. The additions below are net-new findings and the small number of
+genuine conflicts found, organized by the same module numbering as the rest of this file. New rules
+use the ID scheme `BR-<MODULE>-NN` and are cross-referenced from `spec/database-spec.md`'s per-module
+deep-dive sections, which anchor each rule back to its owning stored procedure.
+
+### 0.1 New rules confirmed by reading stored-procedure bodies directly (not previously documented)
+
+**SInventory:**
+- **BR-SI-08 — `sp_UP_LoadingSummary` is the real order-to-cash orchestration hub**, not previously in `workflow.md`'s lifecycle diagram. Branches on `@LoadingSummaryStatus`: `'Rejection'` archives + calls `sp_Delete_ProformaInvoice` (reverses stock); `'Cash'` calls `sp_DeliveryConformationFull` + `sp_PaymentConformationFull` back-to-back (cash sales skip separate DA delivery/payment confirmation steps entirely); any other value just stamps status and still calls the payment-confirm proc. **No shared transaction across this 2-3 proc chain** — a mid-chain failure leaves inconsistent state. Source: `spec/database/procs/sp_UP_LoadingSummary.sql`.
+- **BR-SI-02 — `sp_Process_ProformaInvoiceByOrderId`'s hardening is confirmed LIVE, not a staged patch.** Directly queried `OBJECT_DEFINITION()` against the live database on 2026-08-11 — the live procedure body begins with the identical "FIX SCRIPT" changelog header found on disk, confirming the 2026-07-25/2026-08-08 concurrency fixes (row-locked FEFO batch allocation, `BEGIN TRANSACTION`+`TRY/CATCH`+`XACT_ABORT ON`, re-entrancy guard on `tblOrder.IsInvoice`, post-loop consistency cursor) are genuinely deployed and running, not proposed-but-unapplied code sitting in the repo. Same direct verification performed for `sp_Delete_ProformaInvoice` — also confirmed live.
+- **BR-SI-17 — `sp_Deletenvoice` is broken and would error if executed**, yet is still called from `InvoiceDAL.cs:1897`/`InvoiceDAL_daaw.cs:1788`. Its live body is literally `delete Invoice` (no `FROM`, no schema-qualified table — no table named exactly `Invoice` exists) with the real logic commented out above it. Whether this call path is ever actually exercised in production could not be confirmed from source alone — flagged as an open question requiring a live exception-log check.
+- **BR-SI-11 — `sp_RejectInvoiceDAPaymentCollection` does not actually flip the invoice status it's named for** — the `UPDATE tblInvoice SET DA_PaymentCollection='Rejected'` statement is commented out; the proc only deletes the app-log row. This contradicts `workflow.md`'s existing assumption that all three DA-reject procs (`SalesConfirmStatus`/`PaymentCollection`/`SalesReturn`) share an identical shape — 2 of 3 do, this one doesn't. **[CONFLICT — see §0.2]**.
+
+**Doctor/Field-Force (both halves combined):**
+- **Two-to-three parallel, independently-live approval mechanisms exist for Tour Plan / Visit Plan / Prescription / Attendance / Doctor / TADA**, layered on top of the chain-based routing engine documented in `workflow.md` §1. A "legacy bulk approve" proc family (`sp_Approve_DoctorInformation`, `sp_Approve_TADAClaim`, `sp_ApproveTourPlanInformation`, `sp_ApproveVisitPlanInformation`, `sp_ApproveExpenseClaimInformation`, `sp_ApproveMileageClaimInformation`, `sp_ApprovePrescriptionInformation`, `sp_ApproveAttendanceInformation`) does a single bulk `UPDATE ... WHERE Id IN (fnSplit(@Ids,','))`. A live/dead-from-UI audit of all 8 found: **Tour Plan, Visit Plan, Prescription, and Attendance approval are LIVE via this path** (`TourPlannedApprovalList.aspx.cs:98`, `VisitPlannedApprovalList.aspx.cs:101`, `Setup.aspx.cs:72-75`, `AttendanceListApproval.aspx.cs:474`), while **Expense Claim, Mileage Claim, Doctor, and TADA's calls to this path are commented out in the UI** (dead from the UI, though the procs themselves remain callable). Separately, `tbl_DoctorTourPlanMaster` (doctor-visit tour plans) and `tbl_TourPlanMaster` (general/market tour plans) are **two distinct master tables** with two distinct approval mechanics, easily conflated because both display the identical `0=Pending,1=Verified,2=Approved,3=Rejected` status vocabulary. Recommend `workflow.md` explicitly disambiguate these as separate features. Also newly found: `TourPlannedApprovalList.aspx` and `VisitPlannedApprovalList.aspx` are live, reachable, DAL/proc-backed pages **absent from `spec/modules.md`'s page inventory** (only the chain-based `Approval_UI/TourPlanApproval.aspx` is listed there).
+- **BR-DRB-10 (CRITICAL, actionable) — confirmed, traced SQL-injection + authorization-bypass path.** `Solution.Web/DoctorVisit_UI/DoctorVisitReport.aspx.cs:21-38` exposes `[WebMethod] GetDoctorVisitList(string param)` / `GetDynamicPivotDoctorWiseDoctorVisitPlan(string param)` — public AJAX endpoints that forward a client-supplied `param` string, **completely unvalidated**, into `DoctorVisitDAL` methods that pass it as the sole filter fragment into stored procedures executing `EXEC(@Query)`/`sp_executesql` dynamically. A parallel, even more severe instance: `Solution.Web/DoctorModule_UI/AttendanceInfoList.aspx.cs:52-59`'s `[WebMethod] Emp_AttendanceInfoList(string param)` skips the page's own safe `param()` builder (which normally injects the caller's MIO/AM/DZSM/NSM row-level hierarchy scope) entirely — an authenticated user of **any role** can call this endpoint directly with a hand-built string to (a) see any employee's attendance regardless of their own hierarchy position, bypassing the module's core row-level-security mechanism, and (b) inject arbitrary SQL, since the underlying procs (`sp_Get_Emp_AttendanceInfoList`/`DayRow`) concatenate the parameter directly into `EXEC(@Query)` with zero server-side reconstruction or sanitization. This is the single most concrete, exploitable finding across the entire re-analysis. Roughly 20 more procs in this cluster share the "concatenate `@param` into dynamic SQL" *shape*, but were confirmed to only receive constrained dropdown values at their current call sites — the architecture is unsafe throughout, but only the two endpoints above were confirmed to accept genuinely free-text/unvalidated input today.
+- **Whole-file duplication risk**: `Setup2DAL.cs`/`SetupDAL.cs`/`SetupDAL_daaw.cs` (and `CommonDataLoad.cs`/`_daaw.cs`, `SeedDataDAL.cs`/`_daaw.cs`) are byte-identical copies differing only in which `DataAccessManager` variant they use. A bug found in one copy (e.g. BR-DRB-08 below) should be assumed present, **unverified**, in its sibling(s) — nothing enforces the copies stay in sync.
+- **BR-DRB-08 — two independently-confirmed "reports success regardless of actual outcome" bugs** in `Setup2DAL.cs:3713-3950` (`Save_Prescription`/`Save_ExpenseClaim`, also present at the same line numbers in the duplicate `SetupDAL.cs`, unverified in `SetupDAL_daaw.cs`): editing an existing prescription always reports success to the caller regardless of whether the underlying UPDATE actually affected a row (the real result is captured then unconditionally overwritten to `true` two lines later); an expense claim's image-evidence write is wrapped in an empty `catch {}` — a failed write (bad path, disk full, invalid base64) is completely silent, with the claim record itself still saved successfully and no image ever persisted.
+- **BR-DRB-09 — the same "hardcoded `isSuccess = true` in a `finally` block regardless of the real delete result" bug independently confirmed in 3 more Doctor-module DAL classes**: `DoctorChamberDal.DeleteDoctorchamber`, `NoticeDal.Delete_NoticeMaster`, `PrescriptionTypeDal.Delete_PrescriptionType` — consistent with the same pattern already flagged for other modules elsewhere in this document (see cross-reference note below), now confirmed as a recurring, not isolated, convention.
+- **BR-DRB-03 — a market-deactivation "in-use" guard has a dead branch**: `sp_check_Vali_MarketStructure`'s `@PageName='ExpenseType'` case tests `WHERE dtl.ExpenseTypDetailsId=0` — a literal zero, never the actual `@MasterId` being checked — so this specific branch can never detect a real in-use conflict. The proc otherwise correctly blocks deactivating a Market while any active doctor is tagged to it, and blocks deactivating any hierarchy level with an in-range active campaign/notice/training.
+- **BR-DRB-04 — `sp_Save_UserMarketDetail` accumulates rather than replaces** a user's derived market-scope table (`tblUserMarketExecss`) on every re-save, because the `DELETE` that would make the operation idempotent is commented out — editing (not first-saving) a user's market assignment appends duplicate/stale rows rather than replacing them.
+- **BR-DRB-05 — reactivating a market unconditionally cascades geography/station-type fields onto every tagged customer**, with no active-status filter and no audit trail (`sp_Update_CustomerInfoForMarketData`, called from `Setup2DAL.SaveMarket`).
+- **BR-DRB-06 — `sp_opeingBalanceCreate`'s NULL-date defaulting is broken**: the intended `SET @FromDate='19000101'`/`SET @ToDate='99991231'` defaults are commented out, leaving dangling `IF` statements that never actually default the dates — if either parameter is passed `NULL` (a plausible mistake, since both are optional), the proc silently processes zero rows and still reports success, rather than defaulting to "all dates" as the surrounding comments intend. This is otherwise the single best-hardened proc found in the whole Doctor-module cluster (proper `BEGIN TRAN`/`TRY`/`CATCH`/`XACT_ABORT`, `NOT EXISTS` dedup guards, clean rollback via `THROW`).
+- **BR-DRB-07 / BR-DR-* — a new, independent instance of the codebase's hardcoded-employee-ID pattern**: `sp_HigharchyInfoByEmployeeId` short-circuits its normal join for `@EmployeeId=683` at the NSM role level. This is a different ID and a different context (org-chart/dashboard scoping, not approval bypass) from the `EmpInfoId="496"`/role-`"5"` bypass already documented elsewhere in this file — reinforcing that individually-privileged literals baked directly into procs/code are a systemic pattern here, not a one-off.
+- **BR-DR-03/BR-DRB — Two more Doctor-module-cluster bugs of the same family**: `sp_Get_DoctorList` is called from `SetupDAL.cs:189` with **zero parameters** against a proc whose sole `@Parm` parameter has no default — likely either dead/unreachable code or relies on undocumented framework behavior; the correctly-parameterized live path is `MasterSetup_DAL/DoctorDAL.cs:412-420`. `sp_Save_TadaClaimMaster` hardcodes new TADA claims into `ApprovalStatus='2'` (Accepted) at creation time — apparently bypassing, or operating independently of, the chain-based `DAApprovalList` workflow `workflow.md` documents for the same claim type; the relationship between the two was not resolved in this pass.
+
+**MasterSetup / Thana / SubDepot:**
+- **BR-MS-03 — `sp_Update_CustomerMaster` derives a customer's geography from the selected Market twice, and the second (actually-applied) derivation uses a mismatched join key**: the first, correct derivation (`District.DivisionId = Division.DivisionId`) is computed but discarded; the second block immediately before the final `UPDATE` instead joins `District.DistrictId = Division.DivisionId` — comparing values from two different ID spaces. Since the second block's result is what's actually written, **`tblCustMaster.DivisionId` is very likely wrong/NULL on every edited customer** unless a District row happens to share a numeric ID with a Division row. Static-analysis finding only, not confirmed by executing the proc against live data.
+- **BR-MS-04 — `sp_ApproveCustomerInformation` will likely raise a SQL error if actually invoked**, because it tries `CAST(CustomerCode AS INT)` against codes that `sp_Save_CustomerMaster` generates with a literal `'C'` prefix (e.g. `C1042`). Whether this code path is genuinely dead (real approvals go through the `sp_webapi_SaveCustomerAppLog` chain instead, per `workflow.md`) or actually errors when hit is an open question this pass could not resolve without a DB trace or reading `CustomerApproveList.aspx.cs`.
+- **BR-MS-05 — the Doctor leg of the Customer/Doctor territory-transfer approval is dead code**: `sp_Update_Customer_Doctor_TransferApprove`'s entire `else` (Doctor) branch — the part that would actually apply the market/territory change to `tblDoctorMaster` on approval — is commented out. A doctor-transfer request is logged but approving it has no effect; the identical Customer-side branch works correctly.
+- **BR-MS-01 — confirmed, extended**: the insert-side duplicate-name check gap already documented for other master-data entities also applies to **Customer Master itself and Delivery Agent (DA)** — neither `sp_Save_CustomerMaster` nor `sp_Save_DAInfo` has a duplicate-check procedure at all, in either direction.
+- **Confirmed critical, pervasive SQL injection across the entire `SubDepot_DAL` folder** (not just one file): `Sub_InvoiceDAL.cs` (~515 raw-SQL concatenation sites), `SubDepoAdjustDAL.cs`, `SubDepotChalanDAL.cs`, `SubDepotChalanReturnDAL.cs`, `SubDepotDAL.cs` (~96-94 sites each) — every INSERT/UPDATE/SELECT in this module is built by string-concatenating C# field values with **no parameterization and no quote-escaping anywhere**, covering both SubDepot master data and its invoicing/stock-transfer/adjustment-voucher transactions. This is architecturally distinct from (and more severe than) the rest of the codebase's dynamic-SQL pattern, which at least routes through a generic `EXEC(@Query)` dispatcher proc — SubDepot_DAL doesn't even use that; it builds ad-hoc SQL text directly against `ClsCommonInternalDAL`.
+
+**Transactional modules (DWSP/SAP/PromoAlloc/Transfer/UserRole/InternalCls):**
+- **`Library.DAL/InternalCls/ClsCommonInternalDAL.cs` — confirmed architecture: a shared, generic dynamic-SQL dispatcher, not a stored-procedure boundary.** Its `DataContainerDataTable`/`SaveDataByInsertCommand`/`UpdateDataByUpdateCommand`/`DeleteDataByDeleteCommand` methods route a caller-built SQL string through Dapper as a `CommandType.StoredProcedure` call to `ExecuteAllSqlQueryByStoreProcedure` — whose entire live body is `EXEC (@Query)`. This confirms, with the proc source directly read, that every "raw string concatenation" finding anywhere in this codebase funnels through one real dynamic-SQL execution point. **Exploitable, not just theoretical**: `PromoGroupDAL.SavePromoGroup`/`UpdatePromoGroup` concatenates a free-text promo-group name from `PromoGroup.aspx` directly into an INSERT/UPDATE string routed through this dispatcher; `GroupWisePromoQtyDAL` and `PromoMITagDAL` do the same for several fields. Notably, `PromoMITagDAL.SaveMIOTagMaster` (parameterized, safe) sits a few lines above `SaveMIOTagDetail` (concatenated, unsafe) **in the same class** — proof this is an inconsistent coding habit, not a uniform legacy pattern being phased out.
+- **The SAP integration's `MakeRESTRequest` stored procedure makes a real, live outbound HTTPS call**, not a dead/no-op as could be inferred from the C# side alone (`SAP_IntrigationPointDAL.MakeRESTRequestWithUpdateChallan` merely calls this proc, no `HttpClient` in C#). The proc itself uses `sp_OACreate`/`sp_OAMethod` (SQL Server OLE Automation) to POST to `https://smcsap.smc-bd.org:42223/RESTAdapter/eph_sto` with **hardcoded plaintext credentials embedded directly in the SQL** (`smc_epharma` / `Eph@rma2023#`) — the same credential pair already flagged elsewhere in this codebase as present in a *dead* C# path (`BankDepositSAP.aspx.cs`, different endpoint `eph_mio`); this instance is live, called from `Solution.Web/SInventory_UI/ReceiveProductByChalanByDC.aspx.cs:148` and `TransferReceiveProductByChalanByDC.aspx.cs:118` (both wrapped in an empty `catch{}` that swallows any failure). No `TRY/CATCH` exists inside the proc itself either — if OLE Automation is disabled on the SQL Server instance, the HTTP call fails completely silently while the calling code still marks the operation successful.
+- **`DataAccessManager.ExecuteNonQueryVoid` never checks rows-affected** — every `SaveData`/`UpdateData`/`DeleteData` call system-wide reports success purely on "no exception thrown." Combined with a confirmed dead branch in `sp_Update_MarketStructure_Transfer` (which has `IF` branches for Market/Sub-Territory/Territory but **none for Area or Zone**, despite `Area_Transfer.aspx`/`Zone_Transfer.aspx` calling it with exactly those `@Type` values), this produces a live, user-facing bug: **the Area Transfer and Zone Transfer screens report success while persisting nothing.**
+- **Permission and approval-routing tables are updated via non-atomic delete-then-reinsert**, with no transaction wrapping either sequence: `MenuDAL.SaveMenus` (delete all `tblMenuRole` rows for a role, then loop-reinsert) and `sp_Save_ApprovalMapMaster` (wipe all `tblApprovalMapDetail` children, expect the caller to reinsert every step). A mid-loop exception after the delete has already committed leaves a role under-permissioned or an approval chain incomplete, with no rollback.
+- **`GroupWisePromoQtyEntry.aspx.cs`'s central-warehouse stock-cap validation has a loop-exit bug**: the accumulation loop `break`s immediately after processing the *first* checked employee row, so the "assigned stock exceeds available stock" check never actually sums more than one row even when multiple employees are allocated — it is possible to over-allocate promotional stock across employees without the intended guard catching it.
+
+**Platform / Auth / Menu / API:**
+- **Menu/permission model is a three-generation, partially-overlapping system**, not a single mechanism: a legacy per-`UserId` system (`tblMainMenu`/`tblMenuDistribution`, built by a C# loop in `PanalClsDAL`), a parallel SQL-function version of the same legacy system (`dbo.MainMenu(@UserId)`, no confirmed live caller), and the current per-`RoleId` system with Add/View/Edit/Delete flags (`tblMainMenuNew`/`tblMenuRole`, built by `dbo.MainMenu2(@UserId,@UserRoleID)`). **All three independently hardcode the same superadmin bypass** (`UserId==1` in the C# master page and in both SQL functions). The granular Add/View/Edit/Delete flags in `tblMenuRole` are largely decorative — `MainMenu2` only checks whether a `(SL, RoleId)` row exists, never the flag values themselves; only one page in the whole codebase (`UserRecords.aspx.cs`) was confirmed to actually read and apply those flags to control button/column visibility. `MainMenu2` additionally has an internal inconsistency: its two upper nesting levels correctly read the new `tblMenuRole` table, but its deepest level falls back to the stale `tblMenuDistribution` table instead.
+- **Confirmed: per-page authorization beyond "a session exists" is opt-in and applied to only a minority of the codebase's ~700 pages.** The `UserPersmissionValidation()` pattern (looks up `sp_GET_MainPermissionByUserRoleandPageUrl` for the current page URL + role, redirects to Dashboard if no row found or on any exception) is genuinely present and correctly wired on the pages already documented in this file, but role `"2"` (Admin) bypasses it unconditionally, and most pages across the system simply never call it — meaning they are reachable by any authenticated user of any role via direct URL navigation, with menu-hiding as the only practical (non-enforced) deterrent.
+- **`SInventoryWebService.cs` (the `.asmx` endpoint mounted identically under three different UI folders) has no authorization beyond an existing session**, and 8 of its 20 autocomplete methods build SQL by string concatenation of session-derived values (`ComUnitId`, `ProductId`, `UserType`) rather than parameters — session values aren't directly attacker-supplied today, but this remains a defense-in-depth gap.
+- **`HandlerDocCV.ashx` (file-upload handler) has no authentication check at all** — any unauthenticated request can POST a file into `~/UploadFile/`. Server-generated filenames prevent path traversal, but there is no content-type whitelist and no size cap.
+- **Unresolved architectural question, not a confirmed finding**: `CLAUDE.md` states `SInventoryWebService.cs` is what the companion Flutter mobile app calls; this pass's direct read of the class (20 methods, all shaped as jQuery-autocomplete typeahead queries — plain string arrays, no JSON envelope, no pagination/versioning) plus a cross-reference of the `sp_Webapi_*`/`sp_SalesAPI_FieldForce*` stored-procedure family (333+ procs, fed in part by a dedicated `View_FieldForce*`/`View_Webapi_*` view family this pass fully documented) makes it far more likely those procs are the mobile app's actual backing layer — but **no REST/API-controller code exposing that proc family over HTTP was found anywhere in this repository**, so the mobile app's real integration point remains genuinely unlocated, not just undocumented.
+- **58 database views and 43 functions were read and documented in full** (see `spec/database-spec.md` for the complete catalog). Notable findings: `View_BusinessSummary` has a hardcoded `BETWEEN '5/1/2018' AND '5/30/2018'` literal baked into its definition — effectively frozen/dead since 2018; 3 near-duplicate `GetBookQuantityByDCStore*` function variants and 6 near-duplicate `GetCampaignCustomer*` variants coexist with mostly zero confirmed callers (one, `GetCampaignCustomer`, is the live version with 9 confirmed callers); `fn_GetTerritoryInfo_Optimized` silently drops a fallback branch present in the original `fn_GetTerritoryInfo` it appears intended to replace, and neither has a confirmed caller.
+
+### 0.2 Conflicts with pre-existing content in this document
+
+| Existing claim | Verdict |
+|---|---|
+| Implicit assumption in `workflow.md` §4.3 that all three DA-reject procedures (`sp_RejectInvoiceDASalesConfirmStatus`/`PaymentCollection`/`SalesReturn`) share an identical shape | **[CONFLICT]** — `sp_RejectInvoiceDAPaymentCollection`'s actual status-flip statement is commented out; only 2 of 3 siblings match. See BR-SI-11 above. |
+| `spec/integrations.md`'s prior characterization of `MakeRESTRequestWithUpdateChallan()`/`MakeRESTRequest` as "just a stored-procedure call, no actual outbound HTTP call" | **[CONFLICT / INCOMPLETE]** — true narrowly at the C# level, but the stored procedure itself performs a genuine live HTTPS POST via OLE Automation with hardcoded credentials; see the SAP finding above and the updated `spec/integrations.md`. |
+| `CLAUDE.md`'s statement that the Flutter mobile app talks to the `.asmx`/`.ashx` endpoints in this repo | **[UNRESOLVED, not simply wrong]** — see the platform/auth finding above; the more probable mobile-facing proc family's HTTP exposure could not be located in this repository at all. |
+
+All other claims checked by the six parallel analyses against this document, `workflow.md`, `validation-rules.md`, and `modules.md` were confirmed **[VERIFIED]** — see each analysis's own verification table (preserved in this project's session history) for the full line-by-line record. No claim was found to be simply fabricated or unrelated to the actual codebase.
+
+---
+
 ## 1. SInventory module (SInventory_UI, SInventory_BLL — largest module, 419 files)
 
 ### Warehouse Stock In
@@ -86,7 +160,7 @@ action is blocked but no message is shown to the user (CSS/focus only).
   - `Library.BLL/SInventory_BLL/CustPaymentBLL.cs:27-131` / `Library.DAL/SInventory_DAL/CustPaymentDAL.cs` (`SaveCustPayment`, `SaveCustDetail`) — previously always `return true` regardless of whether the underlying insert actually happened (DAL bool result was discarded); now propagates the real per-row result. `CustPayId`/`CustPayDetailId` generation was also moved off the unlocked `ClsPrimaryKeyFind` `MAX()+1` pattern into a `WITH (UPDLOCK, HOLDLOCK)`-guarded transaction inside `CustPaymentDAL.cs` itself (see §8/data-model note on `ClsPrimaryKeyFind` in `SKILL.md`), closing a concurrent-save collision risk — this is now, alongside `PaymentPartial.aspx.cs`, a second reference implementation for hardening a save path in this codebase.
 - `Solution.Web/SInventory_UI/CustomerPayment.aspx.cs:467-526` (`PayAmountChange`) — **Fixed (2026-08-06)**: the TP/VAT split for a partial payment (previously) fell through to `TPAmount=0, VATAmount=0` whenever the invoice's remaining VAT due was `<= 0` (VAT already fully covered or overpaid) instead of routing the full amount to TP — silently saving a wrong TP/VAT split. Also, when `sp_GET_PaymentInvSPTPVATAmt` returned zero rows for the current invoice/amount, the TP/VAT hidden fields were left holding a stale value from a previous edit or the initial grid bind instead of being reset; both now handled explicitly.
 - `Solution.Web/SInventory_UI/CustomerPayment.aspx.cs:539` — `(mainamount+prevamount) > delamount` blocked (textbox reset to `"0"`): `"Cannot Be Greater then Invoice Quantity "`
-- **Weak/disabled enforcement (separate, untouched class)**: `Library.BLL/SInventory_BLL/dadtlsCustPaymentBLL.cs:88-102` (`SaveCustPayment`) — a parallel/duplicate implementation used by other pages, **not** `CustomerPayment.aspx.cs`'s own `CustPaymentBLL.cs` above — duplicate-existence check is an empty block; method always `return true` with no error surfaced. Duplicate payments can silently fail to save with no user feedback. Not part of the 2026-08-06 fix; still open.
+- **Weak/disabled enforcement (separate, untouched class)**: `Library.BLL/SInventory_BLL/dadtlsCustPaymentBLL.cs:88-102` (`SaveCustPayment`) — a parallel/duplicate implementation used by other pages, **not** `CustomerPayment.aspx.cs`'s own `CustPaymentBLL.cs` above — duplicate-existence check is an empty block; method always `return true` with no error surfaced. Duplicate payments can silently fail to save with no user feedback. Not part of the 2026-08-06 fix; still open — contrast with the DA delivery-invoice duplicate-submit race in the same module, fixed 2026-08-11 (§1 above, "DA Delivery Invoice Submission").
 - `Solution.Web/SInventory_UI/CustomerPayment.aspx.cs:282-297` (`saveButton_Click`, row-control
   lookup) — **Fixed 2026-08-09**: row controls (`chkSelect`, `chkAdjust`, `payAmountTextBox`,
   hidden fields, `ddlCollectionBy`, etc.) were looked up via a hardcoded `.Cells[0]`/`.Cells[7]`
@@ -94,6 +168,68 @@ action is blocked but no message is shown to the user (CSS/focus only).
   `null` → `NullReferenceException` or wrong control) if the grid's column layout ever changes. Now
   looked up directly on the row (`Rows[i].FindControl(...)`, no cell index), with a null-check that
   skips the row instead of throwing if a control genuinely isn't found.
+
+### DA Delivery Invoice Submission (Delivery Confirmation)
+- `Solution.Web/SInventory_UI/dadtlsDelivaryInvoiceDetailsCreation_DA.aspx.cs:1211-1327`
+  (`saveButton_Click`) — **Concurrency race fixed (2026-08-11)**: this is the DA (delivery
+  associate) delivery-invoice submit flow — invoice master + invoice detail + DC stock
+  deduction + DIC approval-status update, all inside one transaction. The duplicate-submission
+  recheck (`GetDelivaryInvoiceNoCheckById` against `tblInvoice.DelivaryInvoiceNo`, re-run inside
+  the transaction) is guarded by a SQL Server application lock
+  (`sp_getapplock`/`sp_releaseapplock`, resource `DaDeliveryInvoiceSubmit_Global`,
+  `AcquireDaDeliveryInvoiceSubmitLock`/`ReleaseDaDeliveryInvoiceSubmitLock` at `:1172-1209`).
+  **Confirmed root cause**: the lock used to be released right after the recheck passed, before
+  `transaction.Commit()` — a concurrent submit for the same invoice could acquire the lock during
+  that window, run its own recheck against the not-yet-committed (still invisible) first
+  transaction, pass it, and re-apply the same additive `StockQty = StockQty + qty` stock-return a
+  second time. The fix widens the lock's scope to span the entire commit: it is now released only
+  **after** `transaction.Commit()` succeeds (`:1285`, success path) or after `transaction.Rollback()`
+  completes (`:1256-1264` duplicate-found path; `:1294-1304` exception path) — never before. This
+  is now, alongside `PaymentPartial.aspx.cs:969-978` and `CustomerPayment.aspx.cs`'s
+  `CustPaymentDAL.cs` (§ above), a third reference implementation for hardening a save path in
+  this codebase, and is the pattern to copy for any other "check-then-write" duplicate guard found
+  elsewhere in this document — contrast with the still-open, **unfixed** weak-enforcement
+  duplicate/race gaps documented for `SubDeportStockFreez.aspx.cs` (§4 below, `:271-274` etc. —
+  the guard is a sibling `if`, not a lock) and `dadtlsCustPaymentBLL.cs:88-102` (§ above — the
+  duplicate check is an empty block entirely). The same class of unsafe "check, then insert" bug
+  (no lock, no unique constraint) was independently found, but **not fixed**, in the
+  SAP stock-receive pipeline's `sp_SAP_StockInTransfer` — see the new SInventory finding below.
+
+### Stock Receive by Chalan (SAP → Requisition sync) — two confirmed, unfixed findings (2026-08-11)
+Investigated and written up in full at
+[`docs/ReceiveQty_RootCause_Analysis.md`](../docs/ReceiveQty_RootCause_Analysis.md); **not fixed**
+in that pass (investigation only, by explicit instruction) — flagged here as open findings, not
+resolved ones. Affected page:
+`Solution.Web/SInventory_UI/ReceiveProductByChalanByDC.aspx(.cs)` (Stock Receive against a
+Chalan/DC), fed by the SAP-integration pipeline (`SAP_Integration/SAP_StockReceive.aspx` →
+`SAP_IntrigationPointDAL.SaveStockReceive` → `sp_SAP_StockReceive`, which orchestrates
+`sp_SAP_WhStockInMaster` → `sp_SAP_WhStockInDetails` → `sp_SAP_STOMaster` → `sp_SAP_STODetails` →
+`sp_SAP_StockInTransfer`).
+- **No duplicate-shipment detection anywhere in the app (CRITICAL, weak/absent enforcement)**: the
+  same physical SAP shipment can be synced into `SAP_API_Data.tblSAP_StockMovementMaster` twice
+  under two different `challan_code` strings (confirmed live example: `45000088811`/matched in-app
+  as `4500008881`, and `45000088812` — same 8 products, same batches, same quantities, posted 10
+  days apart). `sp_SAP_WhStockInMaster`'s only guard is a literal-string `challan_code NOT IN
+  (...)` check — it blocks re-processing the *identical* string a second time but has no concept
+  of "this is probably the same shipment as a Chalan already processed under a different string."
+  Each independently-matched shipment becomes its own fully-valid-looking `tblRequisition` row, so
+  a clerk can receive the same goods twice on `ReceiveProductByChalanByDC.aspx` with no warning —
+  full quantities, `UnRcvQty=0`, nothing in the UI hints at the duplication. See
+  `docs/ReceiveQty_RootCause_Analysis.md` §8-10, §16 (root cause #1, CONFIRMED), §19.
+- **`sp_SAP_StockInTransfer`'s duplicate-insert guard is an unsafe check-then-insert (HIGH, weak
+  enforcement)**: its guard (`WHERE RD.ReqChildId NOT IN (SELECT DISTINCT ReqChildId FROM
+  tblStockInTransfar WHERE ReqChildId IS NOT NULL)`) has no application lock, no
+  transaction-scoped guard, and no uniqueness constraint on `tblStockInTransfar(ReqChildId)`
+  backing it up — safe only if the proc never runs twice concurrently/overlapping for the same
+  input. Confirmed live consequence: within Requisition `ReqId=6295`, product/batch `ANM01`/`004-24`
+  has 4 `tblStockInTransfar` rows instead of 2 (`StockInTransfarId` 52486-52489, two exact-duplicate
+  pairs), even though the upstream `tblRequsitionChild` table has only one legitimate row per
+  `ReqChildId`. This is the same class of check-then-insert-without-a-lock bug that caused the
+  DA delivery-invoice double-stock-return race above (now fixed there) — an unfixed sibling
+  instance of the same pattern. See `docs/ReceiveQty_RootCause_Analysis.md` §14-16 (root cause #2,
+  CONFIRMED as to the duplicate rows/consequence; the exact triggering mechanism is unconfirmed —
+  no execution/audit logs were available).
+- See also `spec/workflow.md` §3.4 for the full request→sync→receive sequencing this feeds into.
 
 ### Customer Master Entry / Edit
 - `Solution.Web/SInventory_UI/CustMasterEntry.aspx.cs:102-194` — Long required-field chain (Name, Address, Mobile, Representative, Region, DC, FE, Area, MIO, Market, Category, Code, Address2, Contact No, City, Contact Person, etc).
@@ -256,10 +392,10 @@ with an override checkbox — not obviously the same code path as this service; 
 until traced to a single call site.
 
 ### Customer Master Data
-- `Solution.Web/MasterSetup_UI/CustomerEntry.aspx.cs:299` — Non-Admin role gate disables most fields.
-- **Hard-coded backdoor**: `CustomerEntry.aspx.cs:330` and `CustomerView.aspx.cs:320` — `Session["LoginName"] == "53323"` re-enables all fields regardless of role; `CustomerEntry.aspx.cs:70` has a second hard-coded login `"51419"`.
-- `CustomerEntry.aspx.cs:747-759` — Mobile number must be 11 digits: `"Mobile NO must be 11 digits!"`
-- **Disabled**: `CustomerEntry.aspx.cs:733-745` — NID length check commented out.
+- `Solution.Web/MasterSetup_UI/CustomerEntry.aspx.cs:318` — Non-Admin role gate disables most fields.
+- **Hard-coded backdoor**: `CustomerEntry.aspx.cs:349` and `CustomerView.aspx.cs:320` — `Session["LoginName"] == "53323"` re-enables all fields regardless of role; `CustomerEntry.aspx.cs:71` has a second hard-coded login `"51419"`.
+- `CustomerEntry.aspx.cs:766-778` — Mobile number must be 11 digits: `"Mobile NO must be 11 digits!"`
+- **Disabled**: `CustomerEntry.aspx.cs:752-764` — NID length check commented out.
 - `CustomerView.aspx.cs:299-320` — Permission gate (role≠2 without permission row → redirect to Dashboard), same backdoor login override.
 - **Doctor tagging (added 2026-08-09)**: `CustomerEntry.aspx`'s `ddlDoctorTag` multi-select lets a
   customer be tagged to zero or more doctors, following the same pattern as the page's existing
@@ -270,6 +406,20 @@ until traced to a single call site.
   `spec/requirements.md` for the source requirement. Verified end-to-end against a running
   instance (IIS Express): create with multiple doctors, edit-reload pre-selection, and
   remove-then-resave correctly drops the removed mapping.
+- **Doctor tagging gated to MDC customer type (added 2026-08-11)**: `ddlDoctorTag` now only loads
+  and is enabled when the selected `ddlChemisType` (Customer Type) matches MDC —
+  `CustomerEntry.aspx.cs:913` `ToggleDoctorTagByCustomerType()`, wired to `ddlChemisType`'s new
+  `AutoPostBack`/`SelectedIndexChanged` (`:930`), to the initial page load (`:59`), and to
+  edit-mode record load (`:120`). MDC is matched by a case-insensitive prefix check on
+  `ddlChemisType`'s selected text (`StartsWith("MDC")`), not full-text equality — `tblCustomerType`
+  has no dedicated MDC flag/code, and the display name's fiscal-year suffix (e.g.
+  `"MDC (FY 26-27)"`) changes annually. Selecting a non-MDC type clears any selected doctors and
+  disables the control; the doctor-list query (`GetDoctorListForTagging`) and the tagged-doctor
+  preselect query (`GetTaggedDoctorList`) are both skipped entirely when not MDC — no unnecessary
+  DB calls. See `spec/requirements.md` for the source requirement. Verified end-to-end against a
+  running instance: toggling Customer Type in add mode enables/loads then disables/clears the
+  Doctor field; editing an existing MDC customer, tagging a doctor, and saving persists the row in
+  `tblCustTaggDoc`; switching that same customer to a non-MDC type and saving deletes the mapping.
 - `CustomerListPending.aspx.cs:96-98`, `CustomerView.aspx.cs:159-161`, `CustomerChangeProgramType.aspx.cs:129-131` — DIC role auto-locks Distribution Center dropdown to `Session["DICCompanyUnitId"]`.
 - `CustomerChangeProgramType.aspx.cs:263-304` — Program Type required: `"Please Select Program Type!"`; `:295` generic failure mislabeled `"Already Exist!"`.
 - `Customer_Doctor_Transfer.aspx.cs:80-85,114-119` — Grid non-empty: `"Table can not be Empty!"`
@@ -337,7 +487,7 @@ Recurring "row-sum vs master target" rule across `AMDayWiseDWSPSetup.aspx.cs:525
 ## 4. SubDepot module (SubDepot_UI, SubDepot_BLL, 25 files)
 
 ### Stock Freeze / Stock Return (`SubDeportStockFreez.aspx.cs`)
-- **Weak enforcement, confirmed 4x in one file** (`:271-274`, `:314-317`, `:390-394`, `:437-441`) — `"Return Quantity must be Less then Stock Qty"` is shown but the block is a sibling `if`, not an `else`/`return`; the actual save proceeds via a separate, non-exclusive `if (bigStore >= ReturnQty)` block with no shared flag or early exit. Currently self-correcting only because the two conditions happen to be complementary.
+- **Weak enforcement, confirmed 4x in one file** (`:271-274`, `:314-317`, `:390-394`, `:437-441`) — `"Return Quantity must be Less then Stock Qty"` is shown but the block is a sibling `if`, not an `else`/`return`; the actual save proceeds via a separate, non-exclusive `if (bigStore >= ReturnQty)` block with no shared flag or early exit. Currently self-correcting only because the two conditions happen to be complementary. Still open, unlike the structurally similar duplicate-submit race in `dadtlsDelivaryInvoiceDetailsCreation_DA.aspx.cs`'s `saveButton_Click` (§1 above), which was fixed 2026-08-11 by moving the app-lock release to after commit/rollback.
 - **Hard-coded privileged-user bypass**: `Session["LoginName"] == "21900"` (`:310,432`) duplicates the entire return-processing logic and skips the `"Restricted"` stock-condition gate applied to all other users.
 - Return Qty required in all four code paths: `"Insert Return Quantity !!"`
 

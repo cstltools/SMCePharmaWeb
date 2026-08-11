@@ -1,8 +1,13 @@
 # Integrations
 
 Every point where this codebase talks to something outside itself. **This version corrects the
-prior one on two points**: it wrongly claimed no email/SMTP code exists (there is, and most of it
-is active), and it missed a dead-but-credential-leaking direct SAP REST call. Both are below.
+prior one on three points**: it wrongly claimed no email/SMTP code exists (there is, and most of it
+is active); it missed a dead-but-credential-leaking direct SAP REST call; and — the most significant
+correction, found only by reading the stored-procedure source directly rather than the C# call site
+alone — **the `MakeRESTRequest` stored procedure that §1 below previously described as "no actual
+outbound HTTP call" genuinely does make a live outbound HTTPS call**, from inside SQL Server, with
+hardcoded plaintext credentials. See the rewritten §1 below; this was verified by reading
+`spec/database/procs/MakeRESTRequest.sql` directly, not inferred.
 
 ## 1. SAP staging/reconciliation
 
@@ -24,12 +29,69 @@ admin pages `Solution.Web/SAP_Integration/SAP_IntrigationPoint[DIC].aspx`,
 DAL class via `GetProviderDropoutIntrigrationListDAL()` — provider-dropout events for a
 retail-outlet loyalty scheme flow through the same staging pipeline).
 
-Notable: `SAP_IntrigationPointDAL.MakeRESTRequestWithUpdateChallan()`
-(`Library.DAL/SAP_IntegrationDAL/SAP_IntrigationPointDAL.cs:548-577`) is misleadingly named — despite
-the name, it only calls a stored procedure literally named `MakeRESTRequest`; there is no actual
-outbound HTTP call in this C# method.
+### 1b. Known risk (investigated, not fixed): duplicate-shipment re-sync has no detection, and `sp_SAP_StockInTransfer`'s duplicate guard is unsafe
 
-### 1a. Direct SAP REST call — dead code, but leaks live-looking credentials
+A full end-to-end trace of the `SAP_StockReceive` → `ReceiveProductByChalanByDC.aspx` flow (triggered
+by a real reported discrepancy on Chalan `4500008881`) found that this pipeline has **no reliable way
+to detect when the same SAP shipment is re-synced into `SAP_API_Data.tblSAP_StockMovementMaster`
+under a different `challan_code` string** — matching throughout the chain (`sp_SAP_WhStockInMaster`'s
+"already processed" guard included) is plain string equality on `challan_code`, and neither
+`tblSAP_StockMovementMaster` nor `tblSAP_StockMovementDetail` carries any SAP document number, line
+number, or other stable natural key. A shipment synced twice under two different Chalan-code strings
+sails through as two independent, fully-processed Requisitions — the second receive silently
+double-counts stock already received, with nothing on the receiving screen to hint at it.
+
+Separately, `sp_SAP_StockInTransfer`'s "already inserted?" duplicate-row guard is a plain
+`WHERE ReqChildId NOT IN (SELECT DISTINCT ReqChildId FROM tblStockInTransfar ...)` check with no
+lock, no transaction scope, and no uniqueness constraint on `tblStockInTransfar(ReqChildId)` backing
+it up — unsafe if the procedure is ever invoked twice for the same input in overlapping/repeated
+executions, and a live duplicate matching this exact failure shape was found in the dev database
+during the investigation.
+
+**This was investigated and root-caused in this session, not fixed** — no code, stored procedure, or
+schema change was made. Full trace (data flow, live-database evidence, ranked root causes, and a
+proposed-but-unimplemented fix plan) is in
+[`docs/ReceiveQty_RootCause_Analysis.md`](../docs/ReceiveQty_RootCause_Analysis.md).
+
+### 1a-revised. `MakeRESTRequest` — CORRECTED: this is a real, live outbound HTTPS call, made from inside SQL Server
+
+**This section was wrong in the prior version of this document and is corrected here after reading
+the stored procedure's source directly.** `SAP_IntrigationPointDAL.MakeRESTRequestWithUpdateChallan()`
+(`Library.DAL/SAP_IntegrationDAL/SAP_IntrigationPointDAL.cs:548-577`) does indeed only call a stored
+procedure named `MakeRESTRequest`, with no `HttpClient`/`WebRequest` anywhere in that C# method —
+that much was correct. But **the stored procedure itself is not a passive database operation**;
+`spec/database/procs/MakeRESTRequest.sql` uses SQL Server's OLE Automation extended procedures
+(`sp_OACreate`, `sp_OAMethod`) to genuinely issue an outbound HTTPS POST:
+
+```sql
+EXEC sp_OACreate 'MSXML2.ServerXMLHTTP', @Object OUT;
+DECLARE @url varchar(200) = 'https://smcsap.smc-bd.org:42223/RESTAdapter/eph_sto';
+EXEC sp_OAMethod @Object, 'open', NULL, 'POST', @url, false, 'smc_epharma', 'Eph@rma2023#';
+EXEC sp_OAMethod @Object, 'setRequestHeader', NULL, 'Content-Type', 'application/json';
+DECLARE @jsonRequest varchar(MAX) = '{"StoNo":"' + @StoNo + '", ...}';
+EXEC sp_OAMethod @Object, 'send', NULL, @jsonRequest;
+```
+
+This is a real, working call to a SAP Stock Transfer Order REST endpoint (`eph_sto`), issued from the
+**database tier**, not the application tier — an unusual but functioning architecture. It requires
+SQL Server's `Ole Automation Procedures` configuration option to be enabled on the instance; if that
+option is off, the call fails completely silently (the proc has **no `TRY/CATCH`**), and the caller's
+own empty `catch {}` block (see call sites below) means neither layer would ever surface the failure.
+
+**The credentials are the same pair already flagged in §1a below as "dead code, but leaks
+live-looking credentials"** — `smc_epharma` / `Eph@rma2023#`, same host `smcsap.smc-bd.org:42223` —
+except that C# instance (`BankDepositSAP.aspx.cs`, endpoint `eph_mio`) is genuinely dead (its HTTP
+call is commented out), while **this stored-procedure instance is live and actively called**:
+- `Solution.Web/SInventory_UI/ReceiveProductByChalanByDC.aspx.cs:148`
+- `Solution.Web/SInventory_UI/TransferReceiveProductByChalanByDC.aspx.cs:118`
+
+Both call sites wrap the invocation in an empty `catch { }` block, so any failure — network, auth,
+OLE Automation disabled, malformed JSON — is silently swallowed with no logging and no user-facing
+error. **Treat this credential pair as live and in active use, not merely "committed but inert"** —
+correcting the framing of §1a below, which still accurately describes the separate, genuinely-dead
+`BankDepositSAP.aspx.cs` C# path.
+
+### 1a. Direct SAP REST call from C# (`BankDepositSAP.aspx.cs`) — this specific C# path is dead code, but leaks the same live credentials used by §1a-revised above
 
 `Solution.Web/SInventory_UI/BankDepositSAP.aspx.cs:276-277`:
 
@@ -99,9 +161,18 @@ this pass** — worth a follow-up grep for `ApiController`/`[Route]` (a prior fu
 app calls the same page-method/`.asmx` surface documented in `api-spec.md` directly). Flag this as
 an open question rather than assumed-resolved.
 
+**Independent corroboration (this revision):** a full read of all 58 database views found a dedicated
+`View_FieldForce{Group,Region,Area,Territory,SubTerritory,Nsm,Rsm,Asm,Mio,Market}` family plus
+`View_webapi_FieldForce`/`View_Webapi_EmployeeFieldForceInfo`, and confirmed by direct grep that
+these views are consumed specifically by the `sp_SalesAPI_FieldForce*` procedure family — reinforcing
+that the `sp_Webapi_*`/`sp_SalesAPI_*` layer, not `SInventoryWebService.cs`, is the far more probable
+mobile-app data surface. This strengthens rather than resolves the open question above: the *data
+layer* the mobile app most likely reads is now better characterized, but the *HTTP entry point* that
+exposes it remains genuinely unlocated in this repository.
+
 ### 4a. `BASE_URL` — declared, dead
 
-`Library.DAL/DataManager/SqlUserAccess.cs:69-70` defines:
+`Library.DAL/DataManager/SqlUserAccess.cs:75-76` defines:
 
 ```csharp
 public static string AppName = "CSTL-Development";

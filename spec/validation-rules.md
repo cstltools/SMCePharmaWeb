@@ -50,13 +50,13 @@ required-field tables per module).
 
 ### Already covered in `business-rules.md` (cited briefly, not re-derived)
 
-11-digit mobile / 17-digit NID length checks recur in `CustomerEntry.aspx.cs:749` (mobile),
+11-digit mobile / 17-digit NID length checks recur in `CustomerEntry.aspx.cs:768` (mobile),
 `DoctorEntry.aspx.cs`, `DASetup.aspx.cs`. Also confirmed in this pass:
 `EmployeeSetup.aspx.cs` has **four** separate instances of the same pattern in one file —
 `txtNIDNO.Text.Length != 17` (line 660), `txtEmpContactNo.Text.Length != 11` (line 674),
 `ReferenceContactNo.Text.Length != 11` (line 689), `txtEmergencyContactNo.Text.Length != 11`
 (line 703) — each a standalone, independently-copy-pasted check rather than a shared helper.
-`CustomerEntry.aspx.cs:735` also has a commented-out `txtVoterID.Text.Length != 17` check —
+`CustomerEntry.aspx.cs:754` also has a commented-out `txtVoterID.Text.Length != 17` check —
 dead code, not enforced.
 
 ### File upload validation (new ground)
@@ -152,8 +152,36 @@ validation independent of any application code:
   (`MaxLength` is rarely set — see §1, where no `RangeValidator`/length-bound validator exists
   anywhere in the app).
 - **This is essentially the only "referential" validation the DB performs.** As documented in
-  [`database-spec.md`](database-spec.md), only **3 real foreign-key constraints** exist across the
-  entire 569-table schema — so cross-table validity (e.g. "does this `CustomerId` actually exist in
-  the customer table") is almost never enforced by the database itself; it depends entirely on
-  whichever application-layer check (if any) was written for that specific insert/update path, per
-  the duplicate-check and quantity-check tables in [`business-rules.md`](business-rules.md).
+  [`database-spec.md`](database-spec.md) and re-confirmed this revision by direct live-database
+  introspection, only **3 real foreign-key constraints** (and 0 triggers) exist across the entire
+  **570-table** schema (`sys.tables` count, `TOWSIF\MSSQLSERVER2019`/`SalesDisDB_SMC_NEWDB`, this
+  pass) — so cross-table validity (e.g. "does this `CustomerId` actually exist in the customer
+  table") is almost never enforced by the database itself; it depends entirely on whichever
+  application-layer check (if any) was written for that specific insert/update path, per the
+  duplicate-check and quantity-check tables in [`business-rules.md`](business-rules.md).
+
+## 6. Confirmed validation-logic bugs found by reading stored-procedure/code-behind bodies directly (this revision)
+
+- **`GroupWisePromoQtyEntry.aspx.cs`'s central-warehouse stock-cap check has a loop-exit bug that
+  defeats it for any multi-row allocation.** The accumulation loop that sums checked employees' promo
+  quantities calls `break` immediately after processing the *first* checked row, so the "assigned
+  stock exceeds available stock" comparison never actually sums more than one employee's quantity —
+  it is possible to allocate more promotional stock across employees than the central warehouse
+  actually holds, and the validation will not catch it once more than one row is selected. See
+  `spec/business-rules.md` §0.1 (transactional modules).
+- **Insert-side duplicate-name validation is missing across at least 8 master-data entities**
+  (District, Thana, CustomerType, StationType, ProgramType, SMCType, Customer Master, Delivery
+  Agent) — the `sp_check_*` duplicate-check procedure is called on the UPDATE path but never on
+  INSERT for these entities, so new duplicate rows can be freely created and are only caught if a
+  user later tries to rename an existing row to the colliding value. See `spec/business-rules.md`
+  §0.1 (MasterSetup) BR-MS-01.
+- **No duplicate-shipment validation anywhere in the SAP stock-receive pipeline (2026-08-11,
+  confirmed, unfixed)**: `sp_SAP_WhStockInMaster`'s only guard against re-processing a Chalan is a
+  literal-string `challan_code NOT IN (...)` check — it has no way to recognize the same physical
+  shipment re-synced under a *different* `challan_code` string, so `ReceiveProductByChalanByDC.aspx`
+  can present an already-received shipment as a normal, un-flagged pending Chalan. Separately,
+  `sp_SAP_StockInTransfer`'s own duplicate-row guard (`ReqChildId NOT IN (...)`) is an unsafe
+  check-then-insert with no lock or unique constraint, confirmed to have produced 4 rows instead of
+  2 for one product/batch line within a single Chalan. See `spec/business-rules.md` §1 ("Stock
+  Receive by Chalan") and `spec/workflow.md` §3.4 for full detail, and
+  `docs/ReceiveQty_RootCause_Analysis.md` for the investigation.

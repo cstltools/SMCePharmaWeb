@@ -34,10 +34,10 @@ There is no shared interface or base class between the two eras, and no migratio
 | Project | Contains | Representative evidence |
 |---|---|---|
 | `Solution.Web` | ~700 `.aspx`/`.aspx.cs` pages across ~25 feature `*_UI` folders, 3 master pages, one SOAP-ish web service, 3 HTTP handlers, Crystal Report viewer pages | `Solution.sln` (Website project entry) |
-| `Library.DAO` | Plain entity/DTO classes, grouped by module (`SInventory_Entities`, `DoctorModule_DAO`, `MasterSetup_DAO`, `UserRoleDAO`, ...) | ~365 files across `Library.DAO/` |
-| `Library.DAL` | Data access classes mirroring `Library.DAO`'s module folders, plus `DataManager/` (connection/command plumbing) and `InternalCls/` (shared helpers: primary-key generation, encryption, number-to-words) | `Library.DAL.csproj` |
+| `Library.DAO` | Plain entity/DTO classes, grouped by module (`SInventory_Entities`, `DoctorModule_DAO`, `MasterSetup_DAO`, `UserRoleDAO`, ...) | 208 files across `Library.DAO/` |
+| `Library.DAL` | Data access classes mirroring `Library.DAO`'s module folders, plus `DataManager/` (connection/command plumbing, plus the unused `EncryptDecrypt.cs`) and `InternalCls/` (shared helpers: primary-key generation, number-to-words) | `Library.DAL.csproj` |
 | `Library.BLL` | Business logic, called from `Solution.Web` code-behind | `Library.BLL.csproj` |
-| `Library.CrystalReports` | Typed `DataSet` definitions (`.xsd`/`.xsc`/`.xss`) per report shape, 340 files | `Library.CrystalReports/` |
+| `Library.CrystalReports` | 58 report shapes, each a typed `DataSet` definition (`.xsd`/`.xsc`/`.xss` trio, 172 files) plus a generated `.cs` partial class (124 files), plus 40 `.rpt` report definitions — 339 files total | `Library.CrystalReports/` |
 
 ## Request flow example (legacy path)
 
@@ -61,6 +61,45 @@ A significant part of the business logic lives in a **multi-level, role-sequence
 - `Library.DAO/UserRoleDAO/ApprovalMapMaster.cs` models, per menu (`MenuId`) and originating role (`FromRoleId`), an ordered list of approver roles (`ApprovalMapDetail.ToRoleId` + `.Order`).
 - `Library.DAL/UserRoleDAL/ApprovalMapDAL.cs` loads/saves this routing table via `sp_GET_ApprovalMapLoad` / `sp_Save_ApprovalMapMaster` / `sp_Save_ApprovalMapDetail`.
 - Every `Approval_UI` page (Customer, DA Claim, DCP/CVP, DCR, Doctor, Doctor/Customer Transfer, Expense, Leave, Mileage, Order, RX, Tour Plan) follows the same shape: a grid of pending records, each carrying a `ToRoleTypeId`/`Step`; the Approve/Reject buttons are only enabled when `Session["RoleTypeId"]` matches the record's current-step approver role, and approving writes the next step forward via a dedicated `sp_*AppLog` stored procedure. See [`docs/business-flow.md`](business-flow.md) for the full catalog.
+
+## Stored-procedure-driven business logic — a worked example
+
+CLAUDE.md notes that "a large amount of business logic lives in stored procedures... not in C#."
+[`docs/ReceiveQty_RootCause_Analysis.md`](ReceiveQty_RootCause_Analysis.md) is a fully-verified,
+end-to-end trace of exactly that, from an external system through five chained stored procedures to
+a WebForms page: `SAP_API_Data.tblSAP_StockMovementMaster`/`tblSAP_StockMovementDetail` (external
+SAP staging tables, see [`docs/database.md`](database.md)) → `sp_SAP_StockReceive` (orchestrator) →
+`sp_SAP_WhStockInMaster`/`sp_SAP_WhStockInDetails` → `sp_SAP_STOMaster`/`sp_SAP_STODetails` →
+`sp_SAP_StockInTransfer` → `tblStockInTransfar` → `SInventory_UI/ReceiveProductByChalanByDC.aspx`,
+which simply binds `Eval("Quantity")` straight from that last table. Worth reading in full as a
+reference for how far a "just displays a DataTable" WebForms page's real logic actually reaches
+upstream — and as the source of the concurrency example below.
+
+## Concurrency / locking pattern (cross-cutting)
+
+No app-wide locking convention exists — `sp_getapplock` is not a documented house style, just a fix
+applied at one call site so far. Most write paths that need a "check nothing conflicting already
+exists, then write" guard rely on a plain SQL check (a `NOT IN`/`WHERE NOT EXISTS` before the
+`INSERT`) with no lock and no backing uniqueness constraint, which is only safe if that code path
+never runs twice concurrently for the same input:
+
+- **Confirmed bug + fix**: `dadtlsDelivaryInvoiceDetailsCreation_DA.aspx.cs`'s `saveButton_Click`
+  (`Solution.Web/SInventory_UI/`) guards a duplicate-submit recheck with a Session-owned
+  `sp_getapplock`. The lock was being released *before* `transaction.Commit()` instead of after,
+  which — under this database's `READ_COMMITTED_SNAPSHOT=ON` setting — opened a real window for a
+  second concurrent session to acquire the lock, pass the same duplicate recheck against
+  not-yet-committed data, and double-apply an additive stock-return update. Fixed by moving the
+  `sp_releaseapplock` call to run only after `transaction.Commit()`/`Rollback()` has resolved, on
+  every path (success, duplicate-detected, exception). The pattern to follow for any similar
+  check-then-write path in this codebase: acquire the app lock inside the transaction, do the
+  recheck + writes, commit or roll back, *then* release the lock — never before.
+- **Same bug class, still open**: `sp_SAP_StockInTransfer`'s duplicate-row guard
+  (`WHERE ReqChildId NOT IN (SELECT DISTINCT ReqChildId FROM tblStockInTransfar ...)`) has no lock,
+  no transaction-scoped guard, and no uniqueness constraint on `tblStockInTransfar(ReqChildId)`
+  behind it — documented as root cause #2 in
+  [`docs/ReceiveQty_RootCause_Analysis.md`](ReceiveQty_RootCause_Analysis.md) §15-16. Treat any other
+  "check, then insert" path in this codebase as suspect until verified, rather than assuming the fix
+  above generalizes.
 
 ## Dependency injection
 

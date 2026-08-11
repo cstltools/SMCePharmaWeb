@@ -4,12 +4,13 @@ Findings from static analysis only — nothing here was exploited or verified ag
 
 ## 1. Hardcoded, drifted database credentials — Critical
 
-Connection details are duplicated in at least four places, out of sync with each other, and committed to git history:
+Connection details are duplicated in at least three places in the current codebase, committed to git history with a long record of drifting out of sync with each other — as of this pass all three happen to agree (all point at `TOWSIF\MSSQLSERVER2019` / `sa` / `sa1234`), but that's a snapshot, not a guarantee: the active value in each keeps moving as whoever's touching the code points it at their own machine, which is itself evidence of the underlying problem (there's no environment-variable-driven config to point at instead, see [`CLAUDE.md`](../CLAUDE.md)):
 
-- `Solution.Web/web.config:38` — `SolutionConnectionStringSSIDB`: `Data Source=NASA-PC\MSSQLSERVER2019;Initial Catalog=SalesDisDB_SMC_NEWDB;Integrated Security=false; User ID=sa; Password=sa1234;`. Lines 33-36 keep three earlier server/password combinations commented out rather than deleted (`95.211.159.93\SQLSERVER2014` / `PULAK**10`; `CSTL-PC-7` / `CSTL**10`; `.` / `sa1234#`).
-- `Library.DAL/DataManager/SqlUserAccess.cs:54-56` — a different active `DataSource`/`UserName`/`PassWord` (`192.168.35.174\MSSQLSERVER2019`, `ePharmadb_Webuser`, password `Web_useR!#@**10##`), with roughly ten more prior combinations commented out above it.
-- `Library.DAL/MAIN_FUNCTION/DB_Authentication.cs` — yet another hardcoded set (`NASA-PC\MSSQLSERVER2019` / `sa` / `sa1234`).
-- Every root `*.ps1` script embeds its own literal connection string.
+- `Solution.Web/web.config:41` — `SolutionConnectionStringSSIDB`: `Data Source=TOWSIF\MSSQLSERVER2019;Initial Catalog=SalesDisDB_SMC_NEWDB;Integrated Security=false; User ID=sa; Password=sa1234;`. Twelve earlier server/password combinations are kept commented out rather than deleted across lines 33-40 and 44-58 (`95.211.159.93\SQLSERVER2014` / `PULAK**10`; `CSTL-PC-7` / `CSTL**10`; `NASA-PC\MSSQLSERVER2019` / `sa1234`; `192.168.35.174\MSSQLSERVER2019` / `ePharmadb_Webuser`; `192.168.110.50\sa`; `45.64.134.85\MSSQLSERVER2014`; `168.63.237.230\MSSQLSERVER2014,58301`; `182.163.127.238\MSSQLSERVER2014`; among others).
+- `Library.DAL/DataManager/SqlUserAccess.cs:60-62` — active `DataSource`/`UserName`/`PassWord`: `TOWSIF\MSSQLSERVER2019` / `sa` / `sa1234`, with ten more prior combinations commented out above and below it (including three `192.168.35.174\MSSQLSERVER2019` variants, and `NASA-PC\MSSQLSERVER2019` / `sa1234` appearing both above the active line and again further below).
+- `Library.DAL/MAIN_FUNCTION/DB_Authentication.cs:21-23` — active `DataSource`/`UserId`/`Password`: `TOWSIF\MSSQLSERVER2019` / `sa` / `sa1234`, matching the other two files. This file does have commented-out history (unlike what an earlier pass of this document claimed): `DESKTOP-MND72HJ` / `sa` / `sa1234` at lines 11-13, and `192.168.35.174\MSSQLSERVER2019` / `ePharmadb_Webuser` at lines 16-18.
+
+Two of these three files (`SqlUserAccess.cs`, `DB_Authentication.cs`) show as locally modified in a routine `git status` on this checkout right now (each developer re-pointing them at their own local SQL Server instance without committing it) — check which block is actually uncommented, and whether it's even committed, before assuming which DB a given checkout is pointed at. The root-level `*.ps1` scripts that used to each embed their own literal connection string were deleted in commit `ddd28c0` (see [`testing.md`](testing.md)) and no longer exist in the tree.
 
 `docs/CI-CD-README.md`'s own setup checklist item #4 calls for rotating the plaintext `sa` credentials "currently committed in `Solution.Web/Web.config`" into GitHub Secrets — i.e. this is already a known, documented issue, not a new finding.
 
@@ -43,13 +44,13 @@ Concatenation of variables (frequently session-derived or user-supplied) directl
 
 From `Solution.Web/web.config` (full file read):
 
-- `<compilation debug="true" targetFramework="4.8">` (line 60) — debug compilation left enabled.
+- `<compilation debug="true" targetFramework="4.8">` (line 64) — debug compilation left enabled.
 - `<customErrors>`: **not present** — no custom error page configured, default ASP.NET error behavior applies (which, combined with `debug="true"`, can surface stack traces).
 - `<trust level="...">`: **not present**.
 - `<machineKey>`: **not present** — view-state/forms-auth-ticket encryption keys are auto-generated per-server rather than explicitly pinned, which matters if this app ever runs behind a load balancer (not evidenced either way in this repo).
 - `<httpCookies>`: **not present** — no `httpOnlyCookies`/`requireSSL` element.
 - `<authorization>`: **not present** — no app-level allow/deny rules.
-- `<httpRuntime executionTimeout="36000" maxRequestLength="4194303" maxUrlLength="131072" requestPathInvalidCharacters="" requestValidationMode="2.0" />` (line 59) — `requestValidationMode="2.0"` keeps ASP.NET's older, lazy (per-control-access) request validation rather than 4.5's eager validation; `requestPathInvalidCharacters=""` clears the default blocked-character list for the URL path.
+- `<httpRuntime executionTimeout="36000" maxRequestLength="4194303" maxUrlLength="131072" requestPathInvalidCharacters="" requestValidationMode="2.0" />` (line 63) — `requestValidationMode="2.0"` keeps ASP.NET's older, lazy (per-control-access) request validation rather than 4.5's eager validation; `requestPathInvalidCharacters=""` clears the default blocked-character list for the URL path.
 - `<authentication mode="Forms" ...>` with `timeout="2880"` (48 hours) — declared but not actually used in code, see [`spec/workflow.md`](../spec/workflow.md) and §6 below.
 - `<sessionState mode="InProc" timeout="24000" cookieless="false" />` — no `requireSSL` or `httpOnlyCookies` attribute present (see next section).
 

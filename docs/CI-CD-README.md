@@ -1,4 +1,4 @@
-# CI/CD Pipeline — ePharma Web (Legacy ASP.NET Web Forms, .NET Framework 4.0)
+# CI/CD Pipeline — ePharma Web (Legacy ASP.NET Web Forms, .NET Framework 4.8)
 
 ## Folder structure
 
@@ -40,10 +40,12 @@ docs/
   `AspNetCompiler.*` properties), and `Set-WebConfigValues.ps1` handles
   per-environment config values by editing the built `Web.config` directly —
   the standard substitute for Website projects.
-- Target framework is `v4.0` (confirmed from the library projects'
-  `.csproj` files), so the pipeline runs on `windows-latest`, which ships
-  Visual Studio Build Tools with the legacy .NET Framework 4.x targeting
-  packs preinstalled — no separate "install Build Tools" step needed.
+- Target framework is `v4.8` (confirmed from the four library projects'
+  `.csproj` files — `Solution.Web/packages.config` itself targets `net40`,
+  a mismatch worth knowing about but not a build blocker), so the pipeline
+  runs on `windows-latest`, which ships Visual Studio Build Tools with the
+  legacy .NET Framework 4.x targeting packs preinstalled — no separate
+  "install Build Tools" step needed.
 - The IIS servers referenced in `Web.config`'s (commented-out) connection
   strings are on-prem/private hosts (`NASA-PC`, internal IPs) — **GitHub-hosted
   runners cannot reach them**, so all `deploy` jobs run on **self-hosted
@@ -58,7 +60,8 @@ docs/
 2. **Setup MSBuild** (`microsoft/setup-msbuild`) — puts `msbuild.exe` for the
    installed VS Build Tools version on `PATH`.
 3. **Setup NuGet CLI** — classic `packages.config`-style restore is used
-   because `.NET Framework 4.0` libraries predate `PackageReference`.
+   because these `.NET Framework` (4.8, with `Solution.Web` on `net40`)
+   libraries predate `PackageReference`.
 4. **Cache NuGet packages** — keyed on `packages.config` hash, to speed up
    repeat runs.
 5. **NuGet restore** — `nuget restore Solution.sln`.
