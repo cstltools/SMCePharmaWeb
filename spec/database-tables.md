@@ -10689,6 +10689,9 @@ Row count (live, at extraction time): **70292**
 | MusakTotalPrice | decimal(18,2) | NULL |  |  |
 | IsPicking | nvarchar(MAX) | NULL |  |  |
 | BatchNO | nvarchar(MAX) | NULL |  |  |
+| WHStockInDetailID | int | NULL |  |  |
+
+`WHStockInDetailID` added in `e1d90e0` (2026-08-11), after the last live schema extraction — not reflected in the row count/extraction above. See `spec/database/tables/tblRequsitionChild_ALTER.sql` and `docs/ReceiveQty_Permanent_Fix_Plan.md` (Problem 3). Populated 1:1 by `sp_SAP_STODetails` from the source `tblWHStockInDetail` row; `sp_SAP_StockInTransfer` joins on it when present, falling back to the legacy `ProductCode+BatchNo` join only for pre-fix rows where it's `NULL`.
 
 **Referenced directly in C# by:** `Library.BLL\SInventory_BLL\ChallanReportViewBLL.cs`, `Library.BLL\SInventory_BLL\RequisitionBLL.cs`, `Library.BLL\SInventory_BLL\dadtlsRequisitionBLL.cs`, `Library.DAL\SInventory_DAL\CWMonthlyInventoryReportDal.cs`, `Library.DAL\SInventory_DAL\ChallanReportViewDAL.cs`, `Library.DAL\SInventory_DAL\RequisitionDAL.cs`, `Library.DAL\SInventory_DAL\RollBackDAL.cs`, `Library.DAL\SInventory_DAL\StockTransportOrderReportDAL.cs`, `Library.DAL\SInventory_DAL\StockTransportOrderReportDAL_daaw.cs`, `Library.DAL\SInventory_DAL\WhStockMonitoringReportDal.cs`, `Library.DAL\SInventory_DAL\dadtlsRequisitionDAL.cs`
 
@@ -11635,6 +11638,25 @@ Row count (live, at extraction time): **12**
 | StorageLoc | nvarchar(MAX) | NULL |  |  |
 
 **Referenced directly in C#:** none found by name — access, if any, is entirely inside stored procedures/views `[NOT VERIFIED beyond proc-body table-reference scan in database-spec.md]`
+
+---
+
+## `tblSAP_SuspectedDuplicateShipment`
+
+Added in `e1d90e0` (2026-08-11), after the last live schema extraction — no live row count available. See `spec/database/tables/tblSAP_SuspectedDuplicateShipment.sql` and `docs/ReceiveQty_Permanent_Fix_Plan.md` (Problem 2). Written by `sp_SAP_WhStockInMaster` when a Chalan's full product+batch+quantity line set exactly matches an already-processed shipment under a different `ChallanNo`.
+
+| Column | Type | Nullable | Default | Key |
+|---|---|---|---|---|
+| SuspectedDuplicateShipmentId | int | NOT NULL | | PK, IDENTITY |
+| NewChallanNo | nvarchar(500) | NOT NULL | | |
+| MatchedWHStockInMasterID | int | NOT NULL | | |
+| MatchedChallanNo | nvarchar(500) | NULL | | |
+| LineCount | int | NOT NULL | | |
+| Resolved | bit | NOT NULL | 0 | |
+| ResolutionNote | nvarchar(500) | NULL | | |
+| CreatedDate | datetime | NOT NULL | GETDATE() | |
+
+**Referenced directly in C#:** none — written/read entirely inside `sp_SAP_WhStockInMaster` (`spec/database/procs/sp_SAP_WhStockInMaster.sql`)
 
 ---
 
