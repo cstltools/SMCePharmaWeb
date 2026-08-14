@@ -220,6 +220,40 @@ WHERE I.TpGrandTotal>0 AND I.InvoiceDate BETWEEN @FromDate and @ToDate  GROUP BY
             aSqlParameterList.Add(new SqlParameter("@CiD", comUnitId));
             return aCommonInternalDal.GetDataTableAction("sp_Get_MonthlyInventoryReportBatchWise", aSqlParameterList, "SSIDB");
         }
+        public DataTable GetDistributionCenterListDAL()
+        {
+            string query = "SELECT ComUnitId, ComUnitName FROM dbo.tblCompanyUnit ORDER BY ComUnitName";
+            return SInventorySql.GetDataTable(query, new List<SqlParameter>());
+        }
+        public DataTable LoadRptDuplicateOrderCodeDAL()
+        {
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RPT_DuplicateOrderCode", new List<SqlParameter>(), "SSIDB");
+        }
+        public DataTable LoadRptDuplicateOrderNoInInvoiceDAL()
+        {
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RPT_DuplicateOrderNoInInvoice", new List<SqlParameter>(), "SSIDB");
+        }
+        public DataTable LoadRptDuplicateInvoiceNoDAL()
+        {
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RPT_DuplicateInvoiceNo", new List<SqlParameter>(), "SSIDB");
+        }
+        public DataTable LoadRptDuplicateCustomerCodeDAL()
+        {
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RPT_DuplicateCustomerCode", new List<SqlParameter>(), "SSIDB");
+        }
+        public DataTable LoadRptInvoicePaymentVatTpMismatchDAL()
+        {
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RPT_InvoicePaymentVatTpMismatch", new List<SqlParameter>(), "SSIDB");
+        }
+        public DataTable LoadRptTourPlanMissingSerialDAL()
+        {
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RPT_TourPlanMissingSerial", new List<SqlParameter>(), "SSIDB");
+        }
+        public int FixTourPlanMissingSerialDAL()
+        {
+            DataTable dt = aCommonInternalDal.GetDataTableUsingReader("sp_FixTourPlanMissingSerial", new List<SqlParameter>(), "SSIDB");
+            return dt.Rows.Count > 0 ? Convert.ToInt32(dt.Rows[0]["UpdatedRows"]) : 0;
+        }
         public int LoadDepositSlipSummaryProcess(DateTime fromdate, DateTime todate, string comUnitId = null)
         {
 
@@ -510,6 +544,25 @@ WHERE I.TpGrandTotal>0 AND I.InvoiceDate BETWEEN @FromDate and @ToDate  GROUP BY
             return aCommonInternalDal.GetDataTableUsingReader("sp_RPT_MIS_BusinessSummary", aSqlParameterList, "SSIDB");
 
 
+        }
+        public DataTable LoadRptBussinessSummary_DayWiseDAL(int comUnitId, int year, int month)
+        {
+            List<SqlParameter> aSqlParameterList = new List<SqlParameter>();
+            aSqlParameterList.Add(new SqlParameter("@ComUnitId", comUnitId));
+            aSqlParameterList.Add(new SqlParameter("@Year", year));
+            aSqlParameterList.Add(new SqlParameter("@Month", month));
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RptBussinessSummary_DayWise", aSqlParameterList, "SSIDB");
+        }
+        public DataTable LoadRptNegativeClosingStockDAL(int comUnitId, DateTime fromDate)
+        {
+            List<SqlParameter> aSqlParameterList = new List<SqlParameter>();
+            aSqlParameterList.Add(new SqlParameter("@CiD", comUnitId));
+            aSqlParameterList.Add(new SqlParameter("@fromDate", fromDate));
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RPT_NegativeClosingStock", aSqlParameterList, "SSIDB");
+        }
+        public DataTable LoadRptNegativeClosingStock_DCWiseDAL()
+        {
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RPT_NegativeClosingStock_DCWise", new List<SqlParameter>(), "SSIDB");
         }
         public DataTable RptMIOWiseReceiveableReport(DateTime fromdate, DateTime todate, string Type, string ZonId, string Area, string Terr)
         {

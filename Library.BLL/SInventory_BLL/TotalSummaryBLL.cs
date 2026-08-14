@@ -147,6 +147,46 @@ namespace Library.BLL.SInventory_BLL
             return aTotalSummaryDAL.LoadMonthlyInventoryReportBatchWise(fromDate, toDate, comUnitId);
         }
 
+        public DataTable GetDistributionCenterListDAL()
+        {
+            return aTotalSummaryDAL.GetDistributionCenterListDAL();
+        }
+
+        public DataTable LoadRptDuplicateOrderCodeDAL()
+        {
+            return aTotalSummaryDAL.LoadRptDuplicateOrderCodeDAL();
+        }
+
+        public DataTable LoadRptDuplicateOrderNoInInvoiceDAL()
+        {
+            return aTotalSummaryDAL.LoadRptDuplicateOrderNoInInvoiceDAL();
+        }
+
+        public DataTable LoadRptDuplicateInvoiceNoDAL()
+        {
+            return aTotalSummaryDAL.LoadRptDuplicateInvoiceNoDAL();
+        }
+
+        public DataTable LoadRptDuplicateCustomerCodeDAL()
+        {
+            return aTotalSummaryDAL.LoadRptDuplicateCustomerCodeDAL();
+        }
+
+        public DataTable LoadRptInvoicePaymentVatTpMismatchDAL()
+        {
+            return aTotalSummaryDAL.LoadRptInvoicePaymentVatTpMismatchDAL();
+        }
+
+        public DataTable LoadRptTourPlanMissingSerialDAL()
+        {
+            return aTotalSummaryDAL.LoadRptTourPlanMissingSerialDAL();
+        }
+
+        public int FixTourPlanMissingSerialDAL()
+        {
+            return aTotalSummaryDAL.FixTourPlanMissingSerialDAL();
+        }
+
         public DataTable LoadSalesReturnReportSAP(DateTime fromdate, DateTime todate)
         {
             return aTotalSummaryDAL.LoadSalesReturnReportSAP(fromdate, todate);
@@ -218,7 +258,22 @@ namespace Library.BLL.SInventory_BLL
         {
             return aTotalSummaryDAL.LoadRptBussinessSummary_LoadingDAL(fromdate, todate, Type, ZonId, Area, Terr);
         }
-        
+
+        public DataTable LoadRptBussinessSummary_DayWiseDAL(int comUnitId, int year, int month)
+        {
+            return aTotalSummaryDAL.LoadRptBussinessSummary_DayWiseDAL(comUnitId, year, month);
+        }
+
+        public DataTable LoadRptNegativeClosingStockDAL(int comUnitId, DateTime fromDate)
+        {
+            return aTotalSummaryDAL.LoadRptNegativeClosingStockDAL(comUnitId, fromDate);
+        }
+
+        public DataTable LoadRptNegativeClosingStock_DCWiseDAL()
+        {
+            return aTotalSummaryDAL.LoadRptNegativeClosingStock_DCWiseDAL();
+        }
+
 
         public DataTable RptMIOWiseReceiveableReport(DateTime fromdate, DateTime todate, string Type, string ZonId, string Area, string Terr)
         {
