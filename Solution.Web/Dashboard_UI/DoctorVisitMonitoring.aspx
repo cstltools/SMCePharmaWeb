@@ -1,6 +1,6 @@
 ﻿<%@ Page Title="6/10 Project Monitoring Report" Language="C#" MasterPageFile="~/MasterPages/NewMasterPage.master" AutoEventWireup="true" CodeFile="DoctorVisitMonitoring.aspx.cs" Inherits="Dashboard_UI_DoctorVisitMonitoring" %>
 
-<%@ Register TagPrefix="cc1" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit, Version=3.0.20820.28364, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e" %>
+<%@ Register TagPrefix="cc1" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit" %>
 <%@ Register Src="~/SInventory_UI/IVMarketSTForZone.ascx" TagPrefix="uc1" TagName="IVMarketStructure" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">

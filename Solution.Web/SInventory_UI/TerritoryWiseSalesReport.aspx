@@ -1,6 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/NewMasterPage.master"
     AutoEventWireup="true" CodeFile="TerritoryWiseSalesReport.aspx.cs" Inherits="SInventory_UI_TerritoryWiseSalesReport" %> 
-<%@ Register TagPrefix="asp" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit, Version=3.0.20820.28364, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e" %>
+<%@ Register TagPrefix="asp" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit" %>
 
 <%@ Register Src="~/Reports_UI/IVMarketStructureMarket.ascx" TagPrefix="uc1" TagName="IVMarketStructure" %> 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">

@@ -133,35 +133,48 @@ public partial class SInventory_UI_InvoiceCreationForCustomer : System.Web.UI.Pa
 
     public void AdjustmentAmount()
     {
-        decimal divider = Convert.ToDecimal(gridLineItemGridView.Rows.Count);
-        decimal amount =string.IsNullOrEmpty(crAmountTextBox.Text)?0:Convert.ToDecimal(crAmountTextBox.Text);
-        decimal count = 0;
-        for(int i =0;i<gridLineItemGridView.Rows.Count;i++)
-        {
-            if(gridLineItemGridView.Rows[i].BackColor == Color.Red)
-            {
-                divider = divider - 1;
-               
-            }
-        }
-        if (divider>0)
-        {
-            decimal peramount = amount / divider;
-            for (int i = 0; i < gridLineItemGridView.Rows.Count; i++)
-            {
+        // Invoice-level adjustment (customer's available credit, crAmountTextBox) is allocated
+        // sequentially in grid row order: each row absorbs MIN(its own pre-adjustment Net Amount,
+        // whatever adjustment is still remaining), so a row can never be pushed below zero and the
+        // same rupee of credit is never applied to more than one row. Previously this divided the
+        // full amount evenly across every row regardless of that row's own value, which drove
+        // NetAmount negative on any row smaller than the per-row share.
+        //
+        // At this point in Page_Load, npTextBox still holds the pre-adjustment Net Amount for every
+        // row (LoadAllDataByOrder computed it with amTextBox empty/zero, and the post-adjustment
+        // recompute loop that subtracts amTextBox from it hasn't run yet), so it's read here as
+        // NetAmountBeforeAdjustment.
+        decimal remainingAdjustment = string.IsNullOrEmpty(crAmountTextBox.Text) ? 0 : Convert.ToDecimal(crAmountTextBox.Text);
 
-                if (gridLineItemGridView.Rows[i].BackColor == Color.Red)
-                {
-                 
-                    ((TextBox)gridLineItemGridView.Rows[i].Cells[1].FindControl("amTextBox")).Text = "0";
-                }
+        for (int i = 0; i < gridLineItemGridView.Rows.Count; i++)
+        {
+            TextBox rowAmTextBox = (TextBox)gridLineItemGridView.Rows[i].Cells[1].FindControl("amTextBox");
 
-                else { 
-                ((TextBox) gridLineItemGridView.Rows[i].Cells[1].FindControl("amTextBox")).Text = peramount.ToString("F");
-                }
+            if (gridLineItemGridView.Rows[i].BackColor == Color.Red)
+            {
+                rowAmTextBox.Text = "0";
+                continue;
             }
+
+            decimal netBeforeAdjustment = 0;
+            try
+            {
+                netBeforeAdjustment = Convert.ToDecimal(
+                    ((TextBox)gridLineItemGridView.Rows[i].Cells[11].FindControl("npTextBox")).Text.Trim());
+            }
+            catch
+            {
+            }
+            if (netBeforeAdjustment < 0)
+            {
+                netBeforeAdjustment = 0;
+            }
+
+            decimal rowAdjustment = remainingAdjustment > 0 ? Math.Min(netBeforeAdjustment, remainingAdjustment) : 0;
+
+            rowAmTextBox.Text = rowAdjustment.ToString("F");
+            remainingAdjustment -= rowAdjustment;
         }
-       
     }
 
     private void CustomerCreditAmount()

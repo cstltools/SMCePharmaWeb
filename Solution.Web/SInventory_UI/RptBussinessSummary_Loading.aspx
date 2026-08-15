@@ -1,7 +1,7 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/NewMasterPage.master" EnableEventValidation="false"
     AutoEventWireup="true" CodeFile="RptBussinessSummary_Loading.aspx.cs" Inherits="SInventory_UI_RptBussinessSummary_Loading" %>
 
-<%@ Register TagPrefix="asp" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit, Version=3.0.20820.28364, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e" %>
+<%@ Register TagPrefix="asp" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit" %>
 <%--<%@ Register Src="~/SInventory_UI/IVMarketStructureInvoSearchReport.ascx" TagPrefix="uc1" TagName="IVMarketStructure" %> --%>
 <%@ Register Src="~/SInventory_UI/IVMarketSTForZone.ascx" TagPrefix="uc1" TagName="IVMarketStructure" %>
 

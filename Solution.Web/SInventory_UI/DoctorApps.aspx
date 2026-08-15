@@ -1,5 +1,5 @@
 ﻿ <%@ Page Language="C#" AutoEventWireup="true" CodeFile="DoctorApps.aspx.cs" Inherits="SInventory_UI_CustomerLedgerReportApps" %>
-<%@ Register TagPrefix="cc1" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit, Version=3.0.20820.28364, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e" %>
+<%@ Register TagPrefix="cc1" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit" %>
 
 <!DOCTYPE html>
 

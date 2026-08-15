@@ -5,7 +5,7 @@ Every top-level feature folder under `Solution.Web`, with page counts (`.aspx` f
 | Module folder | Pages | Purpose |
 |---|---|---|
 | `Approval_UI` | 12 | Central multi-workflow approval inbox — customer, DA claim, doctor, doctor visit plan (DCP/CVP), DCR, expense, leave, mileage, order, RX, tour plan, and doctor/customer-transfer approvals. See [`workflow.md`](workflow.md). |
-| `SInventory_UI` | 319 | The core ERP module: master data (product, customer, area/region/zone, pricing), order-to-cash (order, invoice, delivery, proforma, sales return), stock/warehouse operations, and the majority of sales/collection/receivables reports. |
+| `SInventory_UI` | 320 | The core ERP module: master data (product, customer, area/region/zone, pricing), order-to-cash (order, invoice, delivery, proforma, sales return), stock/warehouse operations, and the majority of sales/collection/receivables reports. |
 | `SubDepot_UI` | 19 | Sub-depot channel — mirrors `SInventory_UI`'s stock transfer, invoicing, and payment logic for the sub-depot distribution channel. |
 | `MasterSetup_UI` | 44 | System-wide master data: customers, doctors, DA/employee setup, campaigns, program types, route/territory-depot mapping, order tracking. |
 | `DoctorModule_UI` | 102 | Field-force/HR master data and operations for the sales-rep hierarchy (NSM/RSM/ASM/DZSM/MIO/AM — see [`../knowledge/glossary.md`](../knowledge/glossary.md)): leave, expense/mileage claims, tour planning, training, attendance, prescriptions, org-structure setup. Largest single module by page count after `SInventory_UI`. |
@@ -395,6 +395,9 @@ the live `MarketRecords.aspx`, `RXDoctoriseMonthlypt.aspx.exclude` next to the l
 - Business Summary — `../SInventory_UI/RptBussinessSummary_Loading.aspx`
 - Provider Wise Sales Summary — `../SInventory_UI/FinalsalesReport.aspx`
 - Product wise Sales Summary — `../SInventory_UI/TotalSummaryNew.aspx`
+- Day Wise Net Sales Report — `../SInventory_UI/RptBussinessSummary_DayWise.aspx` (added 2026-08-15;
+  see [`database/menu/RptBussinessSummary_DayWise_menu.sql`](database/menu/RptBussinessSummary_DayWise_menu.sql)
+  and [`reports.md`](reports.md) for the full 6-section breakdown)
 
 ### Hierarchy Setting
 
