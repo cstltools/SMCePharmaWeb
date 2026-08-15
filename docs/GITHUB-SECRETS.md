@@ -42,9 +42,11 @@ Settings → Environments → New environment → "production"
 
 ## Never store in Web.config or the repo
 
-The active `Web.config` in the repo currently has plaintext SQL credentials
-committed in commented-out `connectionStrings` entries — these should be
-removed from git history and rotated, since anyone with repo read access can
-see them. Going forward, only the GitHub Secrets above should carry real
-credentials; `Web.config` in source control should contain placeholder/dev
-values only.
+The committed `Web.config` in the repo currently has plaintext SQL
+credentials — and not only in the commented-out `connectionStrings` history
+(a dozen-plus prior servers, all with plaintext `sa` passwords): the single
+**active, uncommented** entry also carries a plaintext `sa` password for its
+current target server. These should be removed from git history and
+rotated, since anyone with repo read access can see them. Going forward,
+only the GitHub Secrets above should carry real credentials; `Web.config` in
+source control should contain placeholder/dev values only.

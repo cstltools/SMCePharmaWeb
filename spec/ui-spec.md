@@ -18,7 +18,7 @@ A page not referencing any of the three gets **no** built-in login redirect — 
 
 ## Client-side stack
 
-- jQuery + AjaxControlToolkit (`<%@ Register TagPrefix="cc1" Namespace="AjaxControlToolkit" ... %>`) for autocomplete (`AutoCompleteExtender` against `SInventoryWebService` methods), tab/accordion controls.
+- jQuery + AjaxControlToolkit (`<%@ Register TagPrefix="asp" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit" %>` — `TagPrefix` varies per file, `asp` is the most common of the three seen (~183 register lines) vs. `cc1` (~69) and `ajaxToolkit` (~19); as of 2026-08-15 the `Assembly=` attribute across all of them was simplified from a pinned `Version=.../PublicKeyToken=...` reference to the bare assembly name, relying on the `<assemblyBinding>` redirect already in `web.config` instead) for autocomplete (`AutoCompleteExtender` against `SInventoryWebService` methods), tab/accordion controls.
 - A Bootstrap-derived admin theme under `Solution.Web/assets/` and `Solution.Web/VerticalAsset/` (menus, icons, flags, jsPDF, DataTables.net for grid enhancement).
 - `Solution.Web/CustomScript/_QuickDataAccess.js`, `_myCusGen_Func.js` — shared custom JS helpers referenced across pages.
 - `crystalreportviewers13/` — the client-side JS/CSS bundle for the `CrystalDecisions.Web.CrystalReportViewer` control, localized into dozens of languages (only English is used per the app's evident audience, the rest ship unused).

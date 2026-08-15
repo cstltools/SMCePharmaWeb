@@ -480,6 +480,7 @@
                                     <Columns>
                                         <asp:BoundField DataField="InvoiceId" HeaderText="Invoice Id" />
                                         <asp:BoundField DataField="InvoiceNo" HeaderText="Invoice No" />
+                                        <asp:BoundField DataField="InvoiceDate" HeaderText="Invoice Date" DataFormatString="{0:dd-MMM-yyyy}" />
                                         <asp:BoundField DataField="tp" HeaderText="Invoice TP" DataFormatString="{0:N2}">
                                             <ItemStyle HorizontalAlign="Right" />
                                         </asp:BoundField>
@@ -491,6 +492,9 @@
                                         </asp:BoundField>
                                         <asp:BoundField DataField="VATAmount" HeaderText="Payment VAT" DataFormatString="{0:N2}">
                                             <ItemStyle HorizontalAlign="Right" />
+                                        </asp:BoundField>
+                                        <asp:BoundField DataField="TpDifference" HeaderText="TP Difference" DataFormatString="{0:N2}">
+                                            <ItemStyle HorizontalAlign="Right" Font-Bold="true" ForeColor="Red" />
                                         </asp:BoundField>
                                         <asp:BoundField DataField="VatDifference" HeaderText="VAT Difference" DataFormatString="{0:N2}">
                                             <ItemStyle HorizontalAlign="Right" Font-Bold="true" ForeColor="Red" />

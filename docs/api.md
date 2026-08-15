@@ -1,6 +1,6 @@
 # API
 
-This repository has **no REST/Web API framework** — no `ApiController`, no `WebApiConfig.cs`, no routing table for JSON endpoints (confirmed: repo-wide search for `ApiController`/`WebApiConfig`/`System.Web.Http.Routing` returns nothing outside the vendored `Microsoft.AspNet.Mvc` package's own doc comments). The integration surface this repo exposes is two older ASP.NET mechanisms.
+This repository has **no REST/Web API framework** — no `ApiController`, no `WebApiConfig.cs`, no routing table for JSON endpoints (confirmed this revision: a repo-wide search for `ApiController`/`WebApiConfig`/`System.Web.Http.Routing` returns zero matches anywhere, including inside the one vendored MVC package present, `packages/Microsoft.AspNet.Mvc.4.0.20710.0` — that package is plain MVC 4, not Web API, and its XML doc comments don't reference these terms either; corrected this revision from a previous claim that matches existed there). The integration surface this repo exposes is two older ASP.NET mechanisms.
 
 ## 1. `SInventoryWebService.asmx` — SOAP/ScriptService
 

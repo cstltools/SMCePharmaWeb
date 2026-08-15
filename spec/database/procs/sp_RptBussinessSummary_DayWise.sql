@@ -24,7 +24,7 @@ BEGIN
 		d.TheDate,
 		ISNULL(s.SalesAmtTP, 0) - ISNULL(r.ReturnAmountTP, 0) - ISNULL(r2.TP, 0) AS JustSalesAmtTP,
 		ISNULL(s.SalesGrossAmt, 0) - ISNULL(r.ReturnGrossAmt, 0) - ISNULL(r2.Gross, 0) AS JustSalesGrossAmt,
-		ISNULL(sap.SAPsendAmount, 0) - ISNULL(sapRtn.SAPReturnAmount, 0) AS SAPsendAmount
+		ISNULL(sap.SAPsendAmount, 0) - ISNULL(sapRtn.SAPReturnAmount, 0) - ISNULL(sapExpRtn.SAPExpiryReturnAmount, 0) AS SAPsendAmount
 	FROM Days d
 
 	--Sales Confirmation
@@ -96,6 +96,17 @@ BEGIN
 			AND S.SalesDocDate >= @StartDate AND S.SalesDocDate < @EndDate
 		GROUP BY S.SalesDocDate
 	) sapRtn ON sapRtn.TheDate = d.TheDate
+
+	--SAP Expiry Return Amount (deducted from SAP Send Amount)
+	LEFT JOIN (
+		SELECT S.SalesDocDate AS TheDate,
+			(SUM(S.Quantity * S.UnitPrice) + SUM(S.VAT)) - SUM(S.DiscountAmount) AS SAPExpiryReturnAmount
+		FROM SAP_API_Data..tbl_ExpiryReturn S WITH (NOLOCK)
+		INNER JOIN dbo.tblCompanyUnit WITH (NOLOCK) ON tblCompanyUnit.SAP_Code = S.Plant
+		WHERE tblCompanyUnit.ComUnitId = @ComUnitId
+			AND S.SalesDocDate >= @StartDate AND S.SalesDocDate < @EndDate
+		GROUP BY S.SalesDocDate
+	) sapExpRtn ON sapExpRtn.TheDate = d.TheDate
 
 	ORDER BY d.TheDate
 

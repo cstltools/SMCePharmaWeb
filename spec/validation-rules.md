@@ -154,7 +154,7 @@ validation independent of any application code:
 - **This is essentially the only "referential" validation the DB performs.** As documented in
   [`database-spec.md`](database-spec.md) and re-confirmed this revision by direct live-database
   introspection, only **3 real foreign-key constraints** (and 0 triggers) exist across the entire
-  **570-table** schema (`sys.tables` count, `TOWSIF\MSSQLSERVER2019`/`SalesDisDB_SMC_NEWDB`, this
+  **571-table** schema (`sys.tables` count, `TOWSIF\MSSQLSERVER2019`/`SalesDisDB_SMC_NEWDB`, this
   pass) — so cross-table validity (e.g. "does this `CustomerId` actually exist in the customer
   table") is almost never enforced by the database itself; it depends entirely on whichever
   application-layer check (if any) was written for that specific insert/update path, per the

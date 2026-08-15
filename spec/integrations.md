@@ -148,7 +148,8 @@ process, not an external integration. Full endpoint catalog in [`api-spec.md`](a
 
 ## 4. Flutter mobile app — external, not in this repo
 
-The mobile-facing surface inside this repo is the ~333 `sp_Webapi*` + ~14 `sp_SalesAPI*` stored
+The mobile-facing surface inside this repo is the 341 `sp_Webapi*` (corrected this revision from a
+previous estimate of ~333) + 14 `sp_SalesAPI*` stored
 procedures (full source in `spec/database/procs/`), called from:
 
 - `Library.DAL/DoctorModule_DAL/{CommonDataLoad,AppPrimaryDAL,TourTypeDal}.cs`
@@ -224,11 +225,17 @@ significant runtime dependency for the 94 `SInventory_RPTVIEW` pages. See [`repo
 ClosedXML 0.95.4, EPPlus 4.1.0, DocumentFormat.OpenXml 2.7.2 — used for the GridView-export report
 pages (see [`reports.md`](reports.md)). Purely in-process; no external service.
 
-## 10. Docker / SQL Server container (dev/deploy tooling, not a runtime integration)
+## 10. Docker (dev/deploy tooling, not a runtime integration) — corrected this revision, docker-compose no longer exists
 
-`docker-compose.yml`/`.prod.yml` orchestrate a `mssql/server:2019` container alongside the web
-container — infrastructure, not an application-level integration. See
-[`docs/deployment.md`](../docs/deployment.md). Confirmed no other services are defined.
+**This section was stale.** `docker-compose.yml`/`docker-compose.prod.yml` — which used to orchestrate
+a `mssql/server:2019` container alongside the web container — were deleted in commit `ddd28c0`
+("Point CustPayment flow and DB config at local dev DB; clean up scratch scripts") and do not exist in
+the working tree; confirmed by `find`/`git log --diff-filter=D`, not merely assumed. Only the root
+`Dockerfile` remains (`mcr.microsoft.com/dotnet/framework/aspnet:4.8-windowsservercore-ltsc2019`,
+copies `Solution.Web` into `/inetpub/wwwroot`, `EXPOSE 80`) — it can still build a standalone web
+container, but there is no longer a checked-in compose file to run it alongside a SQL Server
+container. See [`docs/deployment.md`](../docs/deployment.md), which may itself need the same
+correction if it still describes the deleted compose files.
 
 ## What's explicitly not present
 

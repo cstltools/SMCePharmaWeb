@@ -27,10 +27,14 @@ Microsoft SQL Server (2019 in every dev connection string found). Two logical da
 database diagram, but the live schema has now been pulled directly from `SalesDisDB_SMC_NEWDB` and
 checked into the repo:
 
-- [`spec/database-tables.md`](../spec/database-tables.md) — every table (570), every column
-  (7,405), with type/nullability/key, pulled from `INFORMATION_SCHEMA`/`sys.identity_columns`.
+- [`spec/database-tables.md`](../spec/database-tables.md) — every table (571), every column
+  (7,414), with type/nullability/key, pulled from `INFORMATION_SCHEMA`/`sys.identity_columns`.
+  (570 tables/7,405 columns as of the original live extraction; `tblSAP_SuspectedDuplicateShipment`
+  plus a new column on `tblRequsitionChild` were hand-appended afterward — see that file's header.)
 - [`spec/database/`](../spec/database/) — full `CREATE PROCEDURE`/`FUNCTION`/`VIEW` source for all
-  1,870 stored procedures, 43 functions, and 58 views, pulled via `OBJECT_DEFINITION()`.
+  1,879 stored procedures, 43 functions, and 58 views, pulled via `OBJECT_DEFINITION()`. (1,870
+  procedures as of the original live extraction; 9 more for the Day Wise Net Sales Report page were
+  hand-added 2026-08-15 — see `spec/database-spec.md`'s summary statistics.)
 - [`spec/database-spec.md`](../spec/database-spec.md) — the index into both of the above, plus
   hard facts the DAO/grep-based reconstruction couldn't surface: only **3 real foreign-key
   constraints** exist across the entire schema, and the primary-key strategy split (475 tables with
@@ -133,4 +137,4 @@ column now points at its full source under [`spec/database/`](../spec/database/)
 - **Payments/collections**: `tblCustPayDetail`, `tblCustomerPay`, `tblCollection`, `tblCollectionSub`, `tblChalanInfo`, `tblChalanDetail`, `tblDepositOpeningBalance`, `tblCompanyWiseDeposit`.
 - **Campaign/menu/app-log**: `tbl_BonusCampaignNewDetail`, `tblSubFixed`, `tblSubFixedPro`, `tblFixedPro`, `tblMainMenu`, `tblMainMenuNew`, `tblMenuRole`, `tblMenuDistribution`, `tblPaymentCollection_appLog`, `tblSalesConfirmation_appLog(Detail)`, `tblSalesReturn_appLog(Detail)`.
 
-Full column-level detail for every one of these — and every other table in the 570-table schema — is in [`spec/database-tables.md`](../spec/database-tables.md), no longer "Not Found."
+Full column-level detail for every one of these — and every other table in the 571-table schema — is in [`spec/database-tables.md`](../spec/database-tables.md), no longer "Not Found."

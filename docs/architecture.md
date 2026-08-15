@@ -37,7 +37,7 @@ There is no shared interface or base class between the two eras, and no migratio
 | `Library.DAO` | Plain entity/DTO classes, grouped by module (`SInventory_Entities`, `DoctorModule_DAO`, `MasterSetup_DAO`, `UserRoleDAO`, ...) | 208 files across `Library.DAO/` |
 | `Library.DAL` | Data access classes mirroring `Library.DAO`'s module folders, plus `DataManager/` (connection/command plumbing, plus the unused `EncryptDecrypt.cs`) and `InternalCls/` (shared helpers: primary-key generation, number-to-words) | `Library.DAL.csproj` |
 | `Library.BLL` | Business logic, called from `Solution.Web` code-behind | `Library.BLL.csproj` |
-| `Library.CrystalReports` | 58 report shapes, each a typed `DataSet` definition (`.xsd`/`.xsc`/`.xss` trio, 172 files) plus a generated `.cs` partial class (124 files), plus 40 `.rpt` report definitions — 339 files total | `Library.CrystalReports/` |
+| `Library.CrystalReports` | 58 report shapes, each a typed `DataSet` definition (`.xsd`/`.xsc`/`.xss` trio, 172 files) plus a generated `.cs` partial class (124 files), plus 40 `.rpt` report definitions — 336 files total | `Library.CrystalReports/` |
 
 ## Request flow example (legacy path)
 
@@ -122,7 +122,7 @@ No REST/Web API framework (no `ApiController`, no `WebApiConfig`) exists in this
 
 - `SInventoryWebService.asmx` (`Solution.Web/App_Code/SInventoryWebService.cs`) — a `[WebService]`/`[ScriptService]` class, ~20 methods, almost all typeahead/autocomplete queries for jQuery widgets.
 - Three `.ashx` generic handlers for binary/file I/O (`PictureHandler.ashx`, `SignatureHandler.ashx`, `SInventory_UI/HandlerDocCV.ashx`).
-- **459 inline `[WebMethod]` page methods across 116 `.aspx.cs` files** — the actual bulk of the AJAX
+- **472 inline `[WebMethod]` page methods across 116 `.aspx.cs` files** — the actual bulk of the AJAX
   surface, previously undercounted in this document. See [`spec/api-spec.md`](../spec/api-spec.md)
   for the full catalog.
 - An outbound call to the third-party `ipapi.co` geolocation API on every login, from `Solution.Web/App_Code/UserSessionTrackingManager.cs`.

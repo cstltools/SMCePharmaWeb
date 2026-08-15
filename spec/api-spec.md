@@ -351,7 +351,7 @@ rules, approvals, transport, training):
 | `Save_TADAMarketRuleConfiguration`, `GetTADAMarketRuleConfigurationDataById(id)`, `GetTADAMarketRuleConfigurationList` | | TADA rule CRUD |
 | `GetTrainningList`, `Delete_Trainning(id)`, `GetTrainningEditData(id)` | | training CRUD |
 
-### `DoctorVisit_UI` (6 methods, 6 files)
+### `DoctorVisit_UI` (7 methods, 6 files — corrected this revision from a previous miscount of 6 methods)
 
 | File | Method | Params | Purpose |
 |---|---|---|---|
@@ -373,7 +373,7 @@ in addition to `[WebMethod]`:
 | `GetProviderDropoutIntrigrationList` | — | returns `ProviderDropoutResponse` — pending dropout requests |
 | `ApproveProviderDropoutIntrigration` | `long providerIDropoutIntrigrationd` | `[WebMethod(EnableSession = true)]`, returns `ActionResponse` — approve a dropout request |
 
-### `LeaveProcess_UI` (2 files, 5 methods)
+### `LeaveProcess_UI` (2 files, 6 methods — corrected this revision from a previous miscount of 5 methods)
 
 | File | Method | Params | Purpose |
 |---|---|---|---|

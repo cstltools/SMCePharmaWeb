@@ -49,13 +49,20 @@ The system (confirmed via source + live schema, not assumed) implements:
 
 The following is a requirement document that already existed in this repository prior to this pass,
 preserved verbatim below (not re-derived). Its described behavior (gate the Doctor dropdown to
-Customer Type = MDC, matched by identifier not full display text) was independently **confirmed
-already implemented** by the MasterSetup-cluster analysis in this pass — `CustomerInfoDAL.SaveInfo`'s
-doctor-tagging sync is gated via `ddlChemisType`'s text prefix match against `"MDC"`
-(`CustomerEntry.aspx.cs:913`, per `spec/business-rules.md` §0.1/BR-MS-06) — so this requirement
-appears to already be satisfied by current code, though the exact "not hardcode the full display
-text" matching-rule nuance below was not independently re-verified line-by-line against the specific
-matching logic used.
+Customer Type = MDC, matched by identifier not full display text) is now **directly and fully
+implemented**, confirmed by reading the code line-by-line this pass: `CustomerEntry.aspx.cs`'s
+`ToggleDoctorTagByCustomerType()` method (`CustomerEntry.aspx.cs:913-928`) enables and loads the
+`ddlDoctorTag` dropdown only when `ddlChemisType.SelectedItem.Text.Trim().StartsWith("MDC",
+StringComparison.OrdinalIgnoreCase)` — an identifier-prefix match, not a hardcoded full-text
+comparison — and clears `ddlDoctorTag.Items` otherwise. It's wired to
+`ddlChemisType_SelectedIndexChanged` (`:930-933`) and also invoked on initial page load and on
+edit-load (`:59`, `:120`), so the gating applies on every path that can change or display the
+Customer Type. This satisfies every bullet of the requirement below, including the "not hardcode
+the complete display text" matching-rule nuance, exactly as written — not merely approximately.
+(An earlier pass of this document attributed the gating to `CustomerInfoDAL.SaveInfo`'s doctor-
+tagging sync at this same line number; that attribution no longer holds — no `"MDC"` string
+match exists anywhere in `Library.DAL` any more, so the requirement's fulfillment lives entirely
+in this code-behind method, not in a DAL-layer save-time gate.)
 
 ### Requirement: Conditional Doctor Dropdown by Customer Type
 
