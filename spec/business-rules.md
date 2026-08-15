@@ -170,6 +170,16 @@ All other claims checked by the six parallel analyses against this document, `wo
   looked up directly on the row (`Rows[i].FindControl(...)`, no cell index), with a null-check that
   skips the row instead of throwing if a control genuinely isn't found.
 
+### Customer Payment (DA Collection)
+- `Solution.Web/SInventory_UI/CustomerPayment_DA.aspx.cs:839-863` (`GenerateParam`) — **Fixed
+  (2026-08-16)**: the Route dropdown (`rootDropDownList`) filter was commented out in the
+  WHERE-clause builder used by `LoadGridView()`'s search (`ord.DistributionRouteId=...`), so
+  selecting a Route on the page had no effect on the invoice grid — only Sales Center, Territory,
+  and DA Name were actually applied, even though selecting a Route still repopulated the
+  Territory/DA Name dropdowns via `rootDropDownList_SelectedIndexChanged`. Re-enabled. Note the
+  sibling `Parm()` method (`:730-754`, used for the post-save money-receipt print) already included
+  the same `DistributionRouteId` filter and was unaffected — only the search-grid path was broken.
+
 ### DA Delivery Invoice Submission (Delivery Confirmation)
 - `Solution.Web/SInventory_UI/dadtlsDelivaryInvoiceDetailsCreation_DA.aspx.cs:1211-1327`
   (`saveButton_Click`) — **Concurrency race fixed (2026-08-11)**: this is the DA (delivery

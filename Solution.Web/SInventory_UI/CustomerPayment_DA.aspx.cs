@@ -847,10 +847,10 @@ public partial class SInventory_UI_CustomerPayment_DA : System.Web.UI.Page
 
         paaram = paaram + "  and   ord.ComUnitId='" + salesCenterDropDownList.SelectedValue + "' ";
 
-        //if (!string.IsNullOrEmpty(rootDropDownList.SelectedValue))
-        //{
-        //    paaram = paaram + " AND ord.DistributionRouteId='" + rootDropDownList.SelectedValue + "' ";
-        //}
+        if (!string.IsNullOrEmpty(rootDropDownList.SelectedValue))
+        {
+            paaram = paaram + " AND ord.DistributionRouteId='" + rootDropDownList.SelectedValue + "' ";
+        }
 
         if (!string.IsNullOrEmpty(ddlDAName.SelectedValue))
         {
