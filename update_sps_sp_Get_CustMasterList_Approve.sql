@@ -1,9 +1,13 @@
-﻿
--- =============================================
--- Author:		<Author,,Name>
--- Create date: <Create Date,,>
--- Description:	<Description,,>
--- =============================================
+-- Adds DoctorCode/DoctorName as separate columns to the Customer List / Excel export
+-- (CustomerView.aspx), aggregated per customer via STRING_AGG so a customer tagged to
+-- multiple doctors (tblCustTaggDoc is many-to-many) still comes back as one row.
+-- Source of truth: spec\database\procs\sp_Get_CustMasterList_Approve.sql - keep both in sync.
+-- Run against the SolutionConnectionStringSSIDB target (see runsql.ps1 for the connection pattern).
+
+IF OBJECT_ID('dbo.sp_Get_CustMasterList_Approve', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_Get_CustMasterList_Approve;
+GO
+
 CREATE PROCEDURE [dbo].[sp_Get_CustMasterList_Approve]
 	-- Add the parameters for the stored procedure here
 	@Parm nvarchar(max)=null
@@ -18,12 +22,12 @@ SET NOCOUNT ON;
 LEFT JOIN dbo.tblEmpGeneralInfo  with (nolock) ON tblEmpGeneralInfo.EmpInfoId = tblUser.EmpInfoId
   left join  tblMarket mr  WITH (NOLOCK)  on mas.MarketId=mr.MarketId
   LEFT JOIN (select MarketId,st.StationTypeName  from tblMarketStationDetail dtl
-		inner join  tblStationType st on st.StationTypeId=dtl.StationTypeId 
+		inner join  tblStationType st on st.StationTypeId=dtl.StationTypeId
 		 where dtl.UserRoleID=1) tblMIO ON tblMIO.MarketId = mr.MarketId
 
-		  LEFT JOIN (select dtl.MarketId,com.ComUnitCode+'' : ''+ComUnitName Dept  from tblRouteInformationMarketDetail dtl   WITH (NOLOCK) 
-		inner join  tblRouteInformationMaster mas   WITH (NOLOCK)  on mas.RouteInformationMasterId=dtl.RouteInformationMasterId 
-		inner join  tblCompanyUnit com   WITH (NOLOCK)  on mas.DCId=com.ComUnitId 
+		  LEFT JOIN (select dtl.MarketId,com.ComUnitCode+'' : ''+ComUnitName Dept  from tblRouteInformationMarketDetail dtl   WITH (NOLOCK)
+		inner join  tblRouteInformationMaster mas   WITH (NOLOCK)  on mas.RouteInformationMasterId=dtl.RouteInformationMasterId
+		inner join  tblCompanyUnit com   WITH (NOLOCK)  on mas.DCId=com.ComUnitId
 		  ) tblcom ON tblcom.MarketId = mr.MarketId
 
   LEFT JOIN tbl_Thana tha   with (nolock) ON tha.ThanaId = mr.ThanaId
@@ -52,5 +56,6 @@ LEFT JOIN dbo.tblEmpGeneralInfo  with (nolock) ON tblEmpGeneralInfo.EmpInfoId = 
 
 
 EXEC sp_executesql @Q
-	
+
 END
+GO

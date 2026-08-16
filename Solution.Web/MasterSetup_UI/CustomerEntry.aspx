@@ -483,7 +483,7 @@
                             
                                        <div class="col-6">
                                 <div class="form-group row">
-                                    <label for="ddlDoctorTag" class="col-sm-5 col-form-label">Doctor:</label>
+                                    <label for="ddlDoctorTag" class="col-sm-5 col-form-label">Adjacent My Doctor Code:</label>
 
                                     <div class="col-sm-7">
                                           <div class="input-group">

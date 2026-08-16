@@ -431,6 +431,14 @@ until traced to a single call site.
   running instance: toggling Customer Type in add mode enables/loads then disables/clears the
   Doctor field; editing an existing MDC customer, tagging a doctor, and saving persists the row in
   `tblCustTaggDoc`; switching that same customer to a non-MDC type and saving deletes the mapping.
+- **Tagged doctor code/name surfaced in Customer List (added 2026-08-17)**: `sp_Get_CustMasterList_Approve`
+  now returns `DoctorCode`/`DoctorName` columns, sourced from a pre-aggregated `LEFT JOIN` subquery
+  over `tblCustTaggDoc`/`tblDoctorMaster` that `STRING_AGG`s multiple tagged doctors per customer
+  into one row — a correlated `OUTER APPLY` was measured 10-40x slower on this table shape (14.6s vs
+  106s on a 4.3k-row filtered search) so the pre-aggregated join is deliberate, not incidental.
+  `CustomerView.aspx`'s grid/Excel export adds matching `DoctorCode`/`DoctorName` bound columns
+  (`:384-385`). Unrelated to this: `CustomerEntry.aspx`'s `ddlDoctorTag` label was reworded from
+  "Doctor:" to "Adjacent My Doctor Code:" for clarity — same control, no code-behind change.
 - `CustomerListPending.aspx.cs:96-98`, `CustomerView.aspx.cs:159-161`, `CustomerChangeProgramType.aspx.cs:129-131` — DIC role auto-locks Distribution Center dropdown to `Session["DICCompanyUnitId"]`.
 - `CustomerChangeProgramType.aspx.cs:263-304` — Program Type required: `"Please Select Program Type!"`; `:295` generic failure mislabeled `"Already Exist!"`.
 - `Customer_Doctor_Transfer.aspx.cs:80-85,114-119` — Grid non-empty: `"Table can not be Empty!"`

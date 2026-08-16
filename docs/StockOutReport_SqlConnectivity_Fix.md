@@ -54,3 +54,23 @@ Exercised end-to-end via IIS Express (not just a direct SQL connection test):
   from `SAP_API_Data.dbo.tbl_ExpiryReturn`.
 
 No application code changed as part of this fix — purely the three connection-string sources.
+
+## Update 2026-08-17: LAN IP goes stale across networks
+
+`192.168.110.110` was only valid while the dev machine was on that particular LAN/Wi-Fi. After a
+network change the machine's IP moved (check with `Get-NetIPAddress`), and the same error 26
+resurfaced. Since SQL Server runs on this same machine, the durable fix is to skip both the
+hostname *and* any LAN IP and connect via loopback + the instance's actual TCP port, which avoids
+SQL Browser/UDP resolution entirely:
+
+1. Read the current dynamic port from the registry (changes on every SQL Server service restart):
+   `HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL15.MSSQLSERVER2019\MSSQLServer\SuperSocketNetLib\Tcp\IPAll`
+   → `TcpDynamicPorts`.
+2. Set all three connection sources' `Data Source` to `127.0.0.1,<port>` (no instance name, no
+   backslash — comma-port syntax bypasses named-instance resolution).
+3. Rebuild `Library.DAL` (`SqlUserAccess.cs`/`DB_Authentication.cs` are compiled into
+   `Library.DAL.dll`, not read at runtime) and copy the output into `Solution.Web\bin\Library.DAL.dll`,
+   then restart IIS Express so the new DLL is loaded.
+
+If SQL Server is ever configured with a **static** TCP port instead of dynamic, this becomes a
+one-time fix instead of something to redo per network change.

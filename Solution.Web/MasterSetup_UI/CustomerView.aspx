@@ -382,6 +382,8 @@
                                                 <asp:BoundField DataField="EntryDate" HeaderText="Entry Date" />
                                                 <asp:BoundField DataField="StationTypeName" HeaderText="MIO Tour Type" />
                                                   <asp:BoundField DataField="Dept" HeaderText="Dept Tagging" />
+                                                <asp:BoundField DataField="DoctorCode" HeaderText="Doctor Code" />
+                                                <asp:BoundField DataField="DoctorName" HeaderText="Doctor Name" />
 
 
                                                 <asp:TemplateField HeaderText="Edit">

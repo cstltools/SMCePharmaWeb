@@ -57,7 +57,7 @@ namespace Library.DAL.DataManager
         //public static string PassWord = @"Web_useR!#@**10##";
 
 
-        public static string DataSource = @"192.168.110.110\MSSQLSERVER2019";
+        public static string DataSource = @"127.0.0.1,57694";
         public static string UserName = @"sa";
         public static string PassWord = @"sa1234";
 

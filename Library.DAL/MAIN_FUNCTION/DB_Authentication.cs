@@ -18,7 +18,7 @@ namespace Library.DAL.MAIN_FUNCTION
         //public static string Password = @"Web_useR!#@**10##";
 
 
-        public static string DataSource = @"192.168.110.110\MSSQLSERVER2019";
+        public static string DataSource = @"127.0.0.1,57694";
         public static string UserId = @"sa";
         public static string Password = @"sa1234";
 
