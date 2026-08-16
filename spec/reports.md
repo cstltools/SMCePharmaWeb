@@ -60,6 +60,7 @@ template.
 | Customer Aging report | Same receivable-balance calculation as above, aged by zone | none; BI consumption | View-driven | `View_CustomerAging_BIReport` (identical logic to the Accounts Receivable view, distinct name for the aging-focused BI dashboard) |
 | Sales / Collection Due report | Sales vs. amounts still due for collection | Date range, geography | View-driven (BI) | `View_SalesCollectionDue_BIReport` |
 | MIO-wise Receivable Report | Outstanding receivable per MIO/rep | MIO, date range | Grid | `sp_RPT_MIS_RptMIOWiseReceiveableReport` |
+| Receivable Report (`SInventory_UI/NewReceiveableReport.aspx`) | Per-invoice receivable detail (net/paid/receivable amount, order/invoice/customer, order-created-by and AM/DSM emp code) with a footer total | Sales Center (Distribution Center), date range | Grid + Excel export | `sp_Get_NewReceiveableListWeb` via `InvoiceDAL.GetNewReceiveableDAlWeb`; see `docs/NewReceiveableReport_Bugfix.md` for a defect fixed 2026-08-16 |
 
 ## 3. Stock / Inventory reports
 

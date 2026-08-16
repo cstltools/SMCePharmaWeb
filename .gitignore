@@ -15,3 +15,14 @@ _ReSharper*/
 
 # Environment & local secrets
 .env
+
+# Local IIS Express / MSBuild run artifacts
+iisexpress*.log
+iisexpress*.err.log
+iisexpress-response.html
+iisexpress-session.xml
+msbuild-publish.log
+
+# Local tooling output
+.claude/_extract/
+graphify-out/

@@ -258,6 +258,10 @@ public partial class SInventory_UI_NewReceiveableReport : System.Web.UI.Page
                 loadGridView.FooterRow.Cells[receivableAmountColIndex].Text = ReceivableTotalAmnt.ToString();
             }
         }
+        else
+        {
+            ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "faildalert('" + "No Data Found!" + "','Faild');", true);
+        }
 
     }
 
@@ -378,6 +382,12 @@ public partial class SInventory_UI_NewReceiveableReport : System.Web.UI.Page
         if (!dataTable.Columns.Contains(columnName))
         {
             dataTable.Columns.Add(columnName, typeof(string));
+        }
+        else
+        {
+            // sp_Get_NewReceiveableListWeb returns some of these as computed columns;
+            // DataTable.Load(reader) marks computed SQL columns ReadOnly, which breaks the row["..."] = ... writes below.
+            dataTable.Columns[columnName].ReadOnly = false;
         }
     }
 
