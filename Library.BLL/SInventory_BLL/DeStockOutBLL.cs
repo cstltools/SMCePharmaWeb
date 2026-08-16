@@ -109,6 +109,16 @@ namespace Library.BLL.SInventory_BLL
            
         }
 
+        public DataTable StockOutReportBll(DateTime fromDate, DateTime toDate, int comUnitId)
+        {
+            return aDeStockOutDal.StockOutReportDal(fromDate, toDate, comUnitId);
+        }
+
+        public DataTable NCPReportBll(DateTime fromDate, DateTime toDate, int comUnitId)
+        {
+            return aDeStockOutDal.NCPReportDal(fromDate, toDate, comUnitId);
+        }
+
         public DataTable GetDcStoreIdBll(string id)
         {
             return aDeStockOutDal.GetDcStoreIdDal(id);

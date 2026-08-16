@@ -190,6 +190,24 @@ left join tblunitprice on tblDeStockOutDetails.ProductCode= tblunitprice.Product
         }
 
 
+        public DataTable StockOutReportDal(DateTime fromDate, DateTime toDate, int comUnitId)
+        {
+            List<SqlParameter> aSqlParameterList = new List<SqlParameter>();
+            aSqlParameterList.Add(new SqlParameter("@FromDate", fromDate));
+            aSqlParameterList.Add(new SqlParameter("@ToDate", toDate));
+            aSqlParameterList.Add(new SqlParameter("@ComUnitId", comUnitId));
+            return aCommonInternalDal.GetDataTableAction("sp_RPT_StockOutReport", aSqlParameterList, "SSIDB");
+        }
+
+        public DataTable NCPReportDal(DateTime fromDate, DateTime toDate, int comUnitId)
+        {
+            List<SqlParameter> aSqlParameterList = new List<SqlParameter>();
+            aSqlParameterList.Add(new SqlParameter("@FromDate", fromDate));
+            aSqlParameterList.Add(new SqlParameter("@ToDate", toDate));
+            aSqlParameterList.Add(new SqlParameter("@ComUnitId", comUnitId));
+            return aCommonInternalDal.GetDataTableAction("sp_RPT_NCPReport", aSqlParameterList, "SSIDB");
+        }
+
         public DataTable GetDcStoreIdDal(string id)
         {
             string query = @"Select tblDeStockOutMaster.DcStockOutMasterId,tblDeStockOutDetails.DcStoreId from tblDeStockOutMaster 

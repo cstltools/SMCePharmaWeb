@@ -3,12 +3,16 @@
 > Regenerated from direct introspection of the live development SQL Server instance (`TOWSIF\MSSQLSERVER2019` / `SalesDisDB_SMC_NEWDB`) plus structural parsing of every file under `spec/database/{procs,views,functions}/` (1,870 procedure files, 58 view files, 43 function files — verified byte-for-byte object-count match against the live database; only 2 trivial filename-vs-live-object drifts found, noted in the Inconsistencies section below), cross-referenced against a whole-word scan of all C# (`Solution.Web`, `Library.DAL`, `Library.BLL`, `Library.DAO`, `Library.CrystalReports`) source for callers. This supersedes the prior version of this file.
 >
 > **Manual patch, 2026-08-15**: the 9 procedures backing the new `SInventory_UI/RptBussinessSummary_DayWise.aspx` page (added this session — see `spec/reports.md`) were added directly to the `SInventory_DAL` table and the summary counts below, by hand, from the actual proc source and their `TotalSummaryDAL.cs` callers. This was **not** a full re-run of the introspection tool, so the "byte-for-byte object-count match" and per-feature ratios (TRY/CATCH, transaction, dynamic-SQL, cursor counts) above the Module deep-dives section reflect the prior full pass plus this delta, not a fresh verification — treat those specific ratios as approximate until the next full regeneration.
+>
+> **Manual patch, 2026-08-16**: 2 further procedures added the same way, backing the new
+> `SInventory_UI/StockOutReport.aspx` page (see `spec/reports.md`) — `sp_RPT_StockOutReport` and
+> `sp_RPT_NCPReport`, both called from `DeStockOutDal.cs`. Same caveat as above applies.
 
 **Methodology and coverage**: every object below has its *mechanical* facts (parameters, tables touched, CRUD operation flags, error-handling/transaction/dynamic-SQL/cursor presence, caller list) verified against the actual SQL text — this is complete for all 1,971 objects, not a sample. *Business-logic narrative* (what a procedure is actually for, in prose) is only practical to hand-write for a bounded subset at this scale (1,870 procedures); it is provided for procedures with a confirmed C# caller, grouped by the module that calls them, in the **Module deep-dives** section — this is the subset practically reachable through the application today. The remaining orphaned procedures (**810 of 1,870, 43%** — no caller found by name anywhere in the analyzed C# source) are listed by name only in the Orphan Inventory; some of these may be called by the external Flutter mobile app (which talks to `.asmx`/`.ashx` endpoints not fully traced to every downstream proc call in this pass) or by ad-hoc/manual execution rather than application code — treat "orphan" as "no static caller found", not a confirmed-safe-to-delete list. **Confirmed concrete case of a false-positive "orphan"**: `sp_SAP_WhStockInMaster`, `sp_SAP_WhStockInDetails`, `sp_SAP_STOMaster`, `sp_SAP_STODetails`, and `sp_SAP_StockInTransfer` all show up in the Orphan Inventory below (no *C#* caller), but `docs/ReceiveQty_RootCause_Analysis.md` traced them as live, frequently-executed procedures called only from *inside* `sp_SAP_StockReceive` (itself called from `SAP_IntrigationPointDAL.SaveStockReceive`) — this scan does not follow proc-to-proc `EXEC` chains, so "orphan" specifically undercounts procedures reachable only via another procedure, a distinct category from truly-uncalled code.
 
 ## Summary statistics
 
-- **1879 stored procedures** (1069 with a confirmed C# caller, 810 orphaned) — includes the 9 added 2026-08-15 for the Day Wise Net Sales Report page
+- **1881 stored procedures** (1071 with a confirmed C# caller, 810 orphaned) — includes the 9 added 2026-08-15 for the Day Wise Net Sales Report page and the 2 added 2026-08-16 for the Stock Out Report page
 - **58 views** (11 called directly from C#, 25 referenced from inside another proc/view, 27 with no reference found anywhere)
 - **43 functions** (3 called directly from C#, 18 referenced from inside another proc/view, 22 with no reference found anywhere)
 - **27 of 1870 procedures (1%) use TRY/CATCH error handling**
@@ -812,7 +816,7 @@
 | `spInsertReturnInvoice_new` | @ReturnInvoiceId INT, @InvoiceDate datetime, @OrderId int, @OrderNo nvarchar (+32 more) | SI |  |  |  |  | tblArea, tblRegion, tblReturnInvoice, tblTerritory | `spec/database/procs/spInsertReturnInvoice_new.sql` |
 | `usp_CheckCampaignEntryDate` | (none) | S |  |  |  |  | tblCustMasterCampNew, tbl_BonusCampaignNewMaster | `spec/database/procs/usp_CheckCampaignEntryDate.sql` |
 
-### SInventory_DAL (133 procedures)
+### SInventory_DAL (135 procedures)
 
 | Procedure | Parameters | Ops | TC | TX | DYN | CUR | Tables referenced | Source |
 |---|---|---|---|---|---|---|---|---|
@@ -923,8 +927,10 @@
 | `sp_RPT_MIS_BusinessSummary_Acc` | @fromdate datetime, @todate datetime, @Type nvarchar, @Area nvarchar (+2 more) | S |  |  |  |  | SalesDisDB_SMC, tblArea, tblCompanyUnit, tblCustMaster, tblCustPayDetail, tblCustomerType (+13 more) | `spec/database/procs/sp_RPT_MIS_BusinessSummary_Acc.sql` |
 | `sp_RPT_MIS_ProductWiseSalesReport` | @fromdate datetime, @todate datetime, @Type nvarchar, @Area nvarchar (+2 more) | S |  |  |  |  | SalesDisDB_SMC, tblCompanyUnit, tblCustMaster, tblCustPayDetail, tblCustomerType, tblDCStore (+7 more) | `spec/database/procs/sp_RPT_MIS_ProductWiseSalesReport.sql` |
 | `sp_RPT_MIS_RptMIOWiseReceiveableReport` | @fromdate datetime, @todate datetime, @Type nvarchar, @Area nvarchar (+2 more) | S |  |  |  |  | SalesDisDB_SMC, tblArea, tblCompanyUnit, tblCustMaster, tblCustPayDetail, tblCustomerType (+14 more) | `spec/database/procs/sp_RPT_MIS_RptMIOWiseReceiveableReport.sql` |
+| `sp_RPT_NCPReport` *(added 2026-08-16)* | @FromDate DATE, @ToDate DATE, @ComUnitId INT | S |  |  |  |  | SAP_API_Data, tblCompanyUnit, tblProduct | `spec/database/procs/sp_RPT_NCPReport.sql` |
 | `sp_RPT_NegativeClosingStock` *(added 2026-08-15)* | @CiD INT, @fromDate DATE | S |  |  |  |  | SAP_API_Data, Sap_Stock13thSepOpening, tblChalanDetail, tblChalanInfo, tblCompanyUnit, tblConvQty (+3 more) | `spec/database/procs/sp_RPT_NegativeClosingStock.sql` |
 | `sp_RPT_NegativeClosingStock_DCWise` *(added 2026-08-15)* | (none) | S |  |  |  |  | SAP_API_Data, Sap_Stock13thSepOpening, tblChalanDetail, tblChalanInfo, tblCompanyUnit, tblConvQty (+2 more) | `spec/database/procs/sp_RPT_NegativeClosingStock_DCWise.sql` |
+| `sp_RPT_StockOutReport` *(added 2026-08-16)* | @FromDate DATE, @ToDate DATE, @ComUnitId INT | S |  |  |  |  | tblCompanyUnit, tblDeStockOutDetails, tblDeStockOutMaster, tblProduct | `spec/database/procs/sp_RPT_StockOutReport.sql` |
 | `sp_RPT_TourPlanMissingSerial` *(added 2026-08-15)* | (none) | S |  |  |  |  | tblEmpGeneralInfo, tbl_TourPlanInfo | `spec/database/procs/sp_RPT_TourPlanMissingSerial.sql` |
 | `sp_RPTMonitoringReport` | @fromdate datetime, @todate datetime, @Type nvarchar | S |  |  |  |  | SalesDisDB_SMC, tblArea, tblCompanyUnit, tblCustMaster, tblCustomertype, tblEmpGeneralInfo (+17 more) | `spec/database/procs/sp_RPTMonitoringReport.sql` |
 | `sp_SAP_BankDepositPosting` | @frmDate nvarchar, @toDate nvarchar | S |  |  |  |  | SAP_API_Data | `spec/database/procs/sp_SAP_BankDepositPosting.sql` |
