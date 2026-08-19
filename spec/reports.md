@@ -55,7 +55,7 @@ template.
 | Money Receipt (`MoneyReceiptViewer2`, `MoneyReceiptViewerForAfterPayment`, and grid variants `SInventory_UI/MoneyReceipt`, `MoneyReceiptAfterPayment`) | Printable money-receipt document for a customer payment, before/after adjustment | Receipt/customer no. | Crystal (`rptMoneyReceipt.rpt`) or grid | `tblCustPayDetail`-based payment BLL |
 | Batch-Wise Collection Report (`Money_Receipt_UI/BatchWiseCollectionReport.aspx.cs`, viewer `BatchWiseCollectionReportViewer`) | Collections grouped by collection batch, with a running total footer computed client-side over the grid | Batch/date range | Crystal (`crpBatchWiseCollectionReport.rpt`) and an on-screen grid version | `Library.BLL.SInventory_BLL`/`SInventory_DAL` payment batch query |
 | SC Customer Payment / SC Payment Report (`SInventory_UI/SC_CustomerPaymentReport`, `SC_PaymentReport`) | Sub-Center/Sub-Commercial customer payment detail | Date range, customer | Grid + Excel export | Payment BLL/DAL |
-| Delivery Payment Report (`SInventory_UI/DeliveryPaymentReport`, `DeliveryPaymentReportNew`, `DHB_DeliveryPaymentReport`) | Payments tied to specific deliveries (standard, revised, and DHB-channel variants) | Date range, DC/channel | Grid + Excel export | Delivery/Payment BLL |
+| Delivery Payment Report (`SInventory_UI/DeliveryPaymentReport` — titled "Full Payment Report" in the UI — `DeliveryPaymentReportNew`, `DHB_DeliveryPaymentReport`) | Payments tied to specific deliveries (standard, revised, and DHB-channel variants); only invoices whose payments cover the full net amount | Order-date **or** payment-date range (radio toggle), Sales Center, market structure (Group/Zone/Area/Territory/Sub-Territory/Market), Provider Type, Customer Type | Grid + CSV export | `sp_Get_AllSalesReportListParam2` via `CmnCrystaltoView.GetFullPaymentDAL` |
 | Accounts Receivable report | Outstanding receivable per zone (delivered value minus paid value, only zones with balance > 10) | none (whole-book snapshot); consumed for BI | View-driven | `View_AccountsReceivable_BIReport` — sums `tblInvoiceDetail` delivery amounts minus `tblCustPayDetail` payments, grouped by zone, filtered to non-zero balances |
 | Customer Aging report | Same receivable-balance calculation as above, aged by zone | none; BI consumption | View-driven | `View_CustomerAging_BIReport` (identical logic to the Accounts Receivable view, distinct name for the aging-focused BI dashboard) |
 | Sales / Collection Due report | Sales vs. amounts still due for collection | Date range, geography | View-driven (BI) | `View_SalesCollectionDue_BIReport` |
@@ -250,6 +250,19 @@ depending on a Report Type toggle, rather than one grid per proc).
 All 16 `Reports_UI` field-force/doctor-programme reports (§4) also use this GridView pattern — a
 `loadGridView` control bound to a DAL-returned `DataTable`, with `btnExportToExcel_Click` handlers
 present on most (some, e.g. DWSP and DCP, have their Excel-export code currently commented out).
+
+### Caveat — market-structure filters run against a historical snapshot
+
+Every report that filters by Group/Zone/Area/Territory does so against `tblOrder`'s denormalized
+hierarchy columns, which are stamped at order-creation time and never back-filled. The cascade
+dropdowns feeding those filters are built from the *current* master tables, so the two disagree for
+any structure node that has been reorganized. Filtering on more than the deepest selected level
+silently drops every pre-restructure row — see business rule **BR-SI-18** and
+[`docs/FullPaymentReport_MarketStructureFilter_Fix.md`](../docs/FullPaymentReport_MarketStructureFilter_Fix.md).
+Fixed so far in `DeliveryPaymentReport` only; `DeliveryPaymentReportNew`, `DHB_DeliveryPaymentReport`,
+`DynamicSalesReport`, `GpSalesReport`, `ProformaReport`, `SalesConfirmationReport_New`,
+`SalesRejectionReport`, `SC_PaymentReport`, `OrderTrackingList`, `OrderTrackingListDBH` and
+`OrderTrackingSummary` still carry it.
 
 ### BI-only views (no direct `Reports_UI`/`SInventory_UI` consumer found)
 

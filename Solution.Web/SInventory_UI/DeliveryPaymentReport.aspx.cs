@@ -238,41 +238,46 @@ public partial class SInventory_UI_DeliveryPaymentReport : System.Web.UI.Page
     }
 
 
+    // tblOrder stores a point-in-time SNAPSHOT of the market structure, so an order placed
+    // before a restructure still carries the OLD GroupId/RegionId/AreaId. The cascade dropdowns
+    // are built from the CURRENT structure, so ANDing every level drops every pre-restructure
+    // row (e.g. Feni-2 orders are stamped GroupId 2 while the dropdown now says GroupId 4).
+    // Filter on the deepest selected level only, resolving Group/Zone/Area to the territories
+    // that currently sit under them.
     private string Parm_2()
     {
 
         string param = "";
 
-        
-
-        if (GroupSelect.SelectedValue != "")
-        {
-            param = param + " AND mas.GroupId='" + GroupSelect.SelectedValue + "' ";
-        }
-
-        if (ZoneSelect.SelectedValue != "")
-        {
-            param = param + " AND mas.RegionId='" + ZoneSelect.SelectedValue + "' ";
-        }
-
-        if (AreaSelect.SelectedValue != "")
-        {
-            param = param + " AND mas.AreaId='" + AreaSelect.SelectedValue + "' ";
-        }
-
-        if (TeritorySelect.SelectedValue != "")
-        {
-            param = param + " AND mas.TerritoryId='" + TeritorySelect.SelectedValue + "' ";
-        }
-
-        if (SubTeritory.SelectedValue != "")
-        {
-            param = param + " AND mas.SubTerritoryId='" + SubTeritory.SelectedValue + "' ";
-        }
-
         if (MarketSelect.SelectedValue != "")
         {
             param = param + " AND mas.MarketId='" + MarketSelect.SelectedValue + "' ";
+        }
+        else if (SubTeritory.SelectedValue != "")
+        {
+            param = param + " AND mas.SubTerritoryId='" + SubTeritory.SelectedValue + "' ";
+        }
+        else if (TeritorySelect.SelectedValue != "")
+        {
+            param = param + " AND mas.TerritoryId='" + TeritorySelect.SelectedValue + "' ";
+        }
+        else if (AreaSelect.SelectedValue != "")
+        {
+            param = param + " AND mas.TerritoryId IN (SELECT t.TerritoryId FROM dbo.tblTerritory t WITH (NOLOCK)"
+                + " WHERE t.AreaId='" + AreaSelect.SelectedValue + "') ";
+        }
+        else if (ZoneSelect.SelectedValue != "")
+        {
+            param = param + " AND mas.TerritoryId IN (SELECT t.TerritoryId FROM dbo.tblTerritory t WITH (NOLOCK)"
+                + " INNER JOIN dbo.tblArea a WITH (NOLOCK) ON a.AreaId=t.AreaId"
+                + " WHERE a.RegionId='" + ZoneSelect.SelectedValue + "') ";
+        }
+        else if (GroupSelect.SelectedValue != "")
+        {
+            param = param + " AND mas.TerritoryId IN (SELECT t.TerritoryId FROM dbo.tblTerritory t WITH (NOLOCK)"
+                + " INNER JOIN dbo.tblArea a WITH (NOLOCK) ON a.AreaId=t.AreaId"
+                + " INNER JOIN dbo.tblRegion r WITH (NOLOCK) ON r.RegionId=a.RegionId"
+                + " WHERE r.GroupId='" + GroupSelect.SelectedValue + "') ";
         }
 
 
