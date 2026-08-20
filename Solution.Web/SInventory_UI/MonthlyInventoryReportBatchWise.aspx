@@ -2,6 +2,17 @@
     AutoEventWireup="true" CodeFile="MonthlyInventoryReportBatchWise.aspx.cs" Inherits="SInventory_UI_MonthlyInventoryReportBatchWise" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">
+    <style type="text/css">
+        /* #MainGradeDiv is the scroll container (height:600px), so the header row can just stick to it.
+           table-bordered's borders scroll out from under a sticky cell - redraw them as insets. */
+        #MainGradeDiv th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background-color: #E5EEF1;
+            box-shadow: inset 0 1px 0 #dee2e6, inset 0 -1px 0 #dee2e6;
+        }
+    </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
@@ -45,6 +56,8 @@
                                                 selectYears: true,
                                                 min: new Date(2026, 6, 31)
                                             })
+                                            // re-run after every UpdatePanel postback - the grid header is rebuilt each time
+                                            $('[data-bs-toggle="popover"]').each(function () { bootstrap.Popover.getOrCreateInstance(this); });
                                         }
                                     </script>
                                     <div class="row">
@@ -55,6 +68,13 @@
                                                 <div class="col-sm-7">
                                                     <asp:DropDownList ID="salesCenterDropDownList" runat="server" CssClass="form-select form-select-sm mb-3 mySelect2">
                                                     </asp:DropDownList>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row" runat="server">
+                                                <label for="mainName" class="col-sm-5 col-form-label">Product Code:</label>
+                                                <div class="col-sm-7">
+                                                    <asp:TextBox ID="productCodeTextBox" runat="server" class="form-control form-control-sm mb-3" autocomplete="off" placeholder="Product / SAP Code (optional)"></asp:TextBox>
                                                 </div>
                                             </div>
                                         </div>
@@ -125,28 +145,26 @@
                                             CssClass="table table-striped table-bordered" ShowFooter="False">
                                             <Columns>
                                                 <asp:BoundField DataField="ProductCode" HeaderText="Product Code" />
+                                                <asp:BoundField DataField="SAP_Code" HeaderText="SAP Code" />
                                                 <asp:BoundField DataField="ProductName" HeaderText="Product Name" />
                                                 <asp:BoundField DataField="BatchNo" HeaderText="Batch No" />
-                                                <asp:BoundField DataField="BaseUnit" HeaderText="Base Unit" Visible="false" />
-                                                <asp:BoundField DataField="ComUnitName" HeaderText="Sales Center" />
-                                                <asp:BoundField DataField="fromDate" HeaderText="From Date" Visible="false" />
-                                                <asp:BoundField DataField="toDate" HeaderText="To Date" Visible="false" />
-                                                <asp:BoundField DataField="OpeningStock" HeaderText="Opening Stock" />
-                                                <asp:BoundField DataField="ReceiveFromCentralWarehouse" HeaderText="Receive From Central Warehouse" />
-                                                <asp:BoundField DataField="ReceiveFromAreaOfficeInterTransfer" HeaderText="Receive From Area Office (Inter Transfer)" />
-                                                <asp:BoundField DataField="TotalReceived" HeaderText="Total Received" />
-                                                <asp:BoundField DataField="IssuedToSales" HeaderText="Issued To Sales" />
-                                                <asp:BoundField DataField="IssuedToProductBonus" HeaderText="Issued To Product Bonus" />
-                                                <asp:BoundField DataField="IssuedToAreaOfficeInterTransfer" HeaderText="Issued To Area Office (Inter Transfer)" />
-                                                <asp:BoundField DataField="IssuedToDamageAndOthers" HeaderText="Issued To Damage/Others" />
-                                                <asp:BoundField DataField="Blocked" HeaderText="Blocked" />
-                                                <asp:BoundField DataField="WHReturn" HeaderText="WH Return" Visible="false" />
-                                                <asp:BoundField DataField="SubdepoTransfer" HeaderText="Subdepo Transfer" Visible="false" />
-                                                <asp:BoundField DataField="Subdeporeturn" HeaderText="Subdepo Return" Visible="false" />
-                                                <asp:BoundField DataField="StockOutQty" HeaderText="Stock Out Qty" />
-                                                <asp:BoundField DataField="BookforDeliveryQty" HeaderText="Book For Delivery Qty" Visible="false" />
-                                                <asp:BoundField DataField="ReturnQty" HeaderText="Return Qty" />
-                                                <asp:BoundField DataField="ClosingStock" HeaderText="Closing Stock" />
+                                                <asp:BoundField DataField="Opening_Qty" HeaderText="Opening Qty" DataFormatString="{0:N2}" />
+                                                <asp:BoundField DataField="Cwh_Receive" HeaderText="CWH Receive" />
+                                                <asp:BoundField DataField="B2B_Rcv" HeaderText="B2B Receive" />
+                                                <asp:BoundField DataField="Sales_Qty" HeaderText="Sales Qty" />
+                                                <asp:BoundField DataField="Return_Qty" HeaderText="Return Qty" />
+                                                <asp:BoundField DataField="B2B_Transfer" HeaderText="B2B Transfer" />
+                                                <asp:TemplateField HeaderText="Closing Qty">
+                                                    <HeaderTemplate>
+                                                        Closing Qty
+                                                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-bs-toggle="popover" data-bs-trigger="focus"
+                                                            data-bs-placement="left" title="Closing Qty formula"
+                                                            data-bs-content="(Opening Qty + CWH Receive + B2B Receive + Return Qty) - (Sales Qty + B2B Transfer)">
+                                                            <i class="bx bx-info-circle"></i>
+                                                        </button>
+                                                    </HeaderTemplate>
+                                                    <ItemTemplate><%# Eval("Closing_Qty") %></ItemTemplate>
+                                                </asp:TemplateField>
                                             </Columns>
                                         </asp:GridView>
 

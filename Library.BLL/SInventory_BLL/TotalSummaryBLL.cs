@@ -147,6 +147,11 @@ namespace Library.BLL.SInventory_BLL
             return aTotalSummaryDAL.LoadMonthlyInventoryReportBatchWise(fromDate, toDate, comUnitId);
         }
 
+        public DataTable LoadMonthlyInventoryReportBatchWiseSap(DateTime fromDate, DateTime toDate, string comUnitId, string productCode)
+        {
+            return aTotalSummaryDAL.LoadMonthlyInventoryReportBatchWiseSap(fromDate, toDate, comUnitId, productCode);
+        }
+
         public DataTable GetDistributionCenterListDAL()
         {
             return aTotalSummaryDAL.GetDistributionCenterListDAL();

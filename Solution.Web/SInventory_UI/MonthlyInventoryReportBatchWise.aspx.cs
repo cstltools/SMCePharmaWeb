@@ -2,7 +2,6 @@ using Library.BLL.SInventory_BLL;
 using System;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
@@ -12,20 +11,20 @@ public partial class SInventory_UI_MonthlyInventoryReportBatchWise : System.Web.
     TotalSummaryBLL aSummaryBll = new TotalSummaryBLL();
     private static readonly string UiFmt = "dd MMMM, yyyy";
 
-    // The underlying sp_Get_MonthlyInventoryReportBatchWise proc's opening-balance join is hardcoded
-    // to the 31-Jul-2026 snapshot (DCOpeningBalanceDate = '31-july-2026'), so a From Date earlier than
-    // that would silently return a zero opening stock rather than a meaningful error.
+    // Opening_Qty in sp_Get_MonthlyInventoryReportBatchWise_SAP comes from the Sap_Stock13thSepOpening
+    // snapshot, which is fixed at 31-Jul-2026 and carries no date column of its own. A later From Date
+    // would keep that same opening but drop the movements before it, so the closing stock would be
+    // wrong - From Date is pinned here and the datepicker's min in the markup enforces the same.
     private static readonly DateTime MinFromDate = new DateTime(2026, 7, 31);
 
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!IsPostBack)
         {
-            var now = DateTime.Now;
-            var monthEnd = new DateTime(now.Year, now.Month, 1).AddMonths(1).AddDays(-1);
+            var today = DateTime.Now.Date;
 
             fromDateTextBox.Text = MinFromDate.ToString(UiFmt);
-            toDateTextBox.Text = (monthEnd < MinFromDate ? MinFromDate : monthEnd).ToString(UiFmt);
+            toDateTextBox.Text = (today < MinFromDate ? MinFromDate : today).ToString(UiFmt);
 
             DropDownlist();
         }
@@ -63,9 +62,11 @@ public partial class SInventory_UI_MonthlyInventoryReportBatchWise : System.Web.
             return false;
         }
 
-        if (fromDate < MinFromDate)
+        if (fromDate != MinFromDate)
         {
-            showMessageBox("From Date cannot be earlier than " + MinFromDate.ToString(UiFmt) + ".");
+            showMessageBox("From Date is fixed at " + MinFromDate.ToString(UiFmt) + " (SAP opening stock date).");
+            fromDateTextBox.Text = MinFromDate.ToString(UiFmt);
+            fromDate = MinFromDate;
             return false;
         }
 
@@ -86,7 +87,8 @@ public partial class SInventory_UI_MonthlyInventoryReportBatchWise : System.Web.
 
     private void LoadInfo(DateTime fromDate, DateTime toDate)
     {
-        DataTable aDataTable = aSummaryBll.LoadMonthlyInventoryReportBatchWise(fromDate, toDate, salesCenterDropDownList.SelectedValue);
+        DataTable aDataTable = aSummaryBll.LoadMonthlyInventoryReportBatchWiseSap(
+            fromDate, toDate, salesCenterDropDownList.SelectedValue, productCodeTextBox.Text);
 
         if (aDataTable.Rows.Count > 0)
         {
@@ -131,6 +133,10 @@ public partial class SInventory_UI_MonthlyInventoryReportBatchWise : System.Web.
             HtmlForm frm = new HtmlForm();
             loadGridView.Parent.Controls.Add(frm);
 
+            // the Closing Qty header is a template carrying the info button; setting Text drops those
+            // controls so the popover markup doesn't leak into the sheet.
+            loadGridView.HeaderRow.Cells[loadGridView.Columns.Count - 1].Text = "Closing Qty";
+
             loadGridView.HeaderRow.Style.Add("background-color", "#E5EEF1");
             foreach (TableCell tableCell in loadGridView.HeaderRow.Cells)
             {
@@ -152,6 +158,7 @@ public partial class SInventory_UI_MonthlyInventoryReportBatchWise : System.Web.
 <span style='text-align:center'><h4>Monthly Inventory Report (Batch Wise)</h4></span>";
 
             string subTitle = "<span style='text-align:center'><h5>Between: " + fromDateTextBox.Text + " - " + toDateTextBox.Text +
+                "   Sales Center: " + salesCenterDropDownList.SelectedItem.Text +
                 "   Reporting Date: " + DateTime.Now.ToString("dd-MMM-yyyy") + "</h5></span>";
 
             Response.Write(headerTable);

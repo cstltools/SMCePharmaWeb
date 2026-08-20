@@ -220,6 +220,19 @@ WHERE I.TpGrandTotal>0 AND I.InvoiceDate BETWEEN @FromDate and @ToDate  GROUP BY
             aSqlParameterList.Add(new SqlParameter("@CiD", comUnitId));
             return aCommonInternalDal.GetDataTableAction("sp_Get_MonthlyInventoryReportBatchWise", aSqlParameterList, "SSIDB");
         }
+
+        // SAP-sourced batch-wise report behind MonthlyInventoryReportBatchWise.aspx. Separate proc
+        // from the one above - different column set.
+        public DataTable LoadMonthlyInventoryReportBatchWiseSap(DateTime fromDate, DateTime toDate, string comUnitId, string productCode)
+        {
+            List<SqlParameter> aSqlParameterList = new List<SqlParameter>();
+            aSqlParameterList.Add(new SqlParameter("@fromDate", fromDate));
+            aSqlParameterList.Add(new SqlParameter("@toDate", toDate));
+            aSqlParameterList.Add(new SqlParameter("@CiD", comUnitId));
+            aSqlParameterList.Add(new SqlParameter("@ProductCode",
+                string.IsNullOrWhiteSpace(productCode) ? (object)DBNull.Value : productCode.Trim()));
+            return aCommonInternalDal.GetDataTableAction("sp_Get_MonthlyInventoryReportBatchWise_SAP", aSqlParameterList, "SSIDB");
+        }
         public DataTable GetDistributionCenterListDAL()
         {
             string query = "SELECT ComUnitId, ComUnitName FROM dbo.tblCompanyUnit ORDER BY ComUnitName";
