@@ -12,14 +12,14 @@
 
 ## Summary statistics
 
-- **1881 stored procedures** (1071 with a confirmed C# caller, 810 orphaned) — includes the 9 added 2026-08-15 for the Day Wise Net Sales Report page and the 2 added 2026-08-16 for the Stock Out Report page
+- **1886 stored procedures** (1076 with a confirmed C# caller, 810 orphaned) — includes the 9 added 2026-08-15 for the Day Wise Net Sales Report page, the 2 added 2026-08-16 for the Stock Out Report page, and the 5 `sp_OrderPaymentApproval_*` added 2026-08-20 for the Order Payment Approval System
 - **58 views** (11 called directly from C#, 25 referenced from inside another proc/view, 27 with no reference found anywhere)
-- **43 functions** (3 called directly from C#, 18 referenced from inside another proc/view, 22 with no reference found anywhere)
+- **45 functions** (3 called directly from C#, 20 referenced from inside another proc/view, 22 with no reference found anywhere) — includes `fnOrderCreditValidation` and `fnOrderApproverChain`, added 2026-08-20
 - **27 of 1870 procedures (1%) use TRY/CATCH error handling**
 - **25 of 1870 procedures (1%) use an explicit transaction** (`BEGIN TRAN`)
 - **299 of 1870 procedures (15%) build/execute dynamic SQL** (`EXEC(@...)`/`sp_executesql`) — see `spec/business-rules.md` and security notes
 - **135 procedures use a CURSOR** (re-verified by direct `grep` for `DECLARE ... CURSOR`/`CURSOR FOR`/`CURSOR FAST_FORWARD` across every file in `spec/database/procs/`; the previous "17" figure undercounted by 8x — most of the missed cursor-using procedures are orphaned `sp_ADJ_*`/`sp_*Posting`/`sp_DeleteArchive*` procs that are listed name-only in the Orphan Inventory below, which doesn't carry per-procedure TC/TX/DYN/CUR flags, so they weren't reflected in whatever partial count produced "17")
-- Only **3 foreign keys** and **0 triggers** exist across the entire 571-table schema (see `spec/database-tables.md`) — referential integrity is almost entirely unenforced at the database level; whatever integrity exists is enforced (or not) inside these procedures.
+- Only **4 foreign keys** and **1 trigger** exist across the entire 574-table schema (see `spec/database-tables.md`) — referential integrity is almost entirely unenforced at the database level; whatever integrity exists is enforced (or not) inside these procedures. Both the 4th FK (`FK_tblOPASchedule_Approval`) and the single trigger (`trg_tblOrderPaymentApprovalHistory_NoChange`, an `INSTEAD OF UPDATE, DELETE` guard making the payment-approval audit trail append-only) were added 2026-08-20 with the Order Payment Approval System.
 - All of the above counts are for `SalesDisDB_SMC_NEWDB` only. A **second, separate database, `SAP_API_Data`**, is cross-database queried (`SAP_API_Data..tableName` syntax) by at least 16 procedures in this inventory (the `sp_SAP_*`/`sp_Get_SAP_*` stock-receive family plus `MakeRESTRequest`) — see the dedicated `SAP_API_Data` section at the end of `spec/database-tables.md` and `spec/integrations.md` §1. It was not introspected as part of this file's live-schema pass.
 
 ## Inconsistencies found between checked-in SQL files and the live database
@@ -816,10 +816,15 @@
 | `spInsertReturnInvoice_new` | @ReturnInvoiceId INT, @InvoiceDate datetime, @OrderId int, @OrderNo nvarchar (+32 more) | SI |  |  |  |  | tblArea, tblRegion, tblReturnInvoice, tblTerritory | `spec/database/procs/spInsertReturnInvoice_new.sql` |
 | `usp_CheckCampaignEntryDate` | (none) | S |  |  |  |  | tblCustMasterCampNew, tbl_BonusCampaignNewMaster | `spec/database/procs/usp_CheckCampaignEntryDate.sql` |
 
-### SInventory_DAL (135 procedures)
+### SInventory_DAL (140 procedures)
 
 | Procedure | Parameters | Ops | TC | TX | DYN | CUR | Tables referenced | Source |
 |---|---|---|---|---|---|---|---|---|
+| `sp_OrderPaymentApproval_Act` | @OrderPaymentApprovalId int, @ActionUserId int, @Action nvarchar (+2 more) | SIU | Y | Y |  |  | tblOrderPaymentApproval, tblOrderPaymentApprovalSchedule, tblOrderPaymentApprovalHistory, tblUser, tbl_UserRoleInfo | `deploy_order_payment_approval.sql` |
+| `sp_OrderPaymentApproval_CanCreateInvoice` | @OrderId int | S |  |  |  |  | fnOrderCreditValidation, tblOrderPaymentApproval | `deploy_order_payment_approval.sql` |
+| `sp_OrderPaymentApproval_GetDetail` | @OrderPaymentApprovalId int, @ActionUserId int | S |  |  |  |  | tblOrderPaymentApproval, tblOrderPaymentApprovalSchedule, tblOrderPaymentApprovalHistory, tblEmpGeneralInfo, tblUser, tbl_UserRoleInfo | `deploy_order_payment_approval.sql` |
+| `sp_OrderPaymentApproval_GetList` | @ActionUserId int, @StatusFilter int, @FromDate date (+1 more) | S |  |  |  |  | tblOrderPaymentApproval, tblOrderPaymentApprovalSchedule, tblTerritory, tblEmpGeneralInfo, tblUser, tbl_UserRoleInfo | `deploy_order_payment_approval.sql` |
+| `sp_OrderPaymentApproval_Request` | @OrderId int, @ActionUserId int, @Remarks nvarchar | SI | Y | Y |  |  | fnOrderCreditValidation, fnOrderApproverChain, tblOrder, tblOrderPaymentApproval, tblOrderPaymentApprovalHistory, tblUser, tbl_UserRoleInfo | `deploy_order_payment_approval.sql` |
 | `sp_AreawiseDailyOpeningClosingStockDepowise` | @fromDate datetime, @toDate DATETIME, @CiD int | S |  |  |  |  | SalesDisDB_SMC, tblChalanDetail, tblChalanInfo, tblCompanyUnit, tblDCStore, tblDCStoreFreeze (+12 more) | `spec/database/procs/sp_AreawiseDailyOpeningClosingStockDepowise.sql` |
 | `sp_AreawiseDailyOpeningClosingStockNational` | @fromDate datetime, @toDate DATETIME | S |  |  |  |  | SalesDisDB_SMC, tblChalanDetail, tblChalanInfo, tblCompanyUnit, tblDCStore, tblDCStoreFreeze (+12 more) | `spec/database/procs/sp_AreawiseDailyOpeningClosingStockNational.sql` |
 | `sp_AutoInvoiceGeneration` | @OrderCodeInPut NVARCHAR, @UserId INT | SIU |  |  |  | Y | MY_Order, MY_data, View_CustomerMaster, tblDCStore, tblInvoice, tblInvoiceDetail (+2 more) | `spec/database/procs/sp_AutoInvoiceGeneration.sql` |
@@ -1276,10 +1281,12 @@ Listed name-only (mechanical facts are in the source `.sql` file cited). These a
 | `View_ZoneName` | No | No | tblRegion | `spec/database/views/View_ZoneName.sql` |
 | `vw_TargetvsAchievement_BIReport` | No | No | tblArea, tblInvoice, tblInvoiceDetail, tblOrder, tblOrderDetail, tblRegion, tblTerritoryDataMigration | `spec/database/views/vw_TargetvsAchievement_BIReport.sql` |
 
-## Function inventory (43: 11 scalar, 32 table-valued)
+## Function inventory (45: 11 scalar, 34 table-valued)
 
 | Function | Referenced in C#? | Referenced in another proc/view? | Params | Source |
 |---|---|---|---|---|
+| `fnOrderApproverChain` | No | Yes | @TerritoryId int | `deploy_order_payment_approval.sql` |
+| `fnOrderCreditValidation` | No | Yes | @OrderId int | `deploy_order_payment_approval.sql` |
 | `CheckMobileNumber` | No | No | @MobileNumber VARCHAR | `spec/database/functions/CheckMobileNumber.sql` |
 | `DateRange_To_Table` | No | Yes | @minDate_Str NVARCHAR, @maxDate_Str NVARCHAR, @Result TABLE | `spec/database/functions/DateRange_To_Table.sql` |
 | `DateRange_To_TableByMonthYear` | No | Yes | @MonthVal nvarchar, @YearVal nvarchar, @Result TABLE | `spec/database/functions/DateRange_To_TableByMonthYear.sql` |

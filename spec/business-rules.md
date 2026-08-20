@@ -86,6 +86,48 @@ All other claims checked by the six parallel analyses against this document, `wo
 
 ---
 
+## 0.2 Confirmed and fixed: `DataAccessManager_daaw.GetDataSet` silently dropped every second result set (2026-08-20)
+
+Found while driving the new Order Payment Approval screens in a real browser, not by static reading
+— the page reported "not authorized" when the underlying procedure had in fact returned data.
+
+`Library.DAL/DataManager/DataAccessManager_daaw.cs`'s multi-result-set reader was:
+
+```csharp
+do {
+    var dt = new DataTable();
+    dt.Load(reader);
+    ds.Tables.Add(dt);
+} while (!reader.IsClosed && reader.NextResult());
+```
+
+`DataTable.Load(IDataReader)` consumes one result set **and advances the reader to the next one by
+itself**. The extra `NextResult()` therefore skipped one set per iteration: a procedure returning 3
+result sets yielded tables `[1st, 3rd]`, and one returning 2 yielded only the 1st. Reproduced
+directly against the live database before changing anything.
+
+**Pre-existing impact beyond the new feature:** `GetDataSet` has only three callers.
+`Solution.Web/SInventory_UI/DAExpenseClaimList.aspx.cs:244` reads `dataSet.Tables[1]` for the claim
+**details** — that table was never populated, so the details have always come back empty on that
+page. `DAExpenseClaimApprovalList.aspx.cs` reads only `Tables[0]` and was unaffected.
+
+Fixed at the shared method (one guard for all callers, rather than a workaround per caller), which
+repairs the DA Expense Claim details as a side effect:
+
+```csharp
+while (!reader.IsClosed) {
+    var dt = new DataTable();
+    dt.Load(reader);
+    if (dt.Columns.Count == 0) break;   // reader exhausted
+    ds.Tables.Add(dt);
+}
+```
+
+The `dt.Columns.Count == 0` break is load-bearing: `DataTable.Load` does not necessarily close the
+reader after the final result set, so `!reader.IsClosed` alone would spin.
+
+---
+
 ## 1. SInventory module (SInventory_UI, SInventory_BLL — largest module, 419 files)
 
 ### Warehouse Stock In
@@ -570,6 +612,38 @@ else if (EmpInfoId == "496") ApprovalStatus = "Accepted";
 else ApprovalStatus = "Verified";
 ```
 Role `5` **or** the specific hard-coded employee ID **`496`** gets final "Accepted" status directly, bypassing the normal "Verified" intermediate step required of every other approver. This magic-number bypass appears in 5+ files (also affects row-visibility logic, e.g. `DAApprovalList.aspx.cs:394`, `ExpenseApprovalList.aspx.cs:449`).
+
+### Order Payment Approval (added 2026-08-20) — deliberately does *not* follow the patterns above
+`Solution.Web/Approval_UI/OrderPaymentApprovalList.aspx.cs` + `sp_OrderPaymentApproval_*`. Full
+rules in `requirements.md`; workflow in [`workflow.md`](workflow.md) §4a. Contrasts with the rest of
+this section on every point that made the others weak:
+
+- **No hard-coded super-approver.** There is no employee-id or role-id literal that skips a level.
+  Role `5` (Admin) gets read-only oversight — `CanAct` is false for it — not the ability to act.
+- **Identity is not a parameter.** Every procedure takes `@ActionUserId` and resolves `EmpInfoId` +
+  `RoleTypeId` from `tblUser` → `tbl_UserRoleInfo` itself, so the "role-shaped parameter" class of
+  bypass documented elsewhere in this file does not apply.
+- **Two-part authorization**: the caller's role type must own the current status *and* the caller
+  must be the employee this specific request was routed to (from the snapshotted chain).
+- **Button visibility is not authorization.** `sp_OrderPaymentApproval_Act` re-verifies role, level,
+  state transition and the payment schedule on every call regardless of what the page rendered.
+- **Rejection reason is mandatory** (both the service and the procedure refuse a blank one) — unlike
+  the older approval screens, which accept an empty comment.
+- **Concurrency is handled**: `UPDATE … WHERE ApprovalStatus = @expected` + `@@ROWCOUNT` guard, so
+  two approvers racing get "changed by another user" rather than a double approval.
+- **Audit is append-only** via `trg_tblOrderPaymentApprovalHistory_NoChange`.
+
+BR-OPA rules enforced in the procedure layer: request only for a genuinely credit-blocked order;
+one live request per order (filtered unique index, race-safe); complete AM/DZSM/NSM chain required;
+strict 0→2→4→5 transitions; closed requests immutable; already-invoiced orders excluded; NSM
+approval locks the schedule; only the AM step authors the plan; Total Due snapshotted at request
+time.
+
+Corresponding change on the invoice side: `InvoiceCreationByOrder_daaw.aspx.cs` now re-checks
+`sp_OrderPaymentApproval_CanCreateInvoice` server-side in `gotoinvoiceButton_Click` **and** in
+`DataValidation()` — the latter matters most, because bulk invoice generation runs off
+ViewState-held selections where a disabled button is not a control. `InvoiceCreationForCustomerByOrder.aspx`
+re-checks it too, since it is reachable directly.
 
 ### Customer/Doctor transfer approval
 - `DoctorCustomerTransferApproval.aspx.cs:168-201` — order-pending customers cannot be transferred: checkbox is programmatically unchecked, `"Order Pending!"`.

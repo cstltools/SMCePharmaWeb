@@ -490,8 +490,11 @@
                                                     <asp:BoundField DataField="PaymentType" HeaderText="Payment Type" />
                                                     <asp:TemplateField HeaderText="Go To Invoice"  >
                                                         <ItemTemplate>
-                                                             <asp:Button ID="gotoinvoiceButton" runat="server" Text="Go To Invoice >>" CssClass="btn btn-sm  btn-info"   OnClientClick="return sweetAlertConfirm_Submit(this);" 
+                                                             <asp:Button ID="gotoinvoiceButton" runat="server" Text="Go To Invoice >>" CssClass="btn btn-sm  btn-info"   OnClientClick="return sweetAlertConfirm_Submit(this);"
                                                                  OnClick="gotoinvoiceButton_Click" />
+                                                               <asp:Button ID="btnGoForApproval" runat="server" Text="Go for Approval" Visible="false" CssClass="btn btn-sm btn-warning" OnClientClick="return sweetAlertConfirm_Submit(this);"
+                                                                 OnClick="btnGoForApproval_Click" />
+                                                               <asp:Label ID="lblApprovalStatus" runat="server" Visible="false" CssClass="badge bg-secondary" style="display:block; white-space:normal; max-width:180px; margin-top:5px;"></asp:Label>
                                                                <asp:Label ID="lblWarning" runat="server" ForeColor="Red" Font-Size="Smaller" style="display:block; white-space:normal; max-width:180px; word-wrap:break-word; margin-top:5px; line-height:1.2;"></asp:Label>
                                                                <asp:HiddenField runat="server" ID="hfCustomerCode" Value='<%#Eval("CustomerCode")%>' /> 
                                                                <asp:HiddenField runat="server" ID="hfDistributionRouteId" Value='<%# GetEvalString(Container.DataItem, "DistributionRouteId") %>' />

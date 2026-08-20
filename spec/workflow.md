@@ -446,6 +446,103 @@ single "invoice status" field that aggregates all three; each is tracked and rej
 
 ---
 
+## 4a. Order Payment Approval workflow (added 2026-08-20)
+
+A second, independent approval chain that sits *between* credit validation and invoice creation.
+Unlike §1's generic routing engine (which is menu-and-role configured via `tblApprovalMapMaster`),
+this one has a fixed three-level sequence and derives its approvers from the order's own territory,
+so there is no configuration surface through which a level could be skipped.
+
+Requirement and traceability: `requirements.md`, `docs/traceability/order-payment-approval-traceability.md`.
+Deployment: `deploy_order_payment_approval.sql` + `alter_orderlist_payment_approval.sql`.
+
+### 4a.1 Where it attaches to §4
+
+`sp_LoadOrderListForOrderCreationbyTerri` / `sp_LoadOrderListForOrderRouteDayWise` have always
+emitted `IsMaxOutstandingExceeded` and `IsCreditPeriodExceeded` (from `tblInvoiceNotBinding`,
+defaults 2 invoices / 45 days / 50,000), and `InvoiceCreationByOrder_daaw.aspx.cs`'s
+`orderGridView_RowDataBound` has always disabled the row for a blocked order. What did **not**
+exist was any route forward, and any server-side enforcement — the block was UI-only.
+
+```
+Order (ActionStatus = '2', IsPrepareforInvoice = 1)
+  -> credit validation  (unchanged, existing rule)
+       |
+       +-- not blocked --> [Go To Invoice >>]  (existing path, §4.2)
+       |
+       +-- blocked ------> [Go for Approval]
+                              -> 0  Pending AM Approval
+                              -> AM approves + enters the payment schedule
+                              -> 2  Pending DZSM Approval
+                              -> DZSM approves (plan read-only)
+                              -> 4  Pending NSM Approval
+                              -> NSM approves, schedule locked
+                              -> 5  Fully Approved --> [Go To Invoice >>] re-enabled
+```
+
+Rejection at any level → 6; withdrawal by the requester → 7. Both set `IsActive = 0`, which frees
+the filtered unique index so the order can be re-submitted while the closed request and its history
+survive.
+
+### 4a.2 Status codes, and why 1 and 3 are never seen on the header
+
+| Code | Meaning | Persisted on the header? |
+|---|---|---|
+| 0 | Pending AM Approval | yes |
+| 1 | AM Approved | **audit rows only** |
+| 2 | Pending DZSM Approval | yes |
+| 3 | DZSM Approved | **audit rows only** |
+| 4 | Pending NSM Approval | yes |
+| 5 | Fully Approved | yes |
+| 6 | Rejected | yes (`IsActive = 0`) |
+| 7 | Cancelled | yes (`IsActive = 0`) |
+
+One approver action writes both the "`<role>` Approved" history row (→ 1 or 3) and the
+"Pending `<next role>`" row (→ 2 or 4) inside a single transaction, so every specified code is used
+without ever parking a request in a half-finished state. A completed chain leaves exactly 6 rows in
+`tblOrderPaymentApprovalHistory`.
+
+### 4a.3 Approver resolution — reuses the existing org ladder
+
+```
+tblOrder.TerritoryId
+  -> tblTerritory.AreaId    -> tblASMInfo (IsActive = 1)  -> AM    (RoleTypeId 2)
+  -> tblArea.RegionId       -> tblRSMInfo (IsActive = 1)  -> DZSM  (RoleTypeId 3, note the table's
+                                                             own DZSMSapCode column)
+  -> tblRegion.GroupId      -> tblNSMInfo (IsActive = 1)  -> NSM   (RoleTypeId 4, 'Regional Head')
+```
+
+Encapsulated in `dbo.fnOrderApproverChain`. All three employee ids are **snapshotted onto the
+request** at creation time, so a mid-flight org change cannot orphan it. A request is refused
+outright if any of the three is missing.
+
+### 4a.4 Enforcement points (contrast with §1 and §6)
+
+Unlike the generic chain workflows — where `spec/business-rules.md` records a hardcoded-employee-id
+bypass and UI-only gating — every rule here lives in the stored procedures:
+
+- **Identity is never a parameter.** `sp_OrderPaymentApproval_Act`/`_Request`/`_GetList`/`_GetDetail`
+  take `@ActionUserId` and resolve `EmpInfoId` + `RoleTypeId` themselves via
+  `tblUser` → `tbl_UserRoleInfo`. A forged role parameter does not exist to forge.
+- **Two-part level check**: the caller's role type must own the current status *and* the caller must
+  be the employee this request was routed to.
+- **Optimistic concurrency**: `UPDATE … WHERE ApprovalStatus = @expected AND IsActive = 1`, then
+  `@@ROWCOUNT = 0` → "changed by another user". Two approvers racing cannot double-approve.
+- **The invoice gate is re-checked on all three routes into invoice creation** —
+  `gotoinvoiceButton_Click`, `DataValidation()` (the bulk path, which runs off ViewState-held
+  selections and is therefore the one that actually matters), and
+  `InvoiceCreationForCustomerByOrder.aspx`'s own `Page_Load`.
+
+### 4a.5 Screens
+
+- `SInventory_UI/InvoiceCreationByOrder_daaw.aspx` — extended in place (one button, one status
+  badge inside the existing "Go To Invoice" column). No new invoice-creation page.
+- `Approval_UI/OrderPaymentApprovalList.aspx` — one worklist serving all three levels; the payment
+  schedule editor appears only on the AM step, read-only thereafter. Menu `SL = 383` under
+  "Approval Operation" (347).
+
+---
+
 ## 5. Leave approval workflow
 
 `LeaveApproveList` (chain UI, §2) → `sp_SaveLeaveAppLog` (§1.3's algorithm, applied to

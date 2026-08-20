@@ -19,6 +19,7 @@ public partial class SInventory_UI_InvoiceCreationForCustomer : System.Web.UI.Pa
     InvoiceBLL aInvoiceBll = new InvoiceBLL();
     static CommonDataLoad _dataLoad = new CommonDataLoad();
     OrderInfoBLL aOrderInfoBll = new OrderInfoBLL();
+    private OrderPaymentApprovalService _paymentApprovalService = new OrderPaymentApprovalService();
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -26,7 +27,22 @@ public partial class SInventory_UI_InvoiceCreationForCustomer : System.Web.UI.Pa
         {
             if (Session["OrderId"] != null)
             {
-                 
+                // Order Payment Approval gate. This page is reachable directly, so the
+                // credit-block / approval state is re-checked here rather than relying on
+                // whichever page set Session["OrderId"].
+                int gateOrderId;
+                if (Int32.TryParse(Session["OrderId"].ToString(), out gateOrderId))
+                {
+                    InvoiceCreationGate gate = _paymentApprovalService.CanCreateInvoice(gateOrderId);
+                    if (!gate.CanCreate)
+                    {
+                        Session["OrderId"] = null;
+                        Session["PaymentApprovalBlockReason"] = gate.Reason;
+                        Response.Redirect("InvoiceCreationByOrder_daaw.aspx");
+                        return;
+                    }
+                }
+
                 orderHiddenField.Value = Session["OrderId"].ToString();
 
 

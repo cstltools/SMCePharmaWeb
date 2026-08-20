@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="MasterSetup_BLL\CustomerInvoiceLimitService.cs" />
     <Compile Include="SInventory_BLL\AccountSettingsBll.cs" />
+    <Compile Include="SInventory_BLL\OrderPaymentApprovalService.cs" />
     <Compile Include="SInventory_BLL\AreaBLL.cs" />
     <Compile Include="SInventory_BLL\AreaWiseMonthlyInventoryReportBll.cs" />
     <Compile Include="SInventory_BLL\AuditReportOneBll.cs" />

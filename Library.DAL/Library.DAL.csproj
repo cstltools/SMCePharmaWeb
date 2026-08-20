@@ -162,6 +162,7 @@
     <Compile Include="SAP_IntegrationDAL\SAP_IntrigationPointDAL.cs" />
     <Compile Include="SettingPanel_DAL\UserSettingPanelDal.cs" />
     <Compile Include="SInventory_DAL\AccountSettingsDal.cs" />
+    <Compile Include="SInventory_DAL\OrderPaymentApprovalRepository.cs" />
     <Compile Include="SInventory_DAL\AppSetupDAL.cs" />
     <Compile Include="SInventory_DAL\AreaWiseMonthlyInventoryReportDal.cs" />
     <Compile Include="SInventory_DAL\AuditReportOneDal.cs" />

@@ -153,12 +153,42 @@ validation independent of any application code:
   anywhere in the app).
 - **This is essentially the only "referential" validation the DB performs.** As documented in
   [`database-spec.md`](database-spec.md) and re-confirmed this revision by direct live-database
-  introspection, only **3 real foreign-key constraints** (and 0 triggers) exist across the entire
-  **571-table** schema (`sys.tables` count, `TOWSIF\MSSQLSERVER2019`/`SalesDisDB_SMC_NEWDB`, this
+  introspection, only **4 real foreign-key constraints** (and 1 trigger) exist across the entire
+  **574-table** schema (`sys.tables` count, `TOWSIF\MSSQLSERVER2019`/`SalesDisDB_SMC_NEWDB`, this
   pass) — so cross-table validity (e.g. "does this `CustomerId` actually exist in the customer
   table") is almost never enforced by the database itself; it depends entirely on whichever
   application-layer check (if any) was written for that specific insert/update path, per the
   duplicate-check and quantity-check tables in [`business-rules.md`](business-rules.md).
+
+## 5a. Order Payment Approval — the one path where validation is enforced server-side by design (added 2026-08-20)
+
+Worth calling out because it is the exception to §1–§4's pattern (validator controls and code-behind
+format checks, with the database trusting whatever arrives). Every rule below lives in
+`sp_OrderPaymentApproval_Act`; the browser-side copies exist only to give faster feedback and are
+not the gate. Full traceability: `docs/traceability/order-payment-approval-traceability.md`.
+
+| ID | Rule | Also enforced structurally |
+|---|---|---|
+| VR-OPA-10 | Payment schedule must contain at least one instalment | — |
+| VR-OPA-11 | `PaymentDate >= CONVERT(date, GETDATE())` | — |
+| VR-OPA-12 | `PaymentAmount > 0` | `CK_tblOPASchedule_Amount` CHECK constraint |
+| VR-OPA-13 | No duplicate payment date within a plan version | `UX_tblOPASchedule_Date` unique index |
+| VR-OPA-14 | Payment dates ascending (`PaymentNo` is assigned by date order, not by row order) | — |
+| VR-OPA-15 | `SUM(PaymentAmount) = TotalDueAmount` (±0.005) | — |
+| VR-OPA-16 | The schedule may only be set on the AM step | — |
+| VR-OPA-17 | Rejection requires a reason | — |
+| VR-OPA-19 | Date and amount are both mandatory on a filled row | — |
+
+Two structural guards worth noting because nothing else in this schema does either:
+
+- `UX_tblOrderPaymentApproval_ActiveOrder`, a **filtered** unique index on
+  `(OrderId) WHERE IsActive = 1`, makes a duplicate approval request impossible even under a race
+  between two sessions — the proc catches error 2601/2627 and reports it as the business rule.
+- `trg_tblOrderPaymentApprovalHistory_NoChange`, an `INSTEAD OF UPDATE, DELETE` trigger, makes the
+  approval audit trail append-only. This is the schema's only trigger.
+
+Verified end to end by `test_order_payment_approval.ps1` (60 assertions at the procedure layer) and
+by a scripted browser drive of the real pages (34 assertions), both passing on 2026-08-20.
 
 ## 6. Confirmed validation-logic bugs found by reading stored-procedure/code-behind bodies directly (this revision)
 

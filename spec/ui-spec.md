@@ -31,6 +31,37 @@ A page not referencing any of the three gets **no** built-in login redirect — 
 - **Report pattern B (GridView export)**: a filter form + `GridView`, with an export button invoking EPPlus/ClosedXML directly.
 - **UpdatePanel/partial-postback AJAX (confirmed this revision, previously undocumented)**: `asp:UpdatePanel` (usually paired with `asp:UpdateProgress` for a loading indicator) wraps most page content on **562 of the ~701 `.aspx` files** — this is the dominant AJAX mechanism in the app, not the AjaxControlToolkit autocomplete/tab controls described below under Client-side stack (those are a separate, smaller usage). `asp:ScriptManager` (required to host any `UpdatePanel`) appears on 127 pages — the discrepancy is expected: a page can nest additional `UpdatePanel`s under a `ScriptManager` declared on its master page rather than itself. `GridView` itself is even more common, appearing on 337 pages (336 plus `RptBussinessSummary_DayWise.aspx`, added 2026-08-15, which alone hosts 9). Confirmed present on both of the two pages examined for this revision (`SInventory_UI/ReceiveProductByChalanByDC.aspx`, `SInventory_UI/dadtlsDelivaryInvoiceDetailsCreation_DA.aspx`), each using `NewMasterPage.master` and each hosting 2 `GridView`s.
 
+## Conditional row actions — Invoice Creation (added 2026-08-20)
+
+The only place in the app where a grid row's primary action is swapped for a different control based
+on server-evaluated state, rather than merely disabled. `SInventory_UI/InvoiceCreationByOrder_daaw.aspx`,
+driven from `orderGridView_RowDataBound` using the `PaymentApprovalStatus` column the list procedures
+now emit:
+
+| Order state | Row checkbox | Action cell |
+|---|---|---|
+| Not credit blocked | enabled | **Go To Invoice >>** (`btn btn-sm btn-info`) |
+| Credit blocked, no request | disabled | **Go for Approval** (`btn btn-sm btn-warning`) + red reason text |
+| Pending AM Approval (0) | disabled | grey badge "Pending AM Approval" |
+| Pending DZSM Approval (2) | disabled | grey badge "Pending DZSM Approval" |
+| Pending NSM Approval (4) | disabled | grey badge "Pending NSM Approval" |
+| Fully Approved (5) | enabled | **Go To Invoice >>** |
+
+Implementation note worth preserving: when the Go To Invoice button is hidden it is also left
+`Enabled = false`, because `SyncMainGridCheckboxes()` derives each row's checkbox state from
+`gotoinvoiceButton.Enabled`. Setting only `Visible = false` would silently re-enable the checkbox
+for blocked rows.
+
+`Approval_UI/OrderPaymentApprovalList.aspx` follows the existing Approval_UI conventions exactly —
+`NewMasterPage.master`, Bootstrap 5 card with a coloured top border, `GridView` inside an
+`UpdatePanel`, `pickadate` on `.datepicker` re-initialised from `pageLoad()`, `ShowSuccesalert`/
+`faildalert` for messages and `sweetAlertConfirm_Submit` on destructive buttons. One page serves
+AM, DZSM and NSM; the payment-schedule editor is rendered only on the AM step.
+
+Note for anyone scripting these pages: ASP.NET renders GridView child controls with the **row index
+appended** (`ContentPlaceHolder1_orderGridView_chkSelect_6`), not as `..._ctl08_chkSelect`, so a
+`[id$="_chkSelect"]` selector matches nothing — use `[id*="_chkSelect"]`.
+
 ## Client-side validation
 
 **Confirmed absent, not just "largely absent."** A full sweep of all `.aspx` files (700 at the time

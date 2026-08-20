@@ -1,180 +1,875 @@
-# Requirements
+# EXISTING PROJECT — FULL REVERSE ENGINEERING + REQUIREMENT IMPLEMENTATION
 
-Per this pass's instructions: requirements below are split into three categories and none are
-invented. "Verified from implementation" is inferred strictly from what the running system actually
-does (confirmed by direct source reading, live-database introspection, and cross-referencing C# call
-sites against stored-procedure bodies across all six module clusters of this codebase — SInventory;
-DoctorModule; MasterSetup/Thana/SubDepot; the smaller transactional modules; platform/auth/API; and
-all 58 views/43 functions). "Existing documented requirements" is content someone on the team already
-wrote down as a requirement/spec — preserved as-is below, not re-derived. "Not verified / requires
-confirmation" lists genuine open questions this pass could not resolve from static analysis alone.
+You are working on an EXISTING production software project.
 
-## 1. Verified from implementation
+Your responsibility is NOT to build a new system from scratch.
 
-The system (confirmed via source + live schema, not assumed) implements:
+You must first understand the complete existing system, reverse-engineer it, understand its architecture, database, business rules, documentation, specifications, existing implementation and dependencies, and only then implement the new requirement.
 
-- **Order-to-cash lifecycle**: order entry → chain-based multi-role approval → conversion to
-  proforma/delivery invoice with FEFO batch stock allocation → delivery confirmation → payment
-  collection → DA-side sales/payment/return sub-tracking → DIC re-approval. Full detail:
-  `spec/workflow.md` §4.
-- **Field-force management**: org hierarchy (Group→Region→Area→Territory→SubTerritory→Market,
-  cross-cut by an MIO/AM/ASM/DZSM/RSM/NSM reporting ladder), tour/visit planning with a chain-based
-  approval workflow **and** a parallel legacy bulk-approve mechanism (`spec/workflow.md` §2a), daily
-  call reports, prescription capture with photo evidence, leave/attendance/expense/mileage/TADA claim
-  capture and approval.
-- **Master data management**: customer, product, doctor, and full geography/org-hierarchy CRUD, with
-  update-time (but not consistently insert-time) duplicate-name checking.
-- **Sub-depot distribution operations**: stock transfer, invoicing, and adjustment vouchers at the
-  sub-depot level, functionally parallel to but implemented independently of the main distribution
-  center path.
-- **Market-structure transfer**: propose→approve reassignment of Market/Sub-Territory/Territory
-  nodes between organizational units — confirmed **not fully functional** for Area/Zone transfers
-  specifically (`spec/workflow.md` §5a).
-- **Role/menu-based navigation** via three overlapping menu-generation systems, each with a
-  hardcoded superadmin bypass (`spec/business-rules.md` §0.1, platform findings).
-- **SAP integration**: staging-table reconciliation (bidirectional, app↔SAP via a shared
-  `SAP_API_Data` database) plus one live, direct outbound HTTPS call to a SAP REST endpoint issued
-  from inside a stored procedure via SQL Server OLE Automation (`spec/integrations.md` §1/§1a-revised).
-- **Reporting**: Crystal Reports (`Library.CrystalReports`) and in-page GridView/Excel export
-  reporting, plus a family of BI-tool-shaped database views (several frozen to hardcoded historical
-  date ranges, several with zero confirmed callers from this application — plausibly consumed by an
-  external BI/reporting tool not in this repo).
-- **No automated password hashing** — plaintext storage and comparison confirmed at the login,
-  change-password, and account-settings layers (`spec/business-rules.md` §0.1, platform findings).
-- **No consistent per-page authorization** — a session-exists check is universal; role/permission
-  checks beyond menu visibility are opt-in and present on only a minority of the application's ~700
-  pages.
+==================================================
+PROJECT RULE
+============
 
-## 2. Existing documented requirements
+DO NOT start coding immediately.
 
-The following is a requirement document that already existed in this repository prior to this pass,
-preserved verbatim below (not re-derived). Its described behavior (gate the Doctor dropdown to
-Customer Type = MDC, matched by identifier not full display text) is now **directly and fully
-implemented**, confirmed by reading the code line-by-line this pass: `CustomerEntry.aspx.cs`'s
-`ToggleDoctorTagByCustomerType()` method (`CustomerEntry.aspx.cs:913-928`) enables and loads the
-`ddlDoctorTag` dropdown only when `ddlChemisType.SelectedItem.Text.Trim().StartsWith("MDC",
-StringComparison.OrdinalIgnoreCase)` — an identifier-prefix match, not a hardcoded full-text
-comparison — and clears `ddlDoctorTag.Items` otherwise. It's wired to
-`ddlChemisType_SelectedIndexChanged` (`:930-933`) and also invoked on initial page load and on
-edit-load (`:59`, `:120`), so the gating applies on every path that can change or display the
-Customer Type. This satisfies every bullet of the requirement below, including the "not hardcode
-the complete display text" matching-rule nuance, exactly as written — not merely approximately.
-(An earlier pass of this document attributed the gating to `CustomerInfoDAL.SaveInfo`'s doctor-
-tagging sync at this same line number; that attribution no longer holds — no `"MDC"` string
-match exists anywhere in `Library.DAL` any more, so the requirement's fulfillment lives entirely
-in this code-behind method, not in a DAL-layer save-time gate.)
+First:
 
-### Requirement: Conditional Doctor Dropdown by Customer Type
+1. Read the complete existing project.
+2. Read ALL documentation.
+3. Read ALL specification files.
+4. Read the complete database structure.
+5. Read the existing implementation.
+6. Reverse-engineer the current architecture and business flow.
+7. Compare the new requirement with the existing system.
+8. Identify impacted modules/files/tables/SPs/APIs.
+9. Update requirements.md.
+10. Prepare implementation plan.
+11. Only then start development.
 
-#### Objective
+NEVER assume that this is a new project.
 
-Update the Customer Entry page:
+==================================================
+PHASE 1 — PROJECT DISCOVERY
+===========================
 
-`MasterSetup_UI/CustomerEntry.aspx`
+Read the complete project directory recursively.
 
-The **Doctor** dropdown/list should be loaded and displayed/enabled **only when Customer Type is "MDC"**.
+Do NOT limit yourself to recently modified files.
 
-Currently, the Customer Type dropdown contains values such as:
+Inspect:
 
-- MDC (FY 26-27)
-- Other customer types
+* Source code
+* Controllers
+* Services
+* Repositories
+* Models
+* DTOs
+* ViewModels
+* Views
+* JavaScript
+* CSS
+* APIs
+* Middleware
+* Authentication
+* Authorization
+* Configuration
+* Database scripts
+* Stored Procedures
+* Functions
+* Views
+* Triggers
+* Tables
+* Indexes
+* Foreign Keys
+* Seed/Data scripts
+* Tests
+* Documentation
+* Configuration files
+* Deployment files
 
-The Doctor field should depend on the selected Customer Type.
+Create a complete project inventory.
 
----
+Record:
 
-#### Functional Requirement
+Path
+File
+Purpose
+Module
+Dependencies
+Impact
 
-##### 1. Customer Type = MDC
+==================================================
+PHASE 2 — READ ALL DOCS
+=======================
 
-When the selected Customer Type matches **MDC**:
+Find and read ALL documentation directories/files.
 
-- Load the Doctor dropdown/list.
-- Doctor field should be enabled.
-- Doctor list should be populated from the existing Doctor data source/mechanism.
-- Existing Doctor selection functionality should remain unchanged.
-- The user should be able to select a Doctor.
+Typical locations:
 
-Example:
+docs/
+documentation/
+README.md
+*.md
+*.doc
+*.docx
+*.pdf
 
-`Customer Type: MDC (FY 26-27)`
+Do not assume only docs/ contains documentation.
 
-→ Doctor dropdown should be available.
+Read:
 
----
+* Architecture documents
+* Business flow documents
+* API documentation
+* Database documentation
+* Deployment documents
+* Coding standards
+* Security documents
+* Existing requirements
+* Existing specifications
+* SRS
+* BPML
+* UAT documents
+* Change requests
+* Bug-fix documents
+* Integration documents
 
-##### 2. Customer Type is NOT MDC
+Create:
 
-When the selected Customer Type does NOT match **MDC**:
+docs/PROJECT-DISCOVERY.md
 
-- Doctor dropdown should NOT be loaded.
-- Doctor field should be disabled or hidden according to the existing UI pattern.
-- Any previously selected Doctor value should be cleared.
-- No Doctor-related API/database call should be triggered unnecessarily.
+Document what was found.
 
-Example:
+==================================================
+PHASE 3 — READ ALL SPECS
+========================
 
-`Customer Type: XYZ`
+Find every specification file.
 
-→ Doctor dropdown should not be available.
+Typical locations:
 
----
+specs/
+requirements/
+SRS/
+business/
+functional-spec/
+change-request/
 
-#### Matching Rule
+Read ALL files.
 
-The Customer Type value should be checked based on the **MDC identifier**, not by hardcoding the complete display text.
+Do not read only filenames.
 
-For example:
+Extract:
 
-`MDC (FY 26-27)`
+* Functional requirements
+* Business rules
+* UI requirements
+* Validation rules
+* Workflow
+* Roles
+* Permissions
+* Approval rules
+* Integration rules
+* Database requirements
+* Reporting requirements
+* Exceptions
+* Known limitations
 
-should be considered an MDC customer type.
+Create a requirement inventory.
 
-If the database value/ID represents MDC, use that value/ID for the condition whenever possible.
+==================================================
+PHASE 4 — DATABASE REVERSE ENGINEERING
+======================================
 
-Do NOT make the logic dependent only on:
+This is mandatory.
 
-```javascript
-if (customerType == "MDC (FY 26-27)")
-```
+Read the COMPLETE database.
 
-*(The original requirement document was truncated at exactly this point — the closing fence and
-whatever example followed were never written. Preserved as-found; not reconstructed, since inventing
-the missing example would violate the "do not invent requirements" instruction for this pass.)*
+Do not only inspect tables related to the new requirement.
 
-## 3. Not verified / requires confirmation
+Identify:
 
-Genuine open questions surfaced across all six module-cluster analyses that could not be resolved
-from static source analysis alone:
+### Tables
 
-- **What HTTP layer, if any, exposes the `sp_Webapi_*`/`sp_SalesAPI_*` stored-procedure family to the
-  companion Flutter mobile app?** No `ApiController`/`[Route]`/REST framework code was found anywhere
-  in this repository despite strong circumstantial evidence (proc naming, a dedicated
-  `View_FieldForce*`/`View_Webapi_*` view family) that this proc family is the mobile app's real data
-  layer. `CLAUDE.md`'s claim that `SInventoryWebService.cs` serves this role does not match that
-  class's autocomplete-shaped method signatures. Resolving this requires either finding a second
-  repository/project, or confirming with whoever built the mobile integration.
-- **Is `sp_ApproveCustomerInformation` (customer-approval, direct path) actually invoked in
-  production, or has it been superseded by the chain-based `sp_webapi_SaveCustomerAppLog` approval
-  path documented in `spec/workflow.md`?** Static analysis suggests the direct path would raise a SQL
-  `CAST` error if hit against data produced by the current insert procedure — needs either a
-  production error-log check or confirmation from whoever maintains `CustomerApproveList.aspx.cs`.
-- **Is the Doctor leg of Customer/Doctor territory-transfer approval (`sp_Update_Customer_Doctor_TransferApprove`) intentionally frozen, or an unnoticed regression?** The entire mutation branch for
-  doctors is commented out; the identical Customer-side branch works. Needs confirmation from the
-  team of whether doctor transfers are a deprecated/on-hold feature.
-- **Is `sp_Deletenvoice` (broken body, `delete Invoice` with no `FROM`) ever actually exercised in
-  production**, or has its one live C# call site simply never been hit? Needs a production
-  exception-log check.
-- **Are the Area Transfer and Zone Transfer screens (`spec/workflow.md` §5a) known to be broken
-  already, or is this pass the first time the missing `@Type` branches in
-  `sp_Update_MarketStructure_Transfer` have been identified?** Worth an operational check against
-  `tblMarketStructureTranfer` row counts by transfer type before assuming this is news to the team.
-- **Which of the two/three parallel approval mechanisms for Tour Plan/Visit Plan/Prescription/
-  Attendance (`spec/workflow.md` §2a) is the one users and administrators actually consider
-  authoritative**, given both are live and reachable today? This is a product/process question, not
-  resolvable from code.
-- **Is SQL Server's `Ole Automation Procedures` option actually enabled on the production instance
-  the `MakeRESTRequest` procedure runs against?** If not, every SAP stock-transfer-order call has been
-  silently failing (no `TRY/CATCH` in the proc, empty `catch{}` in both C# callers) — needs a direct
-  check against the production SQL Server configuration, not just the development instance this pass
-  had access to.
+* Table names
+* Columns
+* Data types
+* Primary keys
+* Foreign keys
+* Unique constraints
+* Default constraints
+* Check constraints
+* Identity columns
+
+### Stored Procedures
+
+* Parameters
+* Result sets
+* Tables used
+* Business logic
+* Validation
+* Insert/update/delete behavior
+* Dependencies
+
+### Views
+
+Identify:
+
+* Source tables
+* Joins
+* Filters
+* Calculations
+* Dependencies
+
+### Functions
+
+### Triggers
+
+### Indexes
+
+### Relationships
+
+Build a database dependency map.
+
+Create/update:
+
+docs/database/
+
+At minimum:
+
+database-overview.md
+table-inventory.md
+stored-procedure-inventory.md
+database-relationships.md
+database-business-rules.md
+
+==================================================
+PHASE 5 — EXISTING ARCHITECTURE REVERSE ENGINEERING
+===================================================
+
+Determine the actual architecture from the source code.
+
+Do NOT assume architecture from README only.
+
+Identify:
+
+* Application architecture
+* Layer structure
+* Dependency flow
+* Request lifecycle
+* Authentication flow
+* Authorization flow
+* Database access pattern
+* Transaction handling
+* Error handling
+* Logging
+* Audit logging
+* API architecture
+* Frontend architecture
+* Validation strategy
+* Configuration strategy
+
+Document actual architecture in:
+
+docs/architecture/current-architecture.md
+
+==================================================
+PHASE 6 — BUSINESS FLOW REVERSE ENGINEERING
+===========================================
+
+Trace actual business flows from:
+
+UI
+↓
+Controller/API
+↓
+Service
+↓
+Repository/Data Access
+↓
+Stored Procedure/SQL
+↓
+Database
+
+For each important workflow document:
+
+* Entry point
+* User action
+* Validation
+* Business rule
+* Database operation
+* Result
+* Error handling
+* Audit logging
+
+Do not document theoretical architecture.
+
+Document what the existing code ACTUALLY does.
+
+==================================================
+PHASE 7 — SECURITY REVERSE ENGINEERING
+======================================
+
+Inspect the existing implementation for:
+
+* Authentication
+* Password handling
+* Session management
+* JWT/cookies
+* Role-based authorization
+* Permission checks
+* Object-level authorization
+* SQL Injection protection
+* Parameterized queries
+* CSRF protection
+* XSS protection
+* Input validation
+* File upload security
+* Secrets/configuration
+* Audit logging
+* Privilege escalation
+* Approval authority
+* Separation of Duties
+
+Document:
+
+docs/security/current-security.md
+
+If something is missing, explicitly identify it.
+
+Do not assume it exists.
+
+==================================================
+PHASE 8 — NEW REQUIREMENT ANALYSIS
+==================================
+
+Now analyze the NEW requirement:
+
+Order Payment Approval System.
+
+Source specification includes:
+
+Invoice Creation
+→ Credit Validation
+→ Go for Approval
+→ AM Approval
+→ Payment Schedule
+→ DZSM Approval
+→ NSM Approval
+→ Final Approval
+→ Invoice Creation Allowed
+
+Read the complete supplied specification.
+
+Do not lose any requirement.
+
+==================================================
+PHASE 9 — IMPACT ANALYSIS
+=========================
+
+Compare the new requirement against the existing system.
+
+Identify exactly:
+
+### Existing modules affected
+
+### Existing pages affected
+
+### Existing controllers affected
+
+### Existing services affected
+
+### Existing repositories affected
+
+### Existing APIs affected
+
+### Existing stored procedures affected
+
+### Existing tables affected
+
+### New tables required
+
+### Existing database columns required
+
+### Existing roles affected
+
+### Existing permissions affected
+
+### Existing reports affected
+
+### Existing audit system affected
+
+### Existing integrations affected
+
+Create:
+
+docs/impact-analysis/order-payment-approval-impact.md
+
+==================================================
+PHASE 10 — REQUIREMENTS.MD
+==========================
+
+Create/update:
+
+requirements.md
+
+IMPORTANT:
+
+requirements.md must represent BOTH:
+
+1. Existing system behavior
+2. New requested behavior
+
+Do not create requirements disconnected from the existing system.
+
+Every requirement must have a unique ID.
+
+Use:
+
+FR-001
+FR-002
+...
+
+BR-001
+BR-002
+...
+
+VR-001
+VR-002
+...
+
+SEC-001
+SEC-002
+...
+
+AUD-001
+AUD-002
+...
+
+NFR-001
+NFR-002
+...
+
+Each requirement must contain:
+
+* ID
+* Name
+* Description
+* Source
+* Existing behavior
+* Required behavior
+* Impact
+* Acceptance criteria
+* Status
+
+==================================================
+PHASE 11 — REQUIREMENT TRACEABILITY
+===================================
+
+Every new requirement must map to:
+
+Requirement
+↓
+UI
+↓
+Controller/API
+↓
+Service
+↓
+Repository
+↓
+Stored Procedure/SQL
+↓
+Database
+↓
+Test
+
+Create:
+
+docs/traceability/order-payment-approval-traceability.md
+
+Nothing should remain untraceable.
+
+==================================================
+PHASE 12 — DATABASE DESIGN
+==========================
+
+Before modifying the database, determine whether the existing database already contains equivalent structures.
+
+DO NOT create duplicate tables unnecessarily.
+
+First search for:
+
+* Existing approval tables
+* Existing workflow tables
+* Existing approval history
+* Existing payment schedule
+* Existing audit tables
+* Existing employee hierarchy
+* Existing role hierarchy
+* Existing order tables
+* Existing customer credit tables
+* Existing invoice validation logic
+
+Reuse existing structures where appropriate.
+
+Only create new structures where required.
+
+For the requested system, evaluate:
+
+tblOrderPaymentApproval
+
+tblOrderPaymentApprovalSchedule
+
+tblOrderPaymentApprovalHistory
+
+But DO NOT blindly create them if equivalent existing tables already exist.
+
+==================================================
+PHASE 13 — EXISTING CODE REUSE
+==============================
+
+Before creating a new:
+
+* Controller
+* Service
+* Repository
+* API
+* Stored Procedure
+* Table
+* JavaScript module
+* Component
+
+search the entire project for existing equivalent functionality.
+
+Prefer:
+
+REUSE
+→ EXTEND
+→ REFACTOR
+
+Only then:
+
+CREATE NEW
+
+Avoid duplicate logic.
+
+==================================================
+PHASE 14 — APPROVAL WORKFLOW
+============================
+
+Implement:
+
+Order
+↓
+Credit Validation
+↓
+Can Create Invoice?
+
+YES
+↓
+Invoice Creation
+
+NO
+↓
+Go for Approval
+↓
+AM
+↓
+DZSM
+↓
+NSM
+↓
+Final Approval
+↓
+Invoice Creation Allowed
+
+Statuses:
+
+0 = Pending AM Approval
+1 = AM Approved
+2 = Pending DZSM Approval
+3 = DZSM Approved
+4 = Pending NSM Approval
+5 = Fully Approved
+6 = Rejected
+7 = Cancelled
+
+Implement strict state transition validation.
+
+Users must not be able to bypass approval levels.
+
+==================================================
+PHASE 15 — PAYMENT SCHEDULE
+===========================
+
+Implement:
+
+* Payment No
+* Payment Date
+* Payment Amount
+* Total Due
+* Scheduled Amount
+* Remaining Amount
+
+Mandatory rules:
+
+1. Payment date >= Today
+2. Payment amount > 0
+3. SUM(PaymentAmount) = TotalDueAmount
+4. Duplicate payment date prohibited
+5. Payment dates ascending
+6. Final NSM approval locks schedule
+
+All validations must be enforced server-side.
+
+Client-side validation alone is NOT acceptable.
+
+==================================================
+PHASE 16 — AUDIT
+================
+
+Every approval action must be auditable.
+
+Capture:
+
+* User
+* Role
+* Action
+* Date/time
+* From Status
+* To Status
+* Remarks
+* Payment Plan Version
+* Old value
+* New value where applicable
+
+Audit records must not be silently overwritten.
+
+==================================================
+PHASE 17 — AUTHORIZATION
+========================
+
+Implement strict role-level authorization.
+
+AM:
+
+* AM approval only
+
+DZSM:
+
+* DZSM approval only
+
+NSM:
+
+* NSM approval only
+
+No role can bypass another approval level.
+
+Do not trust UI visibility as authorization.
+
+Authorization must be enforced server-side.
+
+==================================================
+PHASE 18 — UI
+=============
+
+Modify the EXISTING Invoice Creation page instead of creating a duplicate page.
+
+Required behavior:
+
+Normal Order:
+
+[Checkbox Enabled]
+[Go To Invoice >>]
+
+Credit Blocked:
+
+[Checkbox Disabled]
+[Go for Approval]
+
+Approval Pending:
+
+[Pending AM Approval]
+
+AM Approved:
+
+[Pending DZSM Approval]
+
+DZSM Approved:
+
+[Pending NSM Approval]
+
+Final Approved:
+
+[Checkbox Enabled]
+[Go To Invoice >>]
+
+Use the existing project's UI conventions, components, CSS framework and JavaScript patterns.
+
+Do NOT introduce a new frontend framework unless the existing project requires it.
+
+==================================================
+PHASE 19 — DEVELOPMENT PLAN
+===========================
+
+Before coding create:
+
+docs/implementation/order-payment-approval-plan.md
+
+Include:
+
+1. Files to modify
+2. Files to create
+3. Database changes
+4. Stored procedure changes
+5. API changes
+6. UI changes
+7. Security changes
+8. Audit changes
+9. Test changes
+10. Deployment considerations
+11. Rollback plan
+
+==================================================
+PHASE 20 — IMPLEMENTATION
+=========================
+
+ONLY AFTER ALL PREVIOUS PHASES ARE COMPLETE:
+
+Start development.
+
+Development rules:
+
+* Follow existing coding standards.
+* Follow existing architecture.
+* Reuse existing components.
+* Reuse existing database patterns.
+* Reuse existing authentication/authorization.
+* Reuse existing audit mechanism.
+* Do not duplicate functionality.
+* Do not break existing behavior.
+* Do not change unrelated modules.
+* Do not perform destructive database changes without explicit justification.
+* Use transactions where multiple related database operations must succeed/fail together.
+* Handle concurrency properly.
+* Validate all important business rules server-side.
+* Preserve backward compatibility where possible.
+
+==================================================
+PHASE 21 — TESTING
+==================
+
+After implementation, test:
+
+### Functional
+
+* Normal invoice creation
+* Credit blocked order
+* Approval request
+* Duplicate request
+* AM approval
+* AM rejection
+* Payment schedule
+* Payment validation
+* DZSM approval
+* DZSM rejection
+* NSM approval
+* NSM rejection
+* Final approval
+* Invoice creation after final approval
+* Re-submission
+
+### Security
+
+* Unauthorized AM approval
+* Unauthorized DZSM approval
+* Unauthorized NSM approval
+* Approval level bypass
+* Direct API manipulation
+* IDOR
+* SQL Injection
+* XSS
+* CSRF where applicable
+* Privilege escalation
+
+### Data Integrity
+
+* Concurrent approval
+* Duplicate approval
+* Payment total mismatch
+* Duplicate payment date
+* Invalid status transition
+* Finalized schedule modification
+
+==================================================
+PHASE 22 — REGRESSION TEST
+==========================
+
+IMPORTANT:
+
+Existing functionality must continue working.
+
+Run regression checks on every affected module.
+
+Document:
+
+* Existing behavior
+* New behavior
+* Regression result
+* Issues found
+* Fix applied
+
+==================================================
+PHASE 23 — FINAL REVIEW
+=======================
+
+Before declaring completion verify:
+
+[ ] Complete project read
+[ ] Complete docs read
+[ ] Complete specs read
+[ ] Complete database read
+[ ] Existing architecture understood
+[ ] Existing business flow understood
+[ ] Security reviewed
+[ ] Existing functionality reused
+[ ] Impact analysis completed
+[ ] requirements.md updated
+[ ] Database impact documented
+[ ] Approval workflow implemented
+[ ] Payment schedule implemented
+[ ] AM implemented
+[ ] DZSM implemented
+[ ] NSM implemented
+[ ] Rejection implemented
+[ ] Audit implemented
+[ ] Authorization implemented
+[ ] UI implemented
+[ ] Tests completed
+[ ] Regression completed
+[ ] No unrelated changes
+[ ] No duplicate functionality
+[ ] No unsupported assumptions
+[ ] All TBD items documented
+
+==================================================
+CRITICAL STOP RULE
+==================
+
+If you discover ambiguity:
+
+DO NOT silently assume.
+
+Add it to:
+
+docs/OPEN-QUESTIONS.md
+
+Continue with other work only if the ambiguity does not block implementation.
+
+If the ambiguity affects architecture, database design, security, or business-critical workflow, STOP and ask for clarification before making that decision.
+
+==================================================
+FINAL OUTPUT
+============
+
+After development provide:
+
+1. What you discovered
+2. Existing architecture summary
+3. Database impact
+4. Files changed
+5. Files created
+6. Stored procedures changed/created
+7. Tables changed/created
+8. APIs changed/created
+9. UI changes
+10. Security changes
+11. Audit changes
+12. Tests executed
+13. Regression result
+14. Remaining issues
+15. Open questions
+16. Deployment/rollback instructions
+
+DO NOT claim completion unless the implementation and tests have actually been performed.

@@ -142,6 +142,7 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
     }
     OrderInfoBLL_daaw aOrderInfoBll=new OrderInfoBLL_daaw();
     InvoiceBLL_daaw aInvoiceBll = new InvoiceBLL_daaw();
+    private OrderPaymentApprovalService _paymentApprovalService = new OrderPaymentApprovalService();
     static CommonDataLoad_daaw _dataLoad = new CommonDataLoad_daaw();
     private static BonusCampaignNewDAL_daaw _BonusCampaignNewDAL = new BonusCampaignNewDAL_daaw();
 
@@ -191,29 +192,48 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
                     isCreditExceeded = (creditExceededVal == "1" || creditExceededVal == "true");
                 }
 
-                if (isMaxExceeded || isCreditExceeded)
+                // Order Payment Approval: -1 (or a missing column) means no live approval
+                // request exists for this order. Rejected/cancelled requests are deactivated
+                // by the proc, so they also surface as -1 and the order can be re-submitted.
+                int approvalStatus = OrderPaymentApprovalStatus.NoRequest;
+                if (drv.DataView.Table.Columns.Contains("PaymentApprovalStatus") && drv["PaymentApprovalStatus"] != DBNull.Value)
+                {
+                    Int32.TryParse(Convert.ToString(drv["PaymentApprovalStatus"]), out approvalStatus);
+                }
+
+                if ((isMaxExceeded || isCreditExceeded) && approvalStatus != OrderPaymentApprovalStatus.FullyApproved)
                 {
                     System.Web.UI.WebControls.CheckBox chkSelect = (System.Web.UI.WebControls.CheckBox)e.Row.FindControl("chkSelect");
                     System.Web.UI.WebControls.Button gotoinvoiceButton = (System.Web.UI.WebControls.Button)e.Row.FindControl("gotoinvoiceButton");
+                    System.Web.UI.WebControls.Button btnGoForApproval = (System.Web.UI.WebControls.Button)e.Row.FindControl("btnGoForApproval");
+                    System.Web.UI.WebControls.Label lblApprovalStatus = (System.Web.UI.WebControls.Label)e.Row.FindControl("lblApprovalStatus");
                     System.Web.UI.WebControls.Label lblWarning = (System.Web.UI.WebControls.Label)e.Row.FindControl("lblWarning");
 
                     if (chkSelect != null) chkSelect.Enabled = false;
                     if (gotoinvoiceButton != null)
                     {
+                        // Kept Enabled=false as well as hidden: SyncMainGridCheckboxes() derives
+                        // the checkbox state from gotoinvoiceButton.Enabled.
                         gotoinvoiceButton.Enabled = false;
+                        gotoinvoiceButton.Visible = false;
                         gotoinvoiceButton.CssClass += " disabled";
                     }
 
-                    if (lblWarning != null)
+                    if (approvalStatus == OrderPaymentApprovalStatus.NoRequest)
                     {
-                        if (isMaxExceeded)
+                        if (btnGoForApproval != null) btnGoForApproval.Visible = true;
+
+                        if (lblWarning != null)
                         {
-                            lblWarning.Text = "Customer already has maximum 2 outstanding invoices.";
+                            lblWarning.Text = isMaxExceeded
+                                ? "Customer already has maximum 2 outstanding invoices."
+                                : "Credit period exceeded.";
                         }
-                        else if (isCreditExceeded)
-                        {
-                            lblWarning.Text = "Credit period exceeded.";
-                        }
+                    }
+                    else if (lblApprovalStatus != null)
+                    {
+                        lblApprovalStatus.Visible = true;
+                        lblApprovalStatus.Text = OrderPaymentApprovalStatus.GetName(approvalStatus);
                     }
                 }
             }
@@ -234,6 +254,13 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
                 invoiceCreationModeRadioButtonList.SelectedValue = SearchModeRouteWise;
                 ApplyInvoiceCreationMode();
                 DropDownlist();
+
+                // Set when InvoiceCreationForCustomerByOrder.aspx bounced a blocked order back.
+                if (Session["PaymentApprovalBlockReason"] != null)
+                {
+                    ShowFailedAlert(Session["PaymentApprovalBlockReason"].ToString());
+                    Session["PaymentApprovalBlockReason"] = null;
+                }
             }
         }
         catch(Exception ex)
@@ -589,6 +616,20 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
                     else if (firstRouteId != hfDistributionRouteId.Value)
                     {
                         ShowMessageBox("Selected orders must have the same Distribution Route  to generate an invoice!");
+                        return false;
+                    }
+                }
+
+                // Bulk invoice generation runs off ViewState-held selections, so this is the
+                // one place every selected order must pass the credit / approval gate before
+                // invoiceButton_Click can turn any of them into an invoice.
+                int gateOrderId;
+                if (Int32.TryParse(orderId, out gateOrderId))
+                {
+                    InvoiceCreationGate gate = _paymentApprovalService.CanCreateInvoice(gateOrderId);
+                    if (!gate.CanCreate)
+                    {
+                        ShowFailedAlert("Order " + orderId + ": " + gate.Reason);
                         return false;
                     }
                 }
@@ -1116,13 +1157,69 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
         //}
         //else
         {
-            Session["OrderId"] = orderGridView.DataKeys[rowindex]["OrderId"].ToString();
+            string orderIdValue = orderGridView.DataKeys[rowindex]["OrderId"].ToString();
+
+            // Re-check server-side. The row's button state is a hint for the user; this is
+            // the control. A replayed or hand-built postback lands here too.
+            int checkedOrderId;
+            if (!Int32.TryParse(orderIdValue, out checkedOrderId))
+            {
+                ShowFailedAlert("Invalid order.");
+                return;
+            }
+
+            InvoiceCreationGate gate = _paymentApprovalService.CanCreateInvoice(checkedOrderId);
+            if (!gate.CanCreate)
+            {
+                ShowFailedAlert(gate.Reason);
+                return;
+            }
+
+            Session["OrderId"] = orderIdValue;
             Session["RootNameId"] = selectedRouteId;
             Response.Redirect("InvoiceCreationForCustomerByOrder.aspx");
         }
 
-       
 
+
+    }
+
+    /// <summary>
+    /// "Go for Approval" - raises the AM -> DZSM -> NSM payment approval request for a
+    /// credit-blocked order. Every rule (order really is blocked, no duplicate live
+    /// request, approver chain complete) is enforced by sp_OrderPaymentApproval_Request.
+    /// </summary>
+    protected void btnGoForApproval_Click(object sender, EventArgs e)
+    {
+        Button button = (Button)sender;
+        GridViewRow currentRow = (GridViewRow)button.Parent.Parent;
+
+        int orderId;
+        if (!Int32.TryParse(orderGridView.DataKeys[currentRow.RowIndex]["OrderId"].ToString(), out orderId))
+        {
+            ShowFailedAlert("Invalid order.");
+            return;
+        }
+
+        int userId;
+        if (Session["UserId"] == null || !Int32.TryParse(Session["UserId"].ToString(), out userId))
+        {
+            Response.Redirect("../Login.aspx");
+            return;
+        }
+
+        int newApprovalId;
+        string result = _paymentApprovalService.Request(orderId, userId, null, out newApprovalId);
+
+        if (result == OrderPaymentApprovalService.Success)
+        {
+            ShowSuccessAlert("Sent for approval. Pending AM Approval.");
+            GridView();
+        }
+        else
+        {
+            ShowFailedAlert(result);
+        }
     }
     protected void GeneratetoinvoiceButton_Click(object sender, EventArgs e)
     {

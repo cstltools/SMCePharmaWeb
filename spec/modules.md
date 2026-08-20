@@ -290,6 +290,7 @@ into the rendered `<ul>`); this listing is the full unfiltered tree, not what an
 - Doctor Visit Plan Approval — `../Approval_UI/DCPCVPApproval.aspx`
 - Prescription  Approval List — `../Approval_UI/RXApprovalList.aspx`
 - Order Approval List — `../Approval_UI/OrderApproveList.aspx`
+- Order Payment Approval — `../Approval_UI/OrderPaymentApprovalList.aspx` (added 2026-08-20, `SL = 383`; AM/DZSM/NSM payment-approval worklist for credit-blocked orders — see `spec/workflow.md` §4a)
 - DCR Approval List — `../Approval_UI/DCRApprovalList.aspx`
 - Leave Approval List — `../Approval_UI/LeaveApproveList.aspx`
 - Market Structure Approval List — `../TransferUI/MarketStructure_TransferApprove.aspx`
