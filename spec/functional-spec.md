@@ -20,6 +20,15 @@ is opt-in and applied on only a minority of the application's ~700 pages. See
 [`business-rules.md`](business-rules.md) §0.1 and [`docs/security.md`](../docs/security.md) for the
 distinction and full detail.
 
+The per-role editor (`UserPermission/UserPermission.aspx`) is a save-replaces-all screen: submitting
+deletes every `tblMenuRole` row for the selected Role + Type and re-inserts only the rows the page
+posted, so anything not submitted is silently revoked. As of 2026-08-20 the page shows a live change
+summary above the grid — permissions already assigned when the role was loaded, how many the admin
+has newly ticked, how many they have unticked, and the resulting total — so the scope of that
+replace is visible before Submit. Counts track the master **Permission** checkbox only. Menu rows are
+grouped under a parent-name header row, and Submit/Reset sit below the grid. See
+[`docs/UserPermission_MenuPermissionCounts_UI.md`](../docs/UserPermission_MenuPermissionCounts_UI.md).
+
 ## 3. Master data management
 
 Customers, doctors, products, employees, and the full geographic/organizational hierarchy (Group → Region → Area → Territory → Sub-Territory → Market, and separately Division → District → Thana) are each managed through a consistent list/entry pattern across dozens of `*_UI` folders — see [`modules.md`](modules.md). Most support a "name already exists" uniqueness rule (see [`business-rules.md`](business-rules.md)) before allowing a save.
