@@ -1,4 +1,20 @@
-﻿-- =============================================
+﻿-- Drop + recreate sp_ProductWiseBusinessSummaryMISReportByParam.
+--
+-- Fix: all four branches (SC / Zone / Area / Territory) never joined the 2nd return
+-- (tblInvoiceDetailReturn / SndReturnPaymentDate), so Gross Sales Amt on
+-- SInventory_UI/TotalSummaryNew.aspx was overstated -- and Gross Return Amt understated --
+-- by the whole 2nd-return amount vs Net Sales on SInventory_UI/RptBussinessSummary_Loading.aspx
+-- (sp_RPT_MIS_BusinessSummary, which does subtract it via its tbl2Rtn join).
+-- Measured on 01-Jul-2025..30-Jun-2026 DC wise: gap was exactly 1,026,327.99 (106 invoices).
+--
+-- Source of truth for the proc body is spec\database\procs\sp_ProductWiseBusinessSummaryMISReportByParam.sql
+-- - keep both in sync. Run against the SolutionConnectionStringSSIDB target (see runsql.ps1).
+
+IF OBJECT_ID('dbo.sp_ProductWiseBusinessSummaryMISReportByParam', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_ProductWiseBusinessSummaryMISReportByParam;
+GO
+
+-- =============================================
 -- =============================================
 CREATE PROCEDURE [dbo].[sp_ProductWiseBusinessSummaryMISReportByParam] 
 
@@ -1318,3 +1334,4 @@ END
 END
 
 --select * from tblproduct
+GO
