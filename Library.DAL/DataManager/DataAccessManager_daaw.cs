@@ -320,12 +320,17 @@ private static int SafeScalarToInt(object scalar)
                 using (var reader = (System.Data.Common.DbDataReader)sqlConnection.ExecuteReader(
                     storeProcedure, ToDynamicParameters(parameters), sqlTransaction, timeout, CommandType.StoredProcedure))
                 {
-                    do
+                    // DataTable.Load consumes one result set AND advances the reader to the
+                    // next one by itself. The previous loop called NextResult() on top of
+                    // that, so every second result set was skipped: a proc returning 3 sets
+                    // yielded tables [1st, 3rd], and a proc returning 2 yielded only the 1st.
+                    while (!reader.IsClosed)
                     {
                         var dt = new DataTable();
                         dt.Load(reader);
+                        if (dt.Columns.Count == 0) break;   // reader exhausted
                         ds.Tables.Add(dt);
-                    } while (!reader.IsClosed && reader.NextResult());
+                    }
                 }
                 return ds;
             }
