@@ -8638,6 +8638,13 @@ Row count (live, at extraction time): **0**
 
 Row count (live, at extraction time): **785343**
 
+> **Snapshot columns.** The market-structure columns on this table
+> (`GroupId`, `RegionId`, `AreaId`, `TerritoryId`, `SubTerritoryId`, `MarketId`, plus the parallel
+> `*Code_Ord` / `*Name_Ord` set) record the hierarchy **as it stood when the order was created** and
+> are never back-filled when the structure is reorganized. Do not join or filter them against the
+> current `tblGroupInfo` / `tblRegion` / `tblArea` / `tblTerritory` masters expecting agreement —
+> see business rule **BR-SI-18** in [`business-rules.md`](business-rules.md).
+
 | Column | Type | Nullable | Default | Key |
 |---|---|---|---|---|
 | OrderId | int | NOT NULL |  | PK, IDENTITY |
