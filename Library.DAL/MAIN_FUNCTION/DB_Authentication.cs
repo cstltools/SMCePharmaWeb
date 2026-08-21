@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,10 +17,14 @@ namespace Library.DAL.MAIN_FUNCTION
         //public static string UserId = @"ePharmadb_Webuser";
         //public static string Password = @"Web_useR!#@**10##";
 
-
         public static string DataSource = @"127.0.0.1,57694";
         public static string UserId = @"sa";
         public static string Password = @"sa1234";
+
+
+       // public static string DataSource = @"127.0.0.1,57694";
+      //  public static string UserId = @"sa";
+      //  public static string Password = @"sa1234";
 
 
     }

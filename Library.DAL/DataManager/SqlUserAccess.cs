@@ -1,4 +1,4 @@
-namespace Library.DAL.DataManager
+﻿namespace Library.DAL.DataManager
 {
     public class SqlUserAccess
     {
@@ -52,10 +52,14 @@ namespace Library.DAL.DataManager
         //public static string UserName = @"sa";
         //public static string PassWord = @"sa1234";
 
+        //public static string DataSource = @"127.0.0.1,57694";
+        //public static string UserName = @"sa";
+        //public static string PassWord = @"sa1234";
+
+
         //public static string DataSource = @"192.168.35.174\MSSQLSERVER2019";
         //public static string UserName = @"ePharmadb_Webuser";
         //public static string PassWord = @"Web_useR!#@**10##";
-
 
         public static string DataSource = @"127.0.0.1,57694";
         public static string UserName = @"sa";
