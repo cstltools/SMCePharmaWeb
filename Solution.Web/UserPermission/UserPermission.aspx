@@ -102,30 +102,13 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                            <div class="col-2">&nbsp;</div>
-                            <div class="col-8">
-
-                                <div class="form-group row">
-                                    <label for="exampleInputUsername2" class="col-sm-3 col-form-label"></label>
-                                    <div class="col-sm-9">
-
-                                          <button type="button" id="btnSave" class="btn btnMyDesignSearch   btn-sm"   onclick="Save()">
-                                            <i class="fa fa-check"></i>Submit
-                                        </button>
-                                        <button type="button" class="btn btnMyDesignReset   btn-sm"  onclick="ResetLink()"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp; Reset </button>
-                                       
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="col-2">&nbsp;</div>
-                        </div>
                   
                         <br />
                         <div class="row">
                             <div class="col-1">&nbsp;</div>
                             <div class="col-10">
+
+                                <div id="permCounts" class="mb-2"></div>
 
                                 <table id="dtTble" class="table table-striped table-bordered table-hover">
                                     <thead>
@@ -148,6 +131,26 @@
 
                             </div>
                             
+                        </div>
+
+            <div class="row">
+                            <div class="col-2">&nbsp;</div>
+                            <div class="col-8">
+
+                                <div class="form-group row">
+                                    <label for="exampleInputUsername2" class="col-sm-3 col-form-label"></label>
+                                    <div class="col-sm-9">
+
+                                          <button type="button" id="btnSave" class="btn btnMyDesignSearch   btn-sm"   onclick="Save()">
+                                            <i class="fa fa-check"></i>Submit
+                                        </button>
+                                        <button type="button" class="btn btnMyDesignReset   btn-sm"  onclick="ResetLink()"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp; Reset </button>
+                                       
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-2">&nbsp;</div>
                         </div>
             
             
@@ -358,6 +361,31 @@
                 $('#edit' + i).prop('checked', false);
             }
             
+        UpdateCounts();
+        }
+
+        var permBaseline = [];
+
+        function SetBaseline() {
+            permBaseline = [];
+            $('#dtTble > tbody > tr.dataRow').each(function (i) {
+                permBaseline[i] = $('#permission' + i).is(":checked");
+            });
+            UpdateCounts();
+        }
+
+        function UpdateCounts() {
+            var before = 0, added = 0, removed = 0;
+            $('#dtTble > tbody > tr.dataRow').each(function (i) {
+                var now = $('#permission' + i).is(":checked");
+                if (permBaseline[i]) { before++; }
+                if (now && !permBaseline[i]) { added++; }
+                if (!now && permBaseline[i]) { removed++; }
+            });
+            $('#permCounts').html("Previously assigned: <b>" + before + "</b>"
+                + " &nbsp;|&nbsp; Newly added: <b class='text-success'>" + added + "</b>"
+                + " &nbsp;|&nbsp; Deselected: <b class='text-danger'>" + removed + "</b>"
+                + " &nbsp;|&nbsp; After save: <b>" + (before + added - removed) + "</b>");
         }
 
         function GetRoleMenuData() {
@@ -399,7 +427,12 @@
                     $('#dtTableBody').html("");
                     for (var i = 0; i < result.length; i++) {
                         var discheck = '';
-                        row += "<tr>";
+
+                        if (i == 0 || result[i].ParentName != result[i - 1].ParentName) {
+                            row += "<tr class='table-secondary'><td></td><td></td><td><b>" + un(result[i].ParentName) + "</b></td><td></td><td></td><td></td><td></td><td></td></tr>";
+                        }
+
+                        row += "<tr class='dataRow'>";
 
                         row += "<td>" + (i + 1) + "<input type='hidden' id='slid" + i + "' value='" + result[i].SL + "'></td>";
 
@@ -408,15 +441,7 @@
                         }
                         row += "<td><input type='checkbox'  id='permission" + i + "' value='" + i + "' " + discheck + " onchange='CheckRowCheck(" + i + ")'></td>";
 
-                        if (i == 0) {
-                            row += "<td>" + un(result[i].ParentName) + "</td>";
-                        } else {
-                            if (result[i].ParentName != result[i - 1].ParentName) {
-                                row += "<td>" + un(result[i].ParentName) + "</td>";
-                            } else {
-                                row += "<td></td>";
-                            }
-                        }
+                        row += "<td></td>";
 
                         row += "<td>" + un(result[i].ManuName) + "</td>";
 
@@ -464,6 +489,7 @@
                     }
 
                     $('#dtTableBody').html(row);
+                    SetBaseline();
                 }, complete: function() {
                     $("#coverScreen").hide();
 
@@ -496,7 +522,12 @@
                     $('#dtTableBody').html("");
                     for (var i = 0; i < result.length; i++) {
                         var discheck = '';
-                        row += "<tr>";
+
+                        if (i == 0 || result[i].ParentName != result[i - 1].ParentName) {
+                            row += "<tr class='table-secondary'><td></td><td></td><td><b>" + un(result[i].ParentName) + "</b></td><td></td><td></td><td></td><td></td><td></td></tr>";
+                        }
+
+                        row += "<tr class='dataRow'>";
 
                         row += "<td>" + (i + 1) + "<input type='hidden' id='slid" + i + "' value='" + result[i].SL + "'></td>";
                     
@@ -505,15 +536,7 @@
                         }
                         row += "<td><input type='checkbox'  id='permission" + i + "' value='" + i + "' " + discheck + " onchange='CheckRowCheck("+i+")'></td>";
 
-                        if (i == 0) {
-                            row += "<td>" + un(result[i].ParentName) + "</td>";
-                        } else {
-                            if (result[i].ParentName != result[i - 1].ParentName) {
-                                row += "<td>" + un (result[i].ParentName) + "</td>";
-                            } else {
-                                row += "<td></td>";
-                            }                         
-                        }
+                        row += "<td></td>";
                         
                         row += "<td>" +  (result[i].ManuName) + "</td>";
                         
@@ -563,6 +586,7 @@
                     }
 
                     $('#dtTableBody').html(row);
+                    SetBaseline();
                 }, complete: function () {
                     $("#coverScreen").hide();
 
@@ -627,7 +651,7 @@
         var typeSelectId = $('#typeSelect').val();
 
 
-        $('#dtTble > tbody > tr').each(function (i) {
+        $('#dtTble > tbody > tr.dataRow').each(function (i) {
             var theObj = {};
             theObj["RoleId"] = $('#roleSelect').val();
             theObj["SL"] = $('#slid'+i).val();
