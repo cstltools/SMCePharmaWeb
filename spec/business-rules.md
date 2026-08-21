@@ -249,7 +249,7 @@ reader after the final result set, so `!reader.IsClosed` alone would spin.
   (no lock, no unique constraint) was independently found, but **not fixed**, in the
   SAP stock-receive pipeline's `sp_SAP_StockInTransfer` — see the new SInventory finding below.
 
-### Stock Receive by Chalan (SAP → Requisition sync) — two confirmed, unfixed findings (2026-08-11)
+### Stock Receive by Chalan (SAP → Requisition sync) — three confirmed findings (2026-08-11), fixes scripted but not applied
 Investigated and written up in full at
 [`docs/ReceiveQty_RootCause_Analysis.md`](../docs/ReceiveQty_RootCause_Analysis.md); **not fixed**
 in that pass (investigation only, by explicit instruction) — flagged here as open findings, not
@@ -283,6 +283,41 @@ Chalan/DC), fed by the SAP-integration pipeline (`SAP_Integration/SAP_StockRecei
   instance of the same pattern. See `docs/ReceiveQty_RootCause_Analysis.md` §14-16 (root cause #2,
   CONFIRMED as to the duplicate rows/consequence; the exact triggering mechanism is unconfirmed —
   no execution/audit logs were available).
+- **`sp_SAP_StockInTransfer`'s `ProductCode`+`BatchNo` join mis-assigns quantities (HIGH, CONFIRMED
+  — "Problem 3")**: the CTE that pairs `tblWHStockInDetail` rows with `tblRequsitionChild` rows
+  joined on `ProductCode` + `BatchNo` only. When one SAP challan carries **more than one detail line
+  for the same product+batch**, that join is a cross product and the `ROW_NUMBER()` tie-break picks
+  an arbitrary partner, so a `ReqChildId` can be stamped with a sibling line's quantity — either
+  swapped between the two lines (net zero, per-batch wrong) or the same value duplicated onto both
+  (net over-receipt into `tblDCStore`). Confirmed live: challan `4500039476`, product `MNS07` batch
+  `004/26` — SAP posted `2400 + 1680 = 4080`, `tblDCStore` received `2400 + 2400 = 4800`, i.e. 720
+  units of phantom stock at Kushtia DC. `tblRequsitionChild.ReqQty` is **not** affected
+  (`sp_SAP_STODetails` writes it 1:1 from a cursor over `tblWHStockInDetail`, one row at a time), so
+  it is the trustworthy value to detect and repair from. See
+  [`docs/ReceiveQty_Permanent_Fix_Plan.md`](../docs/ReceiveQty_Permanent_Fix_Plan.md) §3, §8.
+- **Fix artefacts (written, reviewed, NOT applied to any database by any build step)** — three
+  scripts at the repo root, in the order they are meant to be run:
+  - `deploy_receiveqty_fix_minimal.sql` — Problem 3 only. Adds nullable
+    `tblRequsitionChild.WHStockInDetailID` (the real 1:1 key), has `sp_SAP_STODetails` populate it,
+    and has `sp_SAP_StockInTransfer` prefer it in the join with a fallback to the legacy
+    `ProductCode`+`BatchNo` match for pre-fix rows — so nothing already in flight changes behaviour.
+    The column is deliberately **not back-filled**: for already-ambiguous historical rows the correct
+    pairing cannot be reconstructed after the fact (Fix Plan §10).
+  - `deploy_receiveqty_fix.sql` — the full set: the above plus Problem 1's per-`@ReqId`
+    `sp_getapplock`/`BEGIN TRAN` hardening of `sp_SAP_StockInTransfer`, and Problem 2's
+    duplicate-shipment fingerprint check in `sp_SAP_WhStockInMaster` (logged to a new
+    `tblSAP_SuspectedDuplicateShipment` table). The Problem 2 check **blocks** challans it suspects
+    are re-posts, which can hold up a legitimate delivery — a real behaviour change that needs ops
+    sign-off, which is why the minimal script exists as the low-risk alternative.
+  - `fix_stockintransfar_qty_mismatch.sql` — repairs rows already written wrong (the deploy scripts
+    only stop *new* corruption). Report-only by default (`@Apply = 0`); the write path additionally
+    demands one specific `@ChallanNo`. Detection rule is `tblStockInTransfar.Quantity <>
+    tblRequsitionChild.ReqQty` **scoped to `tblRequisition.EntryBy = 'Auto Posting'`** — for manual
+    `CLN-*` requisitions `ReqQty` is the quantity *requested* and `Quantity` the quantity *issued*, so
+    a difference there is normal business data, not this bug. On the dev copy the unscoped rule
+    matched 4,864 rows across 1,635 requisitions but the SAP-posted subset was only 82 rows / 31
+    requisitions — do not widen that filter.
+
 - See also `spec/workflow.md` §3.4 for the full request→sync→receive sequencing this feeds into.
 
 ### Customer Master Entry / Edit
