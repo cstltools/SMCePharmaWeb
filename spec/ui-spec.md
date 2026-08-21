@@ -33,6 +33,15 @@ A page not referencing any of the three gets **no** built-in login redirect — 
 
 - **jQuery-rendered grid (no `GridView`)**: a minority of admin screens build their `<tbody>` as an HTML string in JS from a `PageMethod` JSON result rather than data-binding a `GridView` — `UserPermission/UserPermission.aspx` is the reference example. These grids assign element IDs by **data index** (`permission0`, `slid0`, `add0`, ...) and the save routine re-reads them by the `each()` **loop index**, so the two only agree while every `<tr>` in the `<tbody>` is a data row. `UserPermission.aspx` interleaves parent-name header rows, so its data rows are tagged `class='dataRow'` and all three read loops select `$('#dtTble > tbody > tr.dataRow')` — any further non-data row added to such a grid must stay outside that class or the wrong records get saved (2026-08-20).
 
+- **`.ascx` user controls are named `<Folder>_<File>`**: a Website project compiles every control into one
+  assembly with no namespaces, so the `Inherits` class name must be globally unique — the folder-prefixed
+  convention (`Approval_UI_IVMarketStructureInvoSearchApp`, `MasterSetup_UI_IVMarketStructureInvoSearch`)
+  is what keeps it so. Three near-copies of the market-structure invoice search control exist
+  (`SInventory_UI/IVMarketStructureInvoSearch.ascx`, `MasterSetup_UI/IVMarketStructureInvoSearch.ascx`,
+  `SInventory_UI/IVMarketStructureInvoSearchReport.ascx`); two of them had been copied without renaming the
+  class and collided on `SInventory_UI_IVMarketStructureInvoSearch` until 2026-08-21. When copying a control
+  into another folder, rename the class in **both** the `.ascx` `Inherits=` and the `.ascx.cs`.
+
 ## Conditional row actions — Invoice Creation (added 2026-08-20)
 
 The only place in the app where a grid row's primary action is swapped for a different control based

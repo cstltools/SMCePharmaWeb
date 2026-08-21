@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="IVMarketStructureInvoSearch.ascx.cs" Inherits="SInventory_UI_IVMarketStructureInvoSearch" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="IVMarketStructureInvoSearch.ascx.cs" Inherits="MasterSetup_UI_IVMarketStructureInvoSearch" %>
 
 
 <div style="padding-top:6px;"></div>

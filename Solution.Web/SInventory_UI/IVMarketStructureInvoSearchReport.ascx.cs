@@ -7,7 +7,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-public partial class SInventory_UI_IVMarketStructureInvoSearch : System.Web.UI.UserControl
+public partial class SInventory_UI_IVMarketStructureInvoSearchReport : System.Web.UI.UserControl
 {
 
     private CommonDataLoad _dataLoad = new CommonDataLoad();
