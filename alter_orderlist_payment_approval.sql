@@ -1,12 +1,13 @@
 ﻿/* =====================================================================================
    Order Payment Approval - ALTER of the two procs feeding
    Solution.Web/SInventory_UI/InvoiceCreationByOrder_daaw.aspx.
-   Added 2026-08-20. Run AFTER deploy_order_payment_approval.sql.
+   Rebuilt 2026-08-24 on the approval framework. Run AFTER deploy_order_payment_approval.sql.
 
-   Only change vs the previous version of each proc:
-     + 2 output columns : PaymentApprovalStatus, PaymentApprovalId
-     + 1 LEFT JOIN      : dbo.tblOrderPaymentApproval PA (IsActive = 1)
-   No existing column, filter, join or row count is touched.
+   Only change vs the stock version of each proc:
+     + 2 output columns : PaymentApprovalStatus, PaymentApprovalWaitingRole
+     + 1 OUTER APPLY    : current row of dbo.tblOrderPaymentApprovalLog (TOP 1)
+   No existing column, filter, join or row count is touched. The OUTER APPLY returns at
+   most one row per order, so the row count is provably unchanged.
    ===================================================================================== */
 
 ALTER PROCEDURE [dbo].[sp_LoadOrderListForOrderCreationbyTerri] 
@@ -62,9 +63,9 @@ SELECT
         ELSE 0
     END AS IsCreditPeriodExceeded,
 
-    -- Order Payment Approval (added 2026-08-20) -- see deploy_order_payment_approval.sql
-    ISNULL(PA.ApprovalStatus, -1) AS PaymentApprovalStatus,
-    PA.OrderPaymentApprovalId     AS PaymentApprovalId
+    -- Order Payment Approval (rebuilt 2026-08-24) -- see deploy_order_payment_approval.sql
+    PA.Status         AS PaymentApprovalStatus,
+    PA.WaitingForRole AS PaymentApprovalWaitingRole
 
 FROM dbo.tblOrder WITH (NOLOCK) 
 
@@ -163,9 +164,18 @@ FROM dbo.tblOrder WITH (NOLOCK)
         GROUP BY I.CustomerMasterId
     ) ValidationInfo ON ValidationInfo.CustomerMasterId = tblOrder.CustomerMasterId
 
-    -- Order Payment Approval (added 2026-08-20): live request for this order, if any.
-    LEFT JOIN dbo.tblOrderPaymentApproval PA WITH (NOLOCK)
-        ON PA.OrderId = tblOrder.OrderId AND PA.IsActive = 1
+    -- Order Payment Approval (rebuilt 2026-08-24): current approval state of this order.
+    -- OUTER APPLY ... TOP 1, so it can never multiply rows: the row count of this proc is
+    -- identical with and without this block.
+    OUTER APPLY (
+        SELECT TOP 1
+            L.Status,
+            rt.DisplayName AS WaitingForRole
+        FROM dbo.tblOrderPaymentApprovalLog L WITH (NOLOCK)
+        LEFT JOIN dbo.tblRoleType rt WITH (NOLOCK) ON rt.RoleTypeId = L.ToRoleTypeId
+        WHERE L.TableId = tblOrder.OrderId
+        ORDER BY L.Round DESC, L.Step DESC
+    ) PA
 
 WHERE 
     IsInvoice = 0 
@@ -237,9 +247,9 @@ SELECT
         ELSE 0
     END AS IsCreditPeriodExceeded,
 
-    -- Order Payment Approval (added 2026-08-20) -- see deploy_order_payment_approval.sql
-    ISNULL(PA.ApprovalStatus, -1) AS PaymentApprovalStatus,
-    PA.OrderPaymentApprovalId     AS PaymentApprovalId
+    -- Order Payment Approval (rebuilt 2026-08-24) -- see deploy_order_payment_approval.sql
+    PA.Status         AS PaymentApprovalStatus,
+    PA.WaitingForRole AS PaymentApprovalWaitingRole
 
 FROM dbo.tblOrder WITH (NOLOCK) 
 
@@ -338,9 +348,18 @@ FROM dbo.tblOrder WITH (NOLOCK)
         GROUP BY I.CustomerMasterId
     ) ValidationInfo ON ValidationInfo.CustomerMasterId = tblOrder.CustomerMasterId
 
-    -- Order Payment Approval (added 2026-08-20): live request for this order, if any.
-    LEFT JOIN dbo.tblOrderPaymentApproval PA WITH (NOLOCK)
-        ON PA.OrderId = tblOrder.OrderId AND PA.IsActive = 1
+    -- Order Payment Approval (rebuilt 2026-08-24): current approval state of this order.
+    -- OUTER APPLY ... TOP 1, so it can never multiply rows: the row count of this proc is
+    -- identical with and without this block.
+    OUTER APPLY (
+        SELECT TOP 1
+            L.Status,
+            rt.DisplayName AS WaitingForRole
+        FROM dbo.tblOrderPaymentApprovalLog L WITH (NOLOCK)
+        LEFT JOIN dbo.tblRoleType rt WITH (NOLOCK) ON rt.RoleTypeId = L.ToRoleTypeId
+        WHERE L.TableId = tblOrder.OrderId
+        ORDER BY L.Round DESC, L.Step DESC
+    ) PA
 
 WHERE 
 

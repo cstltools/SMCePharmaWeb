@@ -192,16 +192,24 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
                     isCreditExceeded = (creditExceededVal == "1" || creditExceededVal == "true");
                 }
 
-                // Order Payment Approval: -1 (or a missing column) means no live approval
-                // request exists for this order. Rejected/cancelled requests are deactivated
-                // by the proc, so they also surface as -1 and the order can be re-submitted.
-                int approvalStatus = OrderPaymentApprovalStatus.NoRequest;
+                // Order Payment Approval: NULL/missing means this order has never been sent
+                // for approval. A Rejected round is closed, so it also lets the order be
+                // sent again. See deploy_order_payment_approval.sql for the vocabulary.
+                string approvalStatus = null;
+                string approvalWaitingRole = null;
                 if (drv.DataView.Table.Columns.Contains("PaymentApprovalStatus") && drv["PaymentApprovalStatus"] != DBNull.Value)
                 {
-                    Int32.TryParse(Convert.ToString(drv["PaymentApprovalStatus"]), out approvalStatus);
+                    approvalStatus = Convert.ToString(drv["PaymentApprovalStatus"]);
+                }
+                if (drv.DataView.Table.Columns.Contains("PaymentApprovalWaitingRole") && drv["PaymentApprovalWaitingRole"] != DBNull.Value)
+                {
+                    approvalWaitingRole = Convert.ToString(drv["PaymentApprovalWaitingRole"]);
                 }
 
-                if ((isMaxExceeded || isCreditExceeded) && approvalStatus != OrderPaymentApprovalStatus.FullyApproved)
+                bool isApproved = String.Equals(approvalStatus, OrderPaymentApprovalStatus.Accepted,
+                                                StringComparison.OrdinalIgnoreCase);
+
+                if ((isMaxExceeded || isCreditExceeded) && !isApproved)
                 {
                     System.Web.UI.WebControls.CheckBox chkSelect = (System.Web.UI.WebControls.CheckBox)e.Row.FindControl("chkSelect");
                     System.Web.UI.WebControls.Button gotoinvoiceButton = (System.Web.UI.WebControls.Button)e.Row.FindControl("gotoinvoiceButton");
@@ -219,7 +227,11 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
                         gotoinvoiceButton.CssClass += " disabled";
                     }
 
-                    if (approvalStatus == OrderPaymentApprovalStatus.NoRequest)
+                    bool canSendForApproval = String.IsNullOrEmpty(approvalStatus)
+                        || String.Equals(approvalStatus, OrderPaymentApprovalStatus.Rejected,
+                                         StringComparison.OrdinalIgnoreCase);
+
+                    if (canSendForApproval)
                     {
                         if (btnGoForApproval != null) btnGoForApproval.Visible = true;
 
@@ -230,10 +242,11 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
                                 : "Credit period exceeded.";
                         }
                     }
-                    else if (lblApprovalStatus != null)
+
+                    if (!String.IsNullOrEmpty(approvalStatus) && lblApprovalStatus != null)
                     {
                         lblApprovalStatus.Visible = true;
-                        lblApprovalStatus.Text = OrderPaymentApprovalStatus.GetName(approvalStatus);
+                        lblApprovalStatus.Text = OrderPaymentApprovalStatus.GetName(approvalStatus, approvalWaitingRole);
                     }
                 }
             }
@@ -1184,11 +1197,25 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
 
     }
 
-    /// <summary>
-    /// "Go for Approval" - raises the AM -> DZSM -> NSM payment approval request for a
-    /// credit-blocked order. Every rule (order really is blocked, no duplicate live
-    /// request, approver chain complete) is enforced by sp_OrderPaymentApproval_Request.
-    /// </summary>
+    // =====================================================================================
+    //  Order Payment Approval - "Go for Approval" and its payment commitment modal.
+    //
+    //  The instalment plan is part of the REQUEST, not of the approval: the person talking
+    //  to the customer records what the customer committed to, and the approvers accept it
+    //  or reject it. That keeps the approval page one-click like every other page in the
+    //  approval framework, and makes "what exactly did the last approver approve?" have
+    //  exactly one answer - the plan attached to that round.
+    //
+    //  An approver who wants different dates rejects with a reason; the order comes back
+    //  here, the plan is reworked, and a new round starts.
+    //
+    //  Nothing here knows the approval chain. sp_Post_OrderPaymentApp reads it from the
+    //  configuration written by UserPermission/ApprovalStepMap.aspx.
+    // =====================================================================================
+
+    private const string ScheduleDraftKey = "OPA_ScheduleDraft";
+
+    /// <summary>Opens the payment commitment modal for the clicked order.</summary>
     protected void btnGoForApproval_Click(object sender, EventArgs e)
     {
         Button button = (Button)sender;
@@ -1201,25 +1228,251 @@ public partial class SInventory_UI_InvoiceCreationByOrder_daaw : System.Web.UI.P
             return;
         }
 
-        int userId;
+        if (Session["UserId"] == null)
+        {
+            Response.Redirect("../Login.aspx");
+            return;
+        }
+
+        hfScheduleOrderId.Value = orderId.ToString(CultureInfo.InvariantCulture);
+        lblScheduleOrder.Text = GetRowHiddenValue(currentRow, "hfOrderCodeApp");
+        lblScheduleCustomer.Text = GetRowHiddenValue(currentRow, "hfCustomerNameApp");
+
+        decimal due;
+        Decimal.TryParse(GetRowHiddenValue(currentRow, "hfDueAmountApp"),
+                         NumberStyles.Any, CultureInfo.InvariantCulture, out due);
+        ViewState["OPA_Due"] = due;
+        lblScheduleDue.Text = due.ToString("N2");
+        lblScheduleError.Text = String.Empty;
+
+        // Seed with the previous round's plan when the order is coming back after a
+        // rejection, so a rework is an edit rather than a retype.
+        DataTable previous = _paymentApprovalService.GetSchedule(orderId, null);
+        DataTable draft = NewScheduleTable();
+
+        if (previous != null && previous.Rows.Count > 0)
+        {
+            foreach (DataRow row in previous.Rows)
+            {
+                draft.Rows.Add(Convert.ToDateTime(row["PaymentDate"]), Convert.ToDecimal(row["PaymentAmount"]));
+            }
+        }
+        else
+        {
+            draft.Rows.Add(DBNull.Value, due);
+        }
+
+        ScheduleDraft = draft;
+        BindScheduleGrid();
+        mpeSchedule.Show();
+    }
+
+    protected void btnAddScheduleRow_Click(object sender, EventArgs e)
+    {
+        DataTable draft = CaptureScheduleGrid();
+        draft.Rows.Add(DBNull.Value, DBNull.Value);
+        ScheduleDraft = draft;
+        BindScheduleGrid();
+        mpeSchedule.Show();
+    }
+
+    protected void gvSchedule_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        if (e.CommandName != "RemoveRow")
+        {
+            return;
+        }
+
+        int index;
+        if (!Int32.TryParse(Convert.ToString(e.CommandArgument), out index))
+        {
+            return;
+        }
+
+        DataTable draft = CaptureScheduleGrid();
+        if (index >= 0 && index < draft.Rows.Count && draft.Rows.Count > 1)
+        {
+            draft.Rows.RemoveAt(index);
+        }
+
+        ScheduleDraft = draft;
+        BindScheduleGrid();
+        mpeSchedule.Show();
+    }
+
+    protected void gvSchedule_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType != DataControlRowType.DataRow)
+        {
+            return;
+        }
+
+        DataRowView drv = (DataRowView)e.Row.DataItem;
+        TextBox txtDate = (TextBox)e.Row.FindControl("txtPaymentDate");
+        TextBox txtAmount = (TextBox)e.Row.FindControl("txtPaymentAmount");
+
+        if (txtDate != null && drv["PaymentDate"] != DBNull.Value)
+        {
+            txtDate.Text = Convert.ToDateTime(drv["PaymentDate"]).ToString("dd-MMM-yyyy");
+        }
+        if (txtAmount != null && drv["PaymentAmount"] != DBNull.Value)
+        {
+            txtAmount.Text = Convert.ToDecimal(drv["PaymentAmount"]).ToString("0.00");
+        }
+    }
+
+    protected void btnScheduleClose_Click(object sender, EventArgs e)
+    {
+        ScheduleDraft = null;
+        mpeSchedule.Hide();
+    }
+
+    /// <summary>
+    /// Submits the round. Client-side checks below are for a fast, specific message only -
+    /// sp_Post_OrderPaymentApp re-validates every one of them, plus the ones only the
+    /// database can answer (is the order still blocked, is the chain configured, is there
+    /// already a live round).
+    /// </summary>
+    protected void btnScheduleSubmit_Click(object sender, EventArgs e)
+    {
+        int orderId, userId;
+        if (!Int32.TryParse(hfScheduleOrderId.Value, out orderId))
+        {
+            ShowFailedAlert("Invalid order.");
+            return;
+        }
         if (Session["UserId"] == null || !Int32.TryParse(Session["UserId"].ToString(), out userId))
         {
             Response.Redirect("../Login.aspx");
             return;
         }
 
-        int newApprovalId;
-        string result = _paymentApprovalService.Request(orderId, userId, null, out newApprovalId);
+        DataTable draft = CaptureScheduleGrid();
+        ScheduleDraft = draft;
+
+        List<PaymentScheduleRow> schedule = new List<PaymentScheduleRow>();
+        int lineNo = 0;
+
+        foreach (DataRow row in draft.Rows)
+        {
+            lineNo++;
+
+            if (row["PaymentDate"] == DBNull.Value)
+            {
+                ShowScheduleError("Instalment " + lineNo + ": enter a payment date.");
+                return;
+            }
+            if (row["PaymentAmount"] == DBNull.Value || Convert.ToDecimal(row["PaymentAmount"]) <= 0)
+            {
+                ShowScheduleError("Instalment " + lineNo + ": enter an amount greater than zero.");
+                return;
+            }
+
+            schedule.Add(new PaymentScheduleRow
+            {
+                PaymentNo = lineNo,
+                PaymentDate = Convert.ToDateTime(row["PaymentDate"]),
+                PaymentAmount = Convert.ToDecimal(row["PaymentAmount"])
+            });
+        }
+
+        if (schedule.Count == 0)
+        {
+            ShowScheduleError("Add at least one instalment.");
+            return;
+        }
+
+        string result = _paymentApprovalService.Post(orderId, userId, schedule, null);
 
         if (result == OrderPaymentApprovalService.Success)
         {
-            ShowSuccessAlert("Sent for approval. Pending AM Approval.");
+            ScheduleDraft = null;
+            mpeSchedule.Hide();
+            ShowSuccessAlert("Sent for approval.");
             GridView();
         }
         else
         {
-            ShowFailedAlert(result);
+            // Proc text, already worded for the user.
+            ShowScheduleError(result);
         }
+    }
+
+    private void ShowScheduleError(string message)
+    {
+        lblScheduleError.Text = message;
+        BindScheduleGrid();
+        mpeSchedule.Show();
+    }
+
+    private DataTable ScheduleDraft
+    {
+        get { return ViewState[ScheduleDraftKey] as DataTable; }
+        set { ViewState[ScheduleDraftKey] = value; }
+    }
+
+    private static DataTable NewScheduleTable()
+    {
+        DataTable dt = new DataTable("Schedule");
+        dt.Columns.Add("PaymentDate", typeof(DateTime));
+        dt.Columns.Add("PaymentAmount", typeof(decimal));
+        return dt;
+    }
+
+    private void BindScheduleGrid()
+    {
+        DataTable draft = ScheduleDraft ?? NewScheduleTable();
+        gvSchedule.DataSource = draft;
+        gvSchedule.DataBind();
+
+        decimal total = 0;
+        foreach (DataRow row in draft.Rows)
+        {
+            if (row["PaymentAmount"] != DBNull.Value)
+            {
+                total += Convert.ToDecimal(row["PaymentAmount"]);
+            }
+        }
+
+        decimal due = ViewState["OPA_Due"] == null ? 0 : Convert.ToDecimal(ViewState["OPA_Due"]);
+        lblScheduleTotal.Text = "Scheduled " + total.ToString("N2") + " of " + due.ToString("N2");
+        lblScheduleTotal.CssClass = Math.Abs(total - due) < 0.01m ? "badge bg-success" : "badge bg-secondary";
+    }
+
+    /// <summary>Reads whatever is currently typed in the modal back into the draft table.</summary>
+    private DataTable CaptureScheduleGrid()
+    {
+        DataTable draft = NewScheduleTable();
+
+        foreach (GridViewRow row in gvSchedule.Rows)
+        {
+            if (row.RowType != DataControlRowType.DataRow)
+            {
+                continue;
+            }
+
+            TextBox txtDate = (TextBox)row.FindControl("txtPaymentDate");
+            TextBox txtAmount = (TextBox)row.FindControl("txtPaymentAmount");
+
+            DateTime date;
+            decimal amount;
+
+            object dateValue = (txtDate != null && DateTime.TryParse(txtDate.Text, out date))
+                ? (object)date : DBNull.Value;
+            object amountValue = (txtAmount != null && Decimal.TryParse(txtAmount.Text, NumberStyles.Any,
+                                                                        CultureInfo.CurrentCulture, out amount))
+                ? (object)amount : DBNull.Value;
+
+            draft.Rows.Add(dateValue, amountValue);
+        }
+
+        return draft;
+    }
+
+    private static string GetRowHiddenValue(GridViewRow row, string controlId)
+    {
+        HiddenField field = row.FindControl(controlId) as HiddenField;
+        return field == null ? String.Empty : field.Value;
     }
     protected void GeneratetoinvoiceButton_Click(object sender, EventArgs e)
     {

@@ -1,27 +1,53 @@
-﻿/* =====================================================================================
-   Order Payment Approval System - database deployment script
+/* =====================================================================================
+   Order Payment Approval - database deployment script
    Target DB : SalesDisDB_SMC_NEWDB (dev) / SalesDisDB_SMC (prod)
-   Added     : 2026-08-20
-   Spec      : spec/requirements.md (FR-OPA-*, BR-OPA-*, VR-OPA-*, SEC-OPA-*, AUD-OPA-*)
-   Plan      : docs/implementation/order-payment-approval-plan.md
+   Rewritten : 2026-08-24  - rebuilt on the existing approval framework
 
-   Idempotent: safe to re-run. Objects are CREATE-if-missing / ALTER.
-   Rollback  : docs/implementation/order-payment-approval-plan.md section 13.
+   WHAT THIS IS
+   ------------
+   A credit-blocked order cannot become an invoice. "Go for Approval" attaches a payment
+   commitment (instalment plan) to the order and pushes it through the SAME approval
+   framework every other approval page in this system uses:
 
-   Flow implemented
-   ----------------
-     Order -> credit validation -> can create invoice?
-        YES -> invoice creation (existing behaviour, untouched)
-        NO  -> Go for Approval -> AM (+ payment schedule) -> DZSM -> NSM -> invoice allowed
+       tblMainMenuNew.SL = 383        <- this page MenuId
+       tblApprovalMapMaster/Detail    <- the chain, configured at
+                                         UserPermission/ApprovalStepMap.aspx
+       tblRoleType                    <- role ids
+       tblOrderPaymentApprovalLog     <- one row per action (mirrors tblCustomerApprovalLog)
 
-   Status codes (spec/requirements.md Phase 14)
-     0 = Pending AM Approval      1 = AM Approved
-     2 = Pending DZSM Approval    3 = DZSM Approved
-     4 = Pending NSM Approval     5 = Fully Approved
-     6 = Rejected                 7 = Cancelled
-   Statuses 1 and 3 are audit-only: an approver's single action writes both the
-   "<role> Approved" history row and the "Pending <next role>" history row inside one
-   transaction, so the persisted header status moves 0 -> 2 -> 4 -> 5.
+   The chain is NOT hardcoded anywhere in this script or in C#. Whatever is configured on
+   ApprovalStepMap.aspx for MenuId 383 is the chain. Only MenuId 383 is hardcoded.
+
+   Status vocabulary - the framework values, unchanged:
+       Posted    step 1, written by "Go for Approval"
+       Verified  an intermediate approver said yes
+       Accepted  the last approver in the chain said yes  -> invoice allowed
+       Rejected  someone said no                          -> round is closed
+
+   WHERE THE STATE LIVES
+   ---------------------
+   In the log table, nowhere else. No column is added to tblOrder. "Current state of
+   order X" = the log row with the highest (Round, Step) for TableId = X.
+
+   DELIBERATE DIFFERENCES FROM tblCustomerApprovalLog (all documented, all on purpose)
+   ---------------------------------------------------------------------------------
+   1. Round column. Customer approval treats Rejected as terminal - the record simply
+      vanishes from the list and is never resubmitted. An order can be reworked and
+      resubmitted, so each submission is a Round with Step restarting at 1. Without this
+      the map lookup ([Order] > @Step) walks off the end of the configured chain on the
+      second submission.
+   2. Server-side authorization. sp_webapi_SaveCustomerAppLog trusts the caller: the
+      "is it your turn" test is a HiddenField comparison in the page. Here the acting
+      role, the acting employee and the market scope are all resolved from the database
+      using the session UserId, and the proc refuses anything that does not line up.
+   3. No auto-approve on missing config. The customer proc reads "no next role" as "chain
+      finished" and stamps Accepted - so a page with no map rows self-approves on the
+      first click. Here a missing map is an error.
+   4. Parameterised list proc. sp_Get_CustomerApp concatenates a @param string built in
+      the code-behind and EXECs it. This one takes typed parameters.
+   5. Lean columns. The customer log carries ToGroupId, ToRegionId, ToAreaId,
+      ToTerritoryId, EntryTimeS, ApproveByS, ApproveTimeS, EntryByApp, ApproveByApp and
+      more that nothing ever reads. Only the columns this workflow uses are kept.
    ===================================================================================== */
 
 SET ANSI_NULLS ON
@@ -29,159 +55,133 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 /* -------------------------------------------------------------------------------------
-   1. TABLES
+   0. RETIRE THE PREVIOUS (NON-FRAMEWORK) IMPLEMENTATION
+   -------------------------------------------------------------------------------------
+   The first cut of this feature hardcoded AM -> DZSM -> NSM in fnOrderApproverChain and
+   kept its own 0..7 status machine. Everything below replaces it. fnOrderCreditValidation
+   is the one piece that survives - it answers "is this order credit-blocked and by how
+   much", which has nothing to do with the approval chain.
    ------------------------------------------------------------------------------------- */
 
-IF OBJECT_ID('dbo.tblOrderPaymentApproval', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.tblOrderPaymentApproval
-    (
-        OrderPaymentApprovalId  int IDENTITY(1,1)   NOT NULL,
-        OrderId                 int                 NOT NULL,
-        OrderCode               nvarchar(100)       NULL,
-        CustomerMasterId        int                 NULL,
-        CustomerCode            nvarchar(100)       NULL,
-        CustomerName            nvarchar(250)       NULL,
-        ComUnitId               int                 NULL,
-        TerritoryId             int                 NULL,
-        AreaId                  int                 NULL,
-        RegionId                int                 NULL,
-        GroupId                 int                 NULL,
-
-        OrderGrossValue         decimal(18,2)       NOT NULL CONSTRAINT DF_tblOrderPaymentApproval_Gross  DEFAULT (0),
-        TotalDueAmount          decimal(18,2)       NOT NULL CONSTRAINT DF_tblOrderPaymentApproval_Due    DEFAULT (0),
-        BlockReason             nvarchar(200)       NULL,
-
-        ApprovalStatus          int                 NOT NULL CONSTRAINT DF_tblOrderPaymentApproval_Status DEFAULT (0),
-
-        /* approver chain snapshotted at request time so a later org-structure change
-           cannot strand an in-flight request */
-        AMEmpId                 int                 NULL,
-        DZSMEmpId               int                 NULL,
-        NSMEmpId                int                 NULL,
-
-        AMActionBy              int                 NULL,
-        AMActionDate            datetime            NULL,
-        AMRemarks               nvarchar(500)       NULL,
-        DZSMActionBy            int                 NULL,
-        DZSMActionDate          datetime            NULL,
-        DZSMRemarks             nvarchar(500)       NULL,
-        NSMActionBy             int                 NULL,
-        NSMActionDate           datetime            NULL,
-        NSMRemarks              nvarchar(500)       NULL,
-
-        RejectedBy              int                 NULL,
-        RejectedDate            datetime            NULL,
-        RejectReason            nvarchar(500)       NULL,
-
-        PaymentPlanVersion      int                 NOT NULL CONSTRAINT DF_tblOrderPaymentApproval_Ver    DEFAULT (0),
-        IsScheduleLocked        bit                 NOT NULL CONSTRAINT DF_tblOrderPaymentApproval_Lock   DEFAULT (0),
-
-        IsActive                bit                 NOT NULL CONSTRAINT DF_tblOrderPaymentApproval_Active DEFAULT (1),
-        RequestedByUserId       int                 NULL,
-        RequestedByEmpId        int                 NULL,
-        RequestedDate           datetime            NOT NULL CONSTRAINT DF_tblOrderPaymentApproval_ReqDt  DEFAULT (GETDATE()),
-
-        CONSTRAINT PK_tblOrderPaymentApproval PRIMARY KEY CLUSTERED (OrderPaymentApprovalId),
-        CONSTRAINT CK_tblOrderPaymentApproval_Status CHECK (ApprovalStatus BETWEEN 0 AND 7)
-    );
-
-    /* VR-OPA-07: at most one live request per order - enforced by the database, not by
-       an application-side "check then insert" race. */
-    CREATE UNIQUE NONCLUSTERED INDEX UX_tblOrderPaymentApproval_ActiveOrder
-        ON dbo.tblOrderPaymentApproval (OrderId)
-        WHERE IsActive = 1;
-
-    CREATE NONCLUSTERED INDEX IX_tblOrderPaymentApproval_Status
-        ON dbo.tblOrderPaymentApproval (ApprovalStatus, IsActive)
-        INCLUDE (OrderId, AMEmpId, DZSMEmpId, NSMEmpId);
-END
-GO
-
-IF OBJECT_ID('dbo.tblOrderPaymentApprovalSchedule', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.tblOrderPaymentApprovalSchedule
-    (
-        ScheduleId              int IDENTITY(1,1)   NOT NULL,
-        OrderPaymentApprovalId  int                 NOT NULL,
-        PaymentPlanVersion      int                 NOT NULL,
-        PaymentNo               int                 NOT NULL,
-        PaymentDate             date                NOT NULL,
-        PaymentAmount           decimal(18,2)       NOT NULL,
-        EntryBy                 int                 NULL,
-        EntryDate               datetime            NOT NULL CONSTRAINT DF_tblOPASchedule_EntryDate DEFAULT (GETDATE()),
-        IsActive                bit                 NOT NULL CONSTRAINT DF_tblOPASchedule_IsActive  DEFAULT (1),
-
-        CONSTRAINT PK_tblOrderPaymentApprovalSchedule PRIMARY KEY CLUSTERED (ScheduleId),
-        CONSTRAINT FK_tblOPASchedule_Approval FOREIGN KEY (OrderPaymentApprovalId)
-            REFERENCES dbo.tblOrderPaymentApproval (OrderPaymentApprovalId),
-        CONSTRAINT CK_tblOPASchedule_Amount CHECK (PaymentAmount > 0)
-    );
-
-    /* VR-OPA-13: duplicate payment date inside one plan version is impossible. */
-    CREATE UNIQUE NONCLUSTERED INDEX UX_tblOPASchedule_Date
-        ON dbo.tblOrderPaymentApprovalSchedule (OrderPaymentApprovalId, PaymentPlanVersion, PaymentDate);
-END
-GO
-
-IF OBJECT_ID('dbo.tblOrderPaymentApprovalHistory', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.tblOrderPaymentApprovalHistory
-    (
-        HistoryId               int IDENTITY(1,1)   NOT NULL,
-        OrderPaymentApprovalId  int                 NOT NULL,
-        OrderId                 int                 NULL,
-        ActionUserId            int                 NULL,
-        ActionEmpId             int                 NULL,
-        RoleTypeId              int                 NULL,
-        RoleName                nvarchar(50)        NULL,
-        ActionName              nvarchar(50)        NOT NULL,
-        FromStatus              int                 NULL,
-        ToStatus                int                 NULL,
-        Remarks                 nvarchar(500)       NULL,
-        PaymentPlanVersion      int                 NULL,
-        OldValue                nvarchar(MAX)       NULL,
-        NewValue                nvarchar(MAX)       NULL,
-        ActionDate              datetime            NOT NULL CONSTRAINT DF_tblOPAHistory_Date DEFAULT (GETDATE()),
-
-        CONSTRAINT PK_tblOrderPaymentApprovalHistory PRIMARY KEY CLUSTERED (HistoryId)
-    );
-
-    CREATE NONCLUSTERED INDEX IX_tblOPAHistory_Approval
-        ON dbo.tblOrderPaymentApprovalHistory (OrderPaymentApprovalId, HistoryId);
-END
-GO
-
-/* AUD-OPA-04: audit rows are append-only. Any UPDATE/DELETE - including one issued by
-   a future developer or by a compromised app account - fails loudly instead of silently
-   rewriting approval history. */
 IF OBJECT_ID('dbo.trg_tblOrderPaymentApprovalHistory_NoChange', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_tblOrderPaymentApprovalHistory_NoChange
 GO
-CREATE TRIGGER dbo.trg_tblOrderPaymentApprovalHistory_NoChange
-ON dbo.tblOrderPaymentApprovalHistory
-INSTEAD OF UPDATE, DELETE
-AS
+IF OBJECT_ID('dbo.sp_OrderPaymentApproval_Request', 'P')   IS NOT NULL DROP PROCEDURE dbo.sp_OrderPaymentApproval_Request
+GO
+IF OBJECT_ID('dbo.sp_OrderPaymentApproval_Act', 'P')       IS NOT NULL DROP PROCEDURE dbo.sp_OrderPaymentApproval_Act
+GO
+IF OBJECT_ID('dbo.sp_OrderPaymentApproval_GetList', 'P')   IS NOT NULL DROP PROCEDURE dbo.sp_OrderPaymentApproval_GetList
+GO
+IF OBJECT_ID('dbo.sp_OrderPaymentApproval_GetDetail', 'P') IS NOT NULL DROP PROCEDURE dbo.sp_OrderPaymentApproval_GetDetail
+GO
+IF OBJECT_ID('dbo.tblOrderPaymentApprovalHistory', 'U')    IS NOT NULL DROP TABLE dbo.tblOrderPaymentApprovalHistory
+GO
+IF OBJECT_ID('dbo.tblOrderPaymentApprovalSchedule', 'U')   IS NOT NULL DROP TABLE dbo.tblOrderPaymentApprovalSchedule
+GO
+IF OBJECT_ID('dbo.tblOrderPaymentApproval', 'U')           IS NOT NULL DROP TABLE dbo.tblOrderPaymentApproval
+GO
+IF OBJECT_ID('dbo.fnOrderApproverChain', 'IF')             IS NOT NULL DROP FUNCTION dbo.fnOrderApproverChain
+GO
+
+
+/* -------------------------------------------------------------------------------------
+   1. MENU FLAG
+   -------------------------------------------------------------------------------------
+   sp_GET_MainMenuByType - which feeds the Menu dropdown on ApprovalStepMap.aspx - filters
+   on IsApprovalPage = 1. Without this the page cannot be configured at all.
+   ------------------------------------------------------------------------------------- */
+
+UPDATE dbo.tblMainMenuNew
+   SET IsApprovalPage = 1
+ WHERE SL = 383
+   AND ISNULL(CONVERT(bit, IsApprovalPage), 0) = 0
+GO
+
+
+/* -------------------------------------------------------------------------------------
+   2. TABLES
+   ------------------------------------------------------------------------------------- */
+
+IF OBJECT_ID('dbo.tblOrderPaymentApprovalLog', 'U') IS NULL
 BEGIN
-    SET NOCOUNT ON;
-    RAISERROR('tblOrderPaymentApprovalHistory is append-only; UPDATE/DELETE is not permitted.', 16, 1);
+    CREATE TABLE dbo.tblOrderPaymentApprovalLog
+    (
+        OrderPaymentApprovalLogId int IDENTITY(1,1) NOT NULL,
+
+        TableId         int            NOT NULL,   -- tblOrder.OrderId; named TableId to match the framework
+        Round           int            NOT NULL,   -- one submission; Step restarts at 1 each Round
+        Step            int            NOT NULL,   -- matches tblApprovalMapDetail.[Order]
+
+        RoleTypeId      int            NULL,       -- role that performed this step
+        ToRoleTypeId    int            NULL,       -- role the request now waits on; NULL = chain finished
+        Status          nvarchar(50)   NOT NULL,   -- Posted | Verified | Accepted | Rejected
+        Comments        nvarchar(500)  NULL,
+        Type            nvarchar(50)   NOT NULL CONSTRAINT DF_tblOPALog_Type   DEFAULT ('OrderPayment'),
+        MenuId          int            NOT NULL CONSTRAINT DF_tblOPALog_MenuId DEFAULT (383),
+
+        FromEmpId       int            NULL,       -- tblEmpGeneralInfo.EmpInfoId of the actor
+        FromUserId      int            NULL,       -- tblUser.UserId of the actor
+
+        /* the ORDER market position, not the actor - this is what scope checks and list
+           filtering are actually about (see header note 5) */
+        TerritoryId     int            NULL,
+        AreaId          int            NULL,
+        RegionId        int            NULL,
+        GroupId         int            NULL,
+        ComUnitId       int            NULL,
+
+        DueAmount       decimal(18,2)  NOT NULL CONSTRAINT DF_tblOPALog_Due DEFAULT (0),
+        EntryDate       datetime       NOT NULL CONSTRAINT DF_tblOPALog_EntryDate DEFAULT (GETDATE()),
+
+        CONSTRAINT PK_tblOrderPaymentApprovalLog PRIMARY KEY CLUSTERED (OrderPaymentApprovalLogId),
+
+        /* Two approvers clicking at the same moment both compute the same Step. One of
+           them loses here, in the database, rather than both rows landing. */
+        CONSTRAINT UX_tblOPALog_Order_Round_Step UNIQUE (TableId, Round, Step)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_tblOPALog_Waiting
+        ON dbo.tblOrderPaymentApprovalLog (ToRoleTypeId, Status)
+        INCLUDE (TableId, Round, Step, AreaId, RegionId, GroupId, ComUnitId);
 END
 GO
 
-/* -------------------------------------------------------------------------------------
-   2. CREDIT VALIDATION - single source of truth for the NEW code paths
-   -------------------------------------------------------------------------------------
-   The same rule set already lives inline inside sp_LoadOrderListForOrderCreationbyTerri
-   and sp_LoadOrderListForOrderRouteDayWise (they compute it for a whole territory/route
-   in one aggregate pass). This function re-expresses it for a single order so the
-   request proc and the invoice-creation guard have a server-side authority that does not
-   depend on anything the browser sent.
+IF OBJECT_ID('dbo.tblOrderPaymentSchedule', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.tblOrderPaymentSchedule
+    (
+        ScheduleId      int IDENTITY(1,1) NOT NULL,
+        OrderId         int            NOT NULL,
+        PlanVersion     int            NOT NULL,   -- = the log Round this plan was submitted with
+        PaymentNo       int            NOT NULL,
+        PaymentDate     date           NOT NULL,
+        PaymentAmount   decimal(18,2)  NOT NULL,
+        EntryBy         int            NULL,
+        EntryDate       datetime       NOT NULL CONSTRAINT DF_tblOPS_EntryDate DEFAULT (GETDATE()),
 
-   ponytail: rule logic is duplicated between this function and those two list procs.
-   Deliberate - rewriting the two hot list procs to CROSS APPLY this function is a
-   perf-risky change to an existing production page and is out of this requirement's
-   scope. If the rule changes, change it in all three places. Upgrade path: switch the
-   list procs to CROSS APPLY dbo.fnOrderCreditValidation once there is an index on
+        CONSTRAINT PK_tblOrderPaymentSchedule PRIMARY KEY CLUSTERED (ScheduleId),
+        CONSTRAINT CK_tblOPS_Amount CHECK (PaymentAmount > 0),
+        CONSTRAINT UX_tblOPS_Order_Version_Date UNIQUE (OrderId, PlanVersion, PaymentDate)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_tblOPS_Order
+        ON dbo.tblOrderPaymentSchedule (OrderId, PlanVersion)
+        INCLUDE (PaymentNo, PaymentDate, PaymentAmount);
+END
+GO
+
+
+/* -------------------------------------------------------------------------------------
+   3. CREDIT VALIDATION  (unchanged - survives from the previous implementation)
+   -------------------------------------------------------------------------------------
+   Per-order credit flag and outstanding due. This is the authority for "is this order
+   blocked" and for "how much must the instalment plan add up to".
+
+   ponytail: the same rule is also written inline inside sp_LoadOrderListForOrderCreationbyTerri
+   and sp_LoadOrderListForOrderRouteDayWise. Deliberate - rewriting those two hot list
+   procs to CROSS APPLY this function is a perf-risky change to a live page. If the rule
+   changes, change it in all three places. Upgrade path: switch the list procs to
+   CROSS APPLY dbo.fnOrderCreditValidation once there is an index on
    tblInvoice(CustomerMasterId) and a load test to back it.
    ------------------------------------------------------------------------------------- */
 
@@ -265,65 +265,71 @@ RETURN
 )
 GO
 
+
 /* -------------------------------------------------------------------------------------
-   3. APPROVER CHAIN RESOLUTION
+   4. CURRENT STATE OF AN ORDER
    -------------------------------------------------------------------------------------
-   Reuses the existing org-structure tables. No new hierarchy is introduced.
-     Territory -> tblTerritory.AreaId  -> tblASMInfo  (AM   / RoleTypeId 2)
-     Area      -> tblArea.RegionId     -> tblRSMInfo  (DZSM / RoleTypeId 3)
-     Region    -> tblRegion.GroupId    -> tblNSMInfo  (NSM  / RoleTypeId 4)
+   Single definition of "where is this order right now", used by the invoice gate, the
+   list proc and the action proc so the three can never disagree.
    ------------------------------------------------------------------------------------- */
 
-IF OBJECT_ID('dbo.fnOrderApproverChain', 'IF') IS NOT NULL
-    DROP FUNCTION dbo.fnOrderApproverChain
+IF OBJECT_ID('dbo.fnOrderPaymentApprovalState', 'IF') IS NOT NULL
+    DROP FUNCTION dbo.fnOrderPaymentApprovalState
 GO
-CREATE FUNCTION dbo.fnOrderApproverChain (@TerritoryId int)
+CREATE FUNCTION dbo.fnOrderPaymentApprovalState (@OrderId int)
 RETURNS TABLE
 AS
 RETURN
 (
-    SELECT
-        t.TerritoryId,
-        t.AreaId,
-        a.RegionId,
-        r.GroupId,
-        am.EmployeeId AS AMEmpId,
-        dz.EmployeeId AS DZSMEmpId,
-        ns.EmployeeId AS NSMEmpId
-    FROM dbo.tblTerritory t WITH (NOLOCK)
-    LEFT JOIN dbo.tblArea   a WITH (NOLOCK) ON a.AreaId   = t.AreaId
-    LEFT JOIN dbo.tblRegion r WITH (NOLOCK) ON r.RegionId = a.RegionId
-    OUTER APPLY (SELECT TOP 1 EmployeeId FROM dbo.tblASMInfo WITH (NOLOCK)
-                 WHERE AreaId   = t.AreaId   AND IsActive = 1 ORDER BY ASMId DESC) am
-    OUTER APPLY (SELECT TOP 1 EmployeeId FROM dbo.tblRSMInfo WITH (NOLOCK)
-                 WHERE RegionId = a.RegionId AND IsActive = 1 ORDER BY RSMId DESC) dz
-    OUTER APPLY (SELECT TOP 1 EmployeeId FROM dbo.tblNSMInfo WITH (NOLOCK)
-                 WHERE GroupId  = r.GroupId  AND IsActive = 1 ORDER BY NSMId DESC) ns
-    WHERE t.TerritoryId = @TerritoryId
+    SELECT TOP 1
+        L.OrderPaymentApprovalLogId,
+        L.TableId       AS OrderId,
+        L.Round,
+        L.Step,
+        L.RoleTypeId,
+        L.ToRoleTypeId,
+        L.Status,
+        L.DueAmount,
+        L.TerritoryId, L.AreaId, L.RegionId, L.GroupId, L.ComUnitId,
+        L.EntryDate,
+        /* the role that opened this round - the map lookup key */
+        (SELECT TOP 1 P.RoleTypeId
+           FROM dbo.tblOrderPaymentApprovalLog P WITH (NOLOCK)
+          WHERE P.TableId = L.TableId AND P.Round = L.Round AND P.Step = 1) AS OriginRoleTypeId
+    FROM dbo.tblOrderPaymentApprovalLog L WITH (NOLOCK)
+    WHERE L.TableId = @OrderId
+    ORDER BY L.Round DESC, L.Step DESC
 )
 GO
 
+
 /* -------------------------------------------------------------------------------------
-   4. sp_OrderPaymentApproval_Request  -  "Go for Approval"
+   5. sp_Post_OrderPaymentApp   -  "Go for Approval"
+   -------------------------------------------------------------------------------------
+   Opens a round: validates the instalment plan, writes the plan, writes the Step 1
+   "Posted" log row pointing at the first configured approver.
+
+   @ScheduleXml : <Schedule><Row Date="yyyy-MM-dd" Amount="0.00" />...</Schedule>
    ------------------------------------------------------------------------------------- */
 
-IF OBJECT_ID('dbo.sp_OrderPaymentApproval_Request', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.sp_OrderPaymentApproval_Request
+IF OBJECT_ID('dbo.sp_Post_OrderPaymentApp', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_Post_OrderPaymentApp
 GO
-CREATE PROCEDURE dbo.sp_OrderPaymentApproval_Request
-    @OrderId        int,
-    @ActionUserId   int,
-    @Remarks        nvarchar(500) = NULL
+CREATE PROCEDURE dbo.sp_Post_OrderPaymentApp
+    @OrderId      int,
+    @ActionUserId int,
+    @ScheduleXml  xml           = NULL,
+    @Comments     nvarchar(500) = NULL,
+    @MenuId       int           = 383
 AS
 BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
 
-    DECLARE @EmpId int, @RoleTypeId int, @RoleName nvarchar(50);
+    /* --- who is calling: resolved from the database, never from the caller ----------- */
+    DECLARE @EmpId int, @RoleTypeId int;
 
-    /* SEC-OPA-01: identity and role are resolved from the database using the session's
-       UserId only. Nothing role-shaped is accepted from the caller. */
-    SELECT @EmpId = u.EmpInfoId, @RoleTypeId = ur.RoleTypeId, @RoleName = ur.RoleName
+    SELECT @EmpId = u.EmpInfoId, @RoleTypeId = ur.RoleTypeId
     FROM dbo.tblUser u WITH (NOLOCK)
     LEFT JOIN dbo.tbl_UserRoleInfo ur WITH (NOLOCK) ON ur.UserRoleID = u.UserRoleID
     WHERE u.UserId = @ActionUserId;
@@ -334,22 +340,17 @@ BEGIN
         RETURN;
     END
 
-    DECLARE @CustomerMasterId int, @ComUnitId int, @TerritoryId int, @OrderCode nvarchar(100),
-            @CustomerCode nvarchar(100), @CustomerName nvarchar(250), @GrossValue decimal(18,2),
-            @IsInvoice bit;
+    /* --- the order ------------------------------------------------------------------- */
+    DECLARE @TerritoryId int, @ComUnitId int, @IsInvoice bit, @OrderCode nvarchar(100);
 
-    SELECT @OrderCode        = o.OrderCode,
-           @CustomerMasterId = o.CustomerMasterId,
-           @CustomerCode     = o.CustomerCode,
-           @CustomerName     = o.CustomerName,
-           @ComUnitId        = o.ComUnitId,
-           @TerritoryId      = o.TerritoryId,
-           @GrossValue       = ISNULL(o.GrossValue, 0),
-           @IsInvoice        = o.IsInvoice
+    SELECT @TerritoryId = o.TerritoryId,
+           @ComUnitId   = o.ComUnitId,
+           @IsInvoice   = ISNULL(o.IsInvoice, 0),
+           @OrderCode   = o.OrderCode
     FROM dbo.tblOrder o WITH (NOLOCK)
     WHERE o.OrderId = @OrderId;
 
-    IF @OrderCode IS NULL
+    IF @OrderCode IS NULL AND @TerritoryId IS NULL AND @ComUnitId IS NULL
     BEGIN
         RAISERROR('Order not found.', 16, 1);
         RETURN;
@@ -357,115 +358,202 @@ BEGIN
 
     IF @IsInvoice = 1
     BEGIN
-        RAISERROR('This order is already invoiced. Approval is not applicable.', 16, 1);
+        RAISERROR('This order has already been invoiced.', 16, 1);
         RETURN;
     END
 
-    /* BR-OPA-01: an approval request only exists because credit validation failed.
-       Recomputed here server-side - the browser's opinion is not consulted. */
-    DECLARE @IsMaxExceeded bit, @IsCreditExceeded bit, @DueAmount decimal(18,2);
+    /* --- is it actually blocked, and by how much ------------------------------------- */
+    DECLARE @DueAmount decimal(18,2), @Blocked bit;
 
-    SELECT @IsMaxExceeded    = cv.IsMaxOutstandingExceeded,
-           @IsCreditExceeded = cv.IsCreditPeriodExceeded,
-           @DueAmount        = cv.DueAmount
+    SELECT @DueAmount = cv.DueAmount,
+           @Blocked   = CASE WHEN cv.IsMaxOutstandingExceeded = 1 OR cv.IsCreditPeriodExceeded = 1
+                             THEN 1 ELSE 0 END
     FROM dbo.fnOrderCreditValidation(@OrderId) cv;
 
-    IF ISNULL(@IsMaxExceeded, 0) = 0 AND ISNULL(@IsCreditExceeded, 0) = 0
+    IF ISNULL(@Blocked, 0) = 0
     BEGIN
-        RAISERROR('This order is not credit blocked. Please use Go To Invoice.', 16, 1);
+        RAISERROR('This order is not credit-blocked. No payment approval is required.', 16, 1);
         RETURN;
     END
 
-    DECLARE @BlockReason nvarchar(200) =
-        CASE WHEN @IsMaxExceeded = 1 THEN N'Customer already has maximum outstanding invoices.'
-             ELSE N'Credit period / credit limit exceeded.' END;
+    /* --- one live round at a time ---------------------------------------------------- */
+    DECLARE @CurStatus nvarchar(50), @CurRound int;
 
-    DECLARE @AreaId int, @RegionId int, @GroupId int, @AMEmpId int, @DZSMEmpId int, @NSMEmpId int;
+    SELECT @CurStatus = st.Status, @CurRound = st.Round
+    FROM dbo.fnOrderPaymentApprovalState(@OrderId) st;
 
-    SELECT @AreaId    = ch.AreaId,   @RegionId  = ch.RegionId, @GroupId  = ch.GroupId,
-           @AMEmpId   = ch.AMEmpId,  @DZSMEmpId = ch.DZSMEmpId, @NSMEmpId = ch.NSMEmpId
-    FROM dbo.fnOrderApproverChain(@TerritoryId) ch;
-
-    /* BR-OPA-03: an incomplete chain would create a request nobody can act on. */
-    IF @AMEmpId IS NULL OR @DZSMEmpId IS NULL OR @NSMEmpId IS NULL
+    IF @CurStatus IN ('Posted', 'Verified')
     BEGIN
-        RAISERROR('Approver chain is incomplete for this territory (AM / DZSM / NSM not set up). Please contact MIS.', 16, 1);
+        RAISERROR('This order is already waiting for approval.', 16, 1);
         RETURN;
     END
 
-    DECLARE @NewId int;
+    IF @CurStatus = 'Accepted'
+    BEGIN
+        RAISERROR('This order is already approved. You can create the invoice.', 16, 1);
+        RETURN;
+    END
+
+    /* --- the chain, from configuration ----------------------------------------------- */
+    DECLARE @NextRoleTypeId int, @MapExists bit = 0;
+
+    IF EXISTS (SELECT 1 FROM dbo.tblApprovalMapMaster m WITH (NOLOCK)
+                JOIN dbo.tblApprovalMapDetail d WITH (NOLOCK)
+                  ON d.ApprovalMapMasterId = m.ApprovalMapMasterId
+               WHERE m.MenuId = @MenuId AND m.FromRoleId = @RoleTypeId)
+        SET @MapExists = 1;
+
+    IF @MapExists = 0
+    BEGIN
+        RAISERROR('The approval chain for this page is not configured for your role. Please contact MIS (Approval Step Map).', 16, 1);
+        RETURN;
+    END
+
+    SELECT TOP 1 @NextRoleTypeId = d.ToRoleId
+    FROM dbo.tblApprovalMapMaster m WITH (NOLOCK)
+    JOIN dbo.tblApprovalMapDetail d WITH (NOLOCK) ON d.ApprovalMapMasterId = m.ApprovalMapMasterId
+    WHERE m.MenuId = @MenuId AND m.FromRoleId = @RoleTypeId AND d.[Order] > 1
+    ORDER BY d.[Order] ASC;
+
+    /* A one-step chain would mean "posting approves it", which is not an approval at
+       all. The customer proc silently accepts this; here it is an error. */
+    IF @NextRoleTypeId IS NULL
+    BEGIN
+        RAISERROR('The approval chain for this page has no approver after your role. Please contact MIS (Approval Step Map).', 16, 1);
+        RETURN;
+    END
+
+    /* --- the instalment plan --------------------------------------------------------- */
+    DECLARE @Plan TABLE (PaymentNo int, PaymentDate date, PaymentAmount decimal(18,2));
+
+    /* PaymentNo is numbered by ROW_NUMBER, not by an IDENTITY on the table variable:
+       INSERT ... SELECT ... ORDER BY does not guarantee identity assignment order. */
+    INSERT INTO @Plan (PaymentNo, PaymentDate, PaymentAmount)
+    SELECT ROW_NUMBER() OVER (ORDER BY x.PaymentDate), x.PaymentDate, x.PaymentAmount
+    FROM (
+        SELECT r.value('@Date', 'date')             AS PaymentDate,
+               r.value('@Amount', 'decimal(18,2)')  AS PaymentAmount
+        FROM @ScheduleXml.nodes('/Schedule/Row') AS t(r)
+    ) x;
+
+    IF NOT EXISTS (SELECT 1 FROM @Plan)
+    BEGIN
+        RAISERROR('A payment schedule is required. Add at least one instalment.', 16, 1);
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM @Plan WHERE PaymentAmount IS NULL OR PaymentAmount <= 0)
+    BEGIN
+        RAISERROR('Every instalment amount must be greater than zero.', 16, 1);
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM @Plan WHERE PaymentDate IS NULL OR PaymentDate < CONVERT(date, GETDATE()))
+    BEGIN
+        RAISERROR('Instalment dates must be today or later.', 16, 1);
+        RETURN;
+    END
+
+    IF EXISTS (SELECT PaymentDate FROM @Plan GROUP BY PaymentDate HAVING COUNT(*) > 1)
+    BEGIN
+        RAISERROR('Instalment dates must be unique.', 16, 1);
+        RETURN;
+    END
+
+    DECLARE @PlanTotal decimal(18,2) = (SELECT SUM(PaymentAmount) FROM @Plan);
+
+    IF ABS(@PlanTotal - ISNULL(@DueAmount, 0)) > 0.01
+    BEGIN
+        DECLARE @msg nvarchar(300) =
+            'The instalment total (' + CONVERT(nvarchar(30), @PlanTotal) +
+            ') must equal the total due (' + CONVERT(nvarchar(30), ISNULL(@DueAmount, 0)) + ').';
+        RAISERROR(@msg, 16, 1);
+        RETURN;
+    END
+
+    /* --- write ----------------------------------------------------------------------- */
+    DECLARE @AreaId int, @RegionId int, @GroupId int;
+
+    SELECT @AreaId   = t.AreaId,
+           @RegionId = a.RegionId,
+           @GroupId  = r.GroupId
+    FROM dbo.tblTerritory t WITH (NOLOCK)
+    LEFT JOIN dbo.tblArea   a WITH (NOLOCK) ON a.AreaId   = t.AreaId
+    LEFT JOIN dbo.tblRegion r WITH (NOLOCK) ON r.RegionId = a.RegionId
+    WHERE t.TerritoryId = @TerritoryId;
+
+    DECLARE @NewRound int = ISNULL(@CurRound, 0) + 1;
 
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        INSERT INTO dbo.tblOrderPaymentApproval
-            (OrderId, OrderCode, CustomerMasterId, CustomerCode, CustomerName, ComUnitId,
-             TerritoryId, AreaId, RegionId, GroupId, OrderGrossValue, TotalDueAmount, BlockReason,
-             ApprovalStatus, AMEmpId, DZSMEmpId, NSMEmpId, PaymentPlanVersion, IsScheduleLocked,
-             IsActive, RequestedByUserId, RequestedByEmpId, RequestedDate)
-        VALUES
-            (@OrderId, @OrderCode, @CustomerMasterId, @CustomerCode, @CustomerName, @ComUnitId,
-             @TerritoryId, @AreaId, @RegionId, @GroupId, @GrossValue, ISNULL(@DueAmount, 0), @BlockReason,
-             0, @AMEmpId, @DZSMEmpId, @NSMEmpId, 0, 0,
-             1, @ActionUserId, @EmpId, GETDATE());
+        INSERT INTO dbo.tblOrderPaymentSchedule
+            (OrderId, PlanVersion, PaymentNo, PaymentDate, PaymentAmount, EntryBy)
+        SELECT @OrderId, @NewRound, PaymentNo, PaymentDate, PaymentAmount, @EmpId
+        FROM @Plan;
 
-        SET @NewId = SCOPE_IDENTITY();
-
-        INSERT INTO dbo.tblOrderPaymentApprovalHistory
-            (OrderPaymentApprovalId, OrderId, ActionUserId, ActionEmpId, RoleTypeId, RoleName,
-             ActionName, FromStatus, ToStatus, Remarks, PaymentPlanVersion, OldValue, NewValue)
+        INSERT INTO dbo.tblOrderPaymentApprovalLog
+            (TableId, Round, Step, RoleTypeId, ToRoleTypeId, Status, Comments, Type, MenuId,
+             FromEmpId, FromUserId, TerritoryId, AreaId, RegionId, GroupId, ComUnitId, DueAmount)
         VALUES
-            (@NewId, @OrderId, @ActionUserId, @EmpId, @RoleTypeId, @RoleName,
-             N'Requested', NULL, 0, @Remarks, 0, NULL,
-             N'Due=' + CONVERT(nvarchar(30), ISNULL(@DueAmount, 0)) + N'; ' + @BlockReason);
+            (@OrderId, @NewRound, 1, @RoleTypeId, @NextRoleTypeId, 'Posted', @Comments, 'OrderPayment', @MenuId,
+             @EmpId, @ActionUserId, @TerritoryId, @AreaId, @RegionId, @GroupId, @ComUnitId, ISNULL(@DueAmount, 0));
 
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
         IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
 
-        /* 2601/2627 = the UX_..._ActiveOrder filtered unique index fired: a concurrent
-           duplicate "Go for Approval". Report it as the business rule it is. */
+        /* the unique index is the real duplicate-request guard */
         IF ERROR_NUMBER() IN (2601, 2627)
         BEGIN
-            RAISERROR('An approval request for this order already exists.', 16, 1);
+            RAISERROR('This order has just been sent for approval by someone else. Please refresh.', 16, 1);
             RETURN;
         END
 
-        DECLARE @msg nvarchar(2048) = ERROR_MESSAGE();
-        RAISERROR(@msg, 16, 1);
+        DECLARE @err nvarchar(2048) = ERROR_MESSAGE();
+        RAISERROR(@err, 16, 1);
         RETURN;
     END CATCH
 
-    SELECT @NewId AS OrderPaymentApprovalId, 0 AS ApprovalStatus;
+    SELECT @OrderId AS OrderId, @NewRound AS Round, @NextRoleTypeId AS ToRoleTypeId;
 END
 GO
 
+
 /* -------------------------------------------------------------------------------------
-   5. sp_OrderPaymentApproval_Act  -  approve / reject / cancel
+   6. sp_Get_OrderPaymentApp   -  approver worklist
    -------------------------------------------------------------------------------------
-   @Action     : 'Approve' | 'Reject' | 'Cancel'
-   @ScheduleXml: required on the AM Approve step only.
-                 <Schedule><Row Date="2026-09-01" Amount="1500.00"/>...</Schedule>
+   Row scope comes from the caller session UserId, resolved server-side. The market
+   dropdown values are optional NARROWING filters on top of that - they can never widen
+   what the caller is allowed to see.
+
+   Scope rule (the framework rule, from CustomerApproveList.LoadData):
+       AM   (2) -> own EmpAreaId          DZSM (3) -> own EmpRegionId
+       NSM  (4) -> own EmpGroupId         DIC  (8) -> own company units
+       any other role -> no market restriction
    ------------------------------------------------------------------------------------- */
 
-IF OBJECT_ID('dbo.sp_OrderPaymentApproval_Act', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.sp_OrderPaymentApproval_Act
+IF OBJECT_ID('dbo.sp_Get_OrderPaymentApp', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_Get_OrderPaymentApp
 GO
-CREATE PROCEDURE dbo.sp_OrderPaymentApproval_Act
-    @OrderPaymentApprovalId int,
-    @ActionUserId           int,
-    @Action                 nvarchar(20),
-    @Remarks                nvarchar(500) = NULL,
-    @ScheduleXml            xml           = NULL
+CREATE PROCEDURE dbo.sp_Get_OrderPaymentApp
+    @ActionUserId int,
+    @Status       nvarchar(50) = NULL,   -- NULL/'' = live only (Posted + Verified)
+    @FromDt       date         = NULL,
+    @ToDt         date         = NULL,
+    @GroupId      int          = NULL,
+    @RegionId     int          = NULL,
+    @AreaId       int          = NULL,
+    @TerritoryId  int          = NULL,
+    @OrderId      int          = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
-    SET XACT_ABORT ON;
 
-    DECLARE @EmpId int, @RoleTypeId int, @RoleName nvarchar(50);
+    DECLARE @EmpId int, @RoleTypeId int;
 
-    SELECT @EmpId = u.EmpInfoId, @RoleTypeId = ur.RoleTypeId, @RoleName = ur.RoleName
+    SELECT @EmpId = u.EmpInfoId, @RoleTypeId = ur.RoleTypeId
     FROM dbo.tblUser u WITH (NOLOCK)
     LEFT JOIN dbo.tbl_UserRoleInfo ur WITH (NOLOCK) ON ur.UserRoleID = u.UserRoleID
     WHERE u.UserId = @ActionUserId;
@@ -476,471 +564,289 @@ BEGIN
         RETURN;
     END
 
-    IF @Action NOT IN (N'Approve', N'Reject', N'Cancel')
+    DECLARE @MyArea int, @MyRegion int, @MyGroup int;
+
+    SELECT TOP 1 @MyArea = ff.EmpAreaId, @MyRegion = ff.EmpRegionId, @MyGroup = ff.EmpGroupId
+    FROM dbo.View_Webapi_EmployeeFieldForceInfo ff WITH (NOLOCK)
+    WHERE ff.EmpInfoId = @EmpId;
+
+    ;WITH live AS
+    (
+        /* the current row of every order that has ever been posted */
+        SELECT L.*
+        FROM dbo.tblOrderPaymentApprovalLog L WITH (NOLOCK)
+        WHERE L.OrderPaymentApprovalLogId =
+              (SELECT TOP 1 X.OrderPaymentApprovalLogId
+                 FROM dbo.tblOrderPaymentApprovalLog X WITH (NOLOCK)
+                WHERE X.TableId = L.TableId
+                ORDER BY X.Round DESC, X.Step DESC)
+    )
+    SELECT
+        live.TableId                    AS OrderId,
+        live.OrderPaymentApprovalLogId  AS LogId,
+        live.Round,
+        live.Step,
+        live.RoleTypeId,
+        live.ToRoleTypeId,
+        live.Status,
+        live.Comments,
+        live.DueAmount,
+        live.EntryDate                  AS LastActionDate,
+
+        o.OrderCode,
+        o.GrossValue                    AS OrderValue,
+        o.EntryDate                     AS OrderDate,
+        cm.CustomerCode,
+        cm.CustomerName,
+        terr.TerritoryCode,
+        terr.TerritoryName,
+        ar.AreaCode,
+        rg.RegionCode,
+
+        rtNow.DisplayName               AS WaitingForRole,
+        rtDid.DisplayName               AS LastActionRole,
+        emp.EmpName                     AS LastActionBy,
+
+        /* the whole plan as one readable cell - the approver sees what they are
+           approving without opening anything */
+        sch.ScheduleText,
+        sch.InstalmentCount,
+        sch.FirstPaymentDate,
+
+        /* server-side "may THIS user act on THIS row right now" - the page renders the
+           buttons from this, and sp_Save_OrderPaymentAppLog re-checks it anyway */
+        CONVERT(bit, CASE WHEN live.Status IN ('Posted', 'Verified')
+                           AND live.ToRoleTypeId = @RoleTypeId
+                          THEN 1 ELSE 0 END) AS CanAct
+    FROM live
+    JOIN dbo.tblOrder o WITH (NOLOCK)          ON o.OrderId = live.TableId
+    LEFT JOIN dbo.tblCustMaster cm WITH (NOLOCK) ON cm.CustomerMasterId = o.CustomerMasterId
+    LEFT JOIN dbo.tblTerritory terr WITH (NOLOCK) ON terr.TerritoryId = live.TerritoryId
+    LEFT JOIN dbo.tblArea       ar  WITH (NOLOCK) ON ar.AreaId        = live.AreaId
+    LEFT JOIN dbo.tblRegion     rg  WITH (NOLOCK) ON rg.RegionId      = live.RegionId
+    LEFT JOIN dbo.tblRoleType   rtNow WITH (NOLOCK) ON rtNow.RoleTypeId = live.ToRoleTypeId
+    LEFT JOIN dbo.tblRoleType   rtDid WITH (NOLOCK) ON rtDid.RoleTypeId = live.RoleTypeId
+    LEFT JOIN dbo.tblEmpGeneralInfo emp WITH (NOLOCK) ON emp.EmpInfoId = live.FromEmpId
+    OUTER APPLY (
+        SELECT
+            COUNT(*)              AS InstalmentCount,
+            MIN(s.PaymentDate)    AS FirstPaymentDate,
+            STUFF((SELECT ' | ' + CONVERT(nvarchar(11), s2.PaymentDate, 106)
+                        + '  ' + CONVERT(nvarchar(30), CONVERT(money, s2.PaymentAmount), 1)
+                     FROM dbo.tblOrderPaymentSchedule s2 WITH (NOLOCK)
+                    WHERE s2.OrderId = live.TableId AND s2.PlanVersion = live.Round
+                    ORDER BY s2.PaymentDate
+                      FOR XML PATH(''), TYPE).value('.', 'nvarchar(max)'), 1, 3, '') AS ScheduleText
+        FROM dbo.tblOrderPaymentSchedule s WITH (NOLOCK)
+        WHERE s.OrderId = live.TableId AND s.PlanVersion = live.Round
+    ) sch
+    WHERE
+        /* --- caller scope (mandatory) ------------------------------------------------ */
+        (
+            @RoleTypeId NOT IN (2, 3, 4, 8)
+            OR (@RoleTypeId = 2 AND live.AreaId   = @MyArea)
+            OR (@RoleTypeId = 3 AND live.RegionId = @MyRegion)
+            OR (@RoleTypeId = 4 AND live.GroupId  = @MyGroup)
+            OR (@RoleTypeId = 8 AND live.ComUnitId IN
+                    (SELECT uc.CompanyUnitId FROM dbo.tblUserCompanyUnit uc WITH (NOLOCK)
+                      WHERE uc.UserId = @ActionUserId))
+        )
+        /* --- optional narrowing filters ---------------------------------------------- */
+    AND (@Status IS NULL OR @Status = '' OR live.Status = @Status)
+    AND (NULLIF(@Status, '') IS NOT NULL OR live.Status IN ('Posted', 'Verified'))
+    AND (@FromDt      IS NULL OR CONVERT(date, live.EntryDate) >= @FromDt)
+    AND (@ToDt        IS NULL OR CONVERT(date, live.EntryDate) <= @ToDt)
+    AND (@GroupId     IS NULL OR live.GroupId     = @GroupId)
+    AND (@RegionId    IS NULL OR live.RegionId    = @RegionId)
+    AND (@AreaId      IS NULL OR live.AreaId      = @AreaId)
+    AND (@TerritoryId IS NULL OR live.TerritoryId = @TerritoryId)
+    AND (@OrderId     IS NULL OR live.TableId     = @OrderId)
+    ORDER BY live.EntryDate DESC;
+END
+GO
+
+
+/* -------------------------------------------------------------------------------------
+   7. sp_Save_OrderPaymentAppLog   -  Approve / Reject
+   -------------------------------------------------------------------------------------
+   Shaped after sp_webapi_SaveDoctorAppLog (the clean member of the family), plus the
+   three hardenings listed in the header. The caller supplies an action, never a status
+   and never a role.
+   ------------------------------------------------------------------------------------- */
+
+IF OBJECT_ID('dbo.sp_Save_OrderPaymentAppLog', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_Save_OrderPaymentAppLog
+GO
+CREATE PROCEDURE dbo.sp_Save_OrderPaymentAppLog
+    @OrderId      int,
+    @ActionUserId int,
+    @Action       nvarchar(20),          -- Approve | Reject
+    @Comments     nvarchar(500) = NULL,
+    @MenuId       int           = 383
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    IF @Action NOT IN ('Approve', 'Reject')
     BEGIN
         RAISERROR('Unknown action.', 16, 1);
         RETURN;
     END
 
-    DECLARE @Status int, @OrderId int, @AMEmpId int, @DZSMEmpId int, @NSMEmpId int,
-            @TotalDue decimal(18,2), @Version int, @Locked bit, @RequestedByUserId int, @IsActive bit;
-
-    SELECT @Status            = ApprovalStatus,
-           @OrderId           = OrderId,
-           @AMEmpId           = AMEmpId,
-           @DZSMEmpId         = DZSMEmpId,
-           @NSMEmpId          = NSMEmpId,
-           @TotalDue          = TotalDueAmount,
-           @Version           = PaymentPlanVersion,
-           @Locked            = IsScheduleLocked,
-           @RequestedByUserId = RequestedByUserId,
-           @IsActive          = IsActive
-    FROM dbo.tblOrderPaymentApproval WITH (NOLOCK)
-    WHERE OrderPaymentApprovalId = @OrderPaymentApprovalId;
-
-    IF @OrderId IS NULL
+    IF @Action = 'Reject' AND LTRIM(RTRIM(ISNULL(@Comments, ''))) = ''
     BEGIN
-        RAISERROR('Approval request not found.', 16, 1);
+        RAISERROR('A reason is required when rejecting.', 16, 1);
         RETURN;
     END
 
-    IF @IsActive = 0
+    /* --- who is calling -------------------------------------------------------------- */
+    DECLARE @EmpId int, @RoleTypeId int;
+
+    SELECT @EmpId = u.EmpInfoId, @RoleTypeId = ur.RoleTypeId
+    FROM dbo.tblUser u WITH (NOLOCK)
+    LEFT JOIN dbo.tbl_UserRoleInfo ur WITH (NOLOCK) ON ur.UserRoleID = u.UserRoleID
+    WHERE u.UserId = @ActionUserId;
+
+    IF @RoleTypeId IS NULL
     BEGIN
-        RAISERROR('This approval request is no longer active.', 16, 1);
+        RAISERROR('Your user account could not be resolved. Please log in again.', 16, 1);
         RETURN;
     END
 
-    IF @Status IN (5, 6, 7)
-    BEGIN
-        RAISERROR('This request is already closed and cannot be actioned again.', 16, 1);
-        RETURN;
-    END
+    DECLARE @MyArea int, @MyRegion int, @MyGroup int;
 
-    /* ---------------------------------------------------------------------------------
-       SEC-OPA-02 / SEC-OPA-03: level authorization.
-       The acting user must hold the role type that owns the CURRENT status AND be the
-       employee this specific request was routed to. No role may act on another role's
-       step, and no role may skip a step - the status itself is the gate.
-       --------------------------------------------------------------------------------- */
-    DECLARE @ExpectedRoleTypeId int, @ExpectedEmpId int, @LevelName nvarchar(20);
+    SELECT TOP 1 @MyArea = ff.EmpAreaId, @MyRegion = ff.EmpRegionId, @MyGroup = ff.EmpGroupId
+    FROM dbo.View_Webapi_EmployeeFieldForceInfo ff WITH (NOLOCK)
+    WHERE ff.EmpInfoId = @EmpId;
 
-    SELECT @ExpectedRoleTypeId = CASE @Status WHEN 0 THEN 2 WHEN 2 THEN 3 WHEN 4 THEN 4 END,
-           @ExpectedEmpId      = CASE @Status WHEN 0 THEN @AMEmpId WHEN 2 THEN @DZSMEmpId WHEN 4 THEN @NSMEmpId END,
-           @LevelName          = CASE @Status WHEN 0 THEN N'AM' WHEN 2 THEN N'DZSM' WHEN 4 THEN N'NSM' END;
-
-    IF @Action = N'Cancel'
-    BEGIN
-        /* Only the requester may withdraw their own request, and only before it is closed. */
-        IF @RequestedByUserId <> @ActionUserId
-        BEGIN
-            RAISERROR('Only the user who raised this request can cancel it.', 16, 1);
-            RETURN;
-        END
-    END
-    ELSE
-    BEGIN
-        IF @ExpectedRoleTypeId IS NULL
-        BEGIN
-            RAISERROR('This request is not in an actionable state.', 16, 1);
-            RETURN;
-        END
-
-        IF @RoleTypeId <> @ExpectedRoleTypeId
-        BEGIN
-            RAISERROR('You are not authorized for this approval level.', 16, 1);
-            RETURN;
-        END
-
-        IF @ExpectedEmpId IS NULL OR @EmpId <> @ExpectedEmpId
-        BEGIN
-            RAISERROR('This request is not assigned to you.', 16, 1);
-            RETURN;
-        END
-    END
-
-    /* ---------------------------------------------------------------------------------
-       Payment schedule - AM approve step only (VR-OPA-10..15). All validation is here,
-       server-side; the browser's copy of these rules is a convenience, not the gate.
-       --------------------------------------------------------------------------------- */
-    DECLARE @NewVersion int = @Version;
-    DECLARE @Sched TABLE (PaymentNo int, PaymentDate date, PaymentAmount decimal(18,2));
-
-    IF @Action = N'Approve' AND @Status = 0
-    BEGIN
-        IF @ScheduleXml IS NULL
-        BEGIN
-            RAISERROR('Payment schedule is required before AM approval.', 16, 1);
-            RETURN;
-        END
-
-        INSERT INTO @Sched (PaymentNo, PaymentDate, PaymentAmount)
-        SELECT ROW_NUMBER() OVER (ORDER BY d, a),
-               d,
-               a
-        FROM (
-            SELECT r.value('@Date',   'date')          AS d,
-                   r.value('@Amount', 'decimal(18,2)') AS a
-            FROM @ScheduleXml.nodes('/Schedule/Row') AS x(r)
-        ) src;
-
-        IF NOT EXISTS (SELECT 1 FROM @Sched)
-        BEGIN
-            RAISERROR('Payment schedule must contain at least one instalment.', 16, 1);
-            RETURN;
-        END
-
-        IF EXISTS (SELECT 1 FROM @Sched WHERE PaymentDate IS NULL OR PaymentAmount IS NULL)
-        BEGIN
-            RAISERROR('Payment date and amount are required on every instalment.', 16, 1);
-            RETURN;
-        END
-
-        IF EXISTS (SELECT 1 FROM @Sched WHERE PaymentAmount <= 0)
-        BEGIN
-            RAISERROR('Payment amount must be greater than 0.', 16, 1);
-            RETURN;
-        END
-
-        IF EXISTS (SELECT 1 FROM @Sched WHERE PaymentDate < CONVERT(date, GETDATE()))
-        BEGIN
-            RAISERROR('Payment date cannot be earlier than today.', 16, 1);
-            RETURN;
-        END
-
-        IF EXISTS (SELECT PaymentDate FROM @Sched GROUP BY PaymentDate HAVING COUNT(*) > 1)
-        BEGIN
-            RAISERROR('Duplicate payment date is not allowed.', 16, 1);
-            RETURN;
-        END
-
-        IF ABS(ISNULL((SELECT SUM(PaymentAmount) FROM @Sched), 0) - ISNULL(@TotalDue, 0)) > 0.005
-        BEGIN
-            DECLARE @sumMsg nvarchar(300) =
-                N'Total scheduled amount (' + CONVERT(nvarchar(30), ISNULL((SELECT SUM(PaymentAmount) FROM @Sched), 0)) +
-                N') must equal total due amount (' + CONVERT(nvarchar(30), ISNULL(@TotalDue, 0)) + N').';
-            RAISERROR(@sumMsg, 16, 1);
-            RETURN;
-        END
-
-        SET @NewVersion = @Version + 1;
-    END
-
-    IF @Action = N'Approve' AND @Status <> 0 AND @ScheduleXml IS NOT NULL
-    BEGIN
-        /* VR-OPA-16: only the AM step authors the plan. DZSM/NSM approve or reject it. */
-        RAISERROR('Only the AM step can set the payment schedule.', 16, 1);
-        RETURN;
-    END
-
-    /* ---------------------------------------------------------------------------------
-       State transition
-       --------------------------------------------------------------------------------- */
-    DECLARE @ToStatus int =
-        CASE WHEN @Action = N'Cancel' THEN 7
-             WHEN @Action = N'Reject' THEN 6
-             ELSE CASE @Status WHEN 0 THEN 2 WHEN 2 THEN 4 WHEN 4 THEN 5 END
-        END;
-
-    IF @ToStatus IS NULL
-    BEGIN
-        RAISERROR('Invalid status transition.', 16, 1);
-        RETURN;
-    END
-
-    IF @Action = N'Reject' AND (@Remarks IS NULL OR LTRIM(RTRIM(@Remarks)) = N'')
-    BEGIN
-        RAISERROR('Rejection reason is required.', 16, 1);
-        RETURN;
-    END
+    DECLARE @Round int, @Step int, @Status nvarchar(50), @ToRoleTypeId int,
+            @OriginRole int, @DueAmount decimal(18,2),
+            @TerritoryId int, @AreaId int, @RegionId int, @GroupId int, @ComUnitId int,
+            @NextRoleTypeId int, @NewStatus nvarchar(50);
 
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        /* Optimistic concurrency: the WHERE clause pins the status we validated against.
-           A second approver who loaded the same row a moment earlier updates 0 rows and
-           is told so, instead of double-approving. */
-        UPDATE dbo.tblOrderPaymentApproval
-        SET ApprovalStatus     = @ToStatus,
-            PaymentPlanVersion = @NewVersion,
-            IsScheduleLocked   = CASE WHEN @ToStatus = 5 THEN 1 ELSE IsScheduleLocked END,
+        /* Serialise concurrent approvers on this order. The unique index on
+           (TableId, Round, Step) is the backstop if two still get through. */
+        SELECT TOP 1
+            @Round        = L.Round,
+            @Step         = L.Step,
+            @Status       = L.Status,
+            @ToRoleTypeId = L.ToRoleTypeId,
+            @DueAmount    = L.DueAmount,
+            @TerritoryId  = L.TerritoryId,
+            @AreaId       = L.AreaId,
+            @RegionId     = L.RegionId,
+            @GroupId      = L.GroupId,
+            @ComUnitId    = L.ComUnitId
+        FROM dbo.tblOrderPaymentApprovalLog L WITH (UPDLOCK, HOLDLOCK)
+        WHERE L.TableId = @OrderId
+        ORDER BY L.Round DESC, L.Step DESC;
 
-            AMActionBy         = CASE WHEN @Status = 0 THEN @EmpId    ELSE AMActionBy    END,
-            AMActionDate       = CASE WHEN @Status = 0 THEN GETDATE() ELSE AMActionDate  END,
-            AMRemarks          = CASE WHEN @Status = 0 THEN @Remarks  ELSE AMRemarks     END,
-
-            DZSMActionBy       = CASE WHEN @Status = 2 THEN @EmpId    ELSE DZSMActionBy   END,
-            DZSMActionDate     = CASE WHEN @Status = 2 THEN GETDATE() ELSE DZSMActionDate END,
-            DZSMRemarks        = CASE WHEN @Status = 2 THEN @Remarks  ELSE DZSMRemarks    END,
-
-            NSMActionBy        = CASE WHEN @Status = 4 THEN @EmpId    ELSE NSMActionBy    END,
-            NSMActionDate      = CASE WHEN @Status = 4 THEN GETDATE() ELSE NSMActionDate  END,
-            NSMRemarks         = CASE WHEN @Status = 4 THEN @Remarks  ELSE NSMRemarks     END,
-
-            RejectedBy         = CASE WHEN @ToStatus = 6 THEN @EmpId    ELSE RejectedBy   END,
-            RejectedDate       = CASE WHEN @ToStatus = 6 THEN GETDATE() ELSE RejectedDate END,
-            RejectReason       = CASE WHEN @ToStatus = 6 THEN @Remarks  ELSE RejectReason END,
-
-            /* A rejected or cancelled request stops being the live one, so the requester
-               may raise a fresh request (re-submission) without tripping the unique index. */
-            IsActive           = CASE WHEN @ToStatus IN (6, 7) THEN 0 ELSE IsActive END
-        WHERE OrderPaymentApprovalId = @OrderPaymentApprovalId
-          AND ApprovalStatus         = @Status
-          AND IsActive               = 1;
-
-        IF @@ROWCOUNT = 0
+        IF @Round IS NULL
         BEGIN
             ROLLBACK TRANSACTION;
-            RAISERROR('This request was changed by another user. Please reload the list.', 16, 1);
+            RAISERROR('This order has not been sent for approval.', 16, 1);
             RETURN;
         END
 
-        IF @Action = N'Approve' AND @Status = 0
+        IF @Status NOT IN ('Posted', 'Verified')
         BEGIN
-            UPDATE dbo.tblOrderPaymentApprovalSchedule
-            SET IsActive = 0
-            WHERE OrderPaymentApprovalId = @OrderPaymentApprovalId;
-
-            INSERT INTO dbo.tblOrderPaymentApprovalSchedule
-                (OrderPaymentApprovalId, PaymentPlanVersion, PaymentNo, PaymentDate, PaymentAmount, EntryBy)
-            SELECT @OrderPaymentApprovalId, @NewVersion, PaymentNo, PaymentDate, PaymentAmount, @EmpId
-            FROM @Sched;
+            ROLLBACK TRANSACTION;
+            RAISERROR('This request is already closed.', 16, 1);
+            RETURN;
         END
 
-        /* AUD-OPA-01..03 - one row per logical state change, never overwritten. */
-        IF @Action = N'Approve'
+        /* --- is it your turn --------------------------------------------------------- */
+        IF @ToRoleTypeId IS NULL OR @ToRoleTypeId <> @RoleTypeId
         BEGIN
-            DECLARE @midStatus int = CASE @Status WHEN 0 THEN 1 WHEN 2 THEN 3 ELSE NULL END;
-
-            IF @midStatus IS NOT NULL
-            BEGIN
-                INSERT INTO dbo.tblOrderPaymentApprovalHistory
-                    (OrderPaymentApprovalId, OrderId, ActionUserId, ActionEmpId, RoleTypeId, RoleName,
-                     ActionName, FromStatus, ToStatus, Remarks, PaymentPlanVersion, OldValue, NewValue)
-                VALUES
-                    (@OrderPaymentApprovalId, @OrderId, @ActionUserId, @EmpId, @RoleTypeId, @RoleName,
-                     @LevelName + N' Approved', @Status, @midStatus, @Remarks, @NewVersion,
-                     NULL,
-                     CASE WHEN @Status = 0
-                          THEN N'Schedule v' + CONVERT(nvarchar(10), @NewVersion) + N': ' +
-                               ISNULL(STUFF((SELECT N', ' + CONVERT(nvarchar(10), PaymentDate, 120) + N'=' +
-                                                    CONVERT(nvarchar(30), PaymentAmount)
-                                             FROM @Sched ORDER BY PaymentNo
-                                             FOR XML PATH(''), TYPE).value('.', 'nvarchar(max)'), 1, 2, N''), N'')
-                          ELSE NULL END);
-
-                INSERT INTO dbo.tblOrderPaymentApprovalHistory
-                    (OrderPaymentApprovalId, OrderId, ActionUserId, ActionEmpId, RoleTypeId, RoleName,
-                     ActionName, FromStatus, ToStatus, Remarks, PaymentPlanVersion)
-                VALUES
-                    (@OrderPaymentApprovalId, @OrderId, @ActionUserId, @EmpId, @RoleTypeId, @RoleName,
-                     CASE @ToStatus WHEN 2 THEN N'Pending DZSM Approval' ELSE N'Pending NSM Approval' END,
-                     @midStatus, @ToStatus, NULL, @NewVersion);
-            END
-            ELSE
-            BEGIN
-                INSERT INTO dbo.tblOrderPaymentApprovalHistory
-                    (OrderPaymentApprovalId, OrderId, ActionUserId, ActionEmpId, RoleTypeId, RoleName,
-                     ActionName, FromStatus, ToStatus, Remarks, PaymentPlanVersion, NewValue)
-                VALUES
-                    (@OrderPaymentApprovalId, @OrderId, @ActionUserId, @EmpId, @RoleTypeId, @RoleName,
-                     N'NSM Approved - Fully Approved', @Status, @ToStatus, @Remarks, @NewVersion,
-                     N'Payment schedule locked');
-            END
+            ROLLBACK TRANSACTION;
+            RAISERROR('You are not the approver for this stage.', 16, 1);
+            RETURN;
         END
+
+        /* --- is it your market ------------------------------------------------------- */
+        IF (@RoleTypeId = 2 AND ISNULL(@AreaId, -1)   <> ISNULL(@MyArea, -2))
+        OR (@RoleTypeId = 3 AND ISNULL(@RegionId, -1) <> ISNULL(@MyRegion, -2))
+        OR (@RoleTypeId = 4 AND ISNULL(@GroupId, -1)  <> ISNULL(@MyGroup, -2))
+        OR (@RoleTypeId = 8 AND NOT EXISTS (SELECT 1 FROM dbo.tblUserCompanyUnit uc WITH (NOLOCK)
+                                             WHERE uc.UserId = @ActionUserId
+                                               AND uc.CompanyUnitId = @ComUnitId))
+        BEGIN
+            ROLLBACK TRANSACTION;
+            RAISERROR('This request is outside your market.', 16, 1);
+            RETURN;
+        END
+
+        SELECT TOP 1 @OriginRole = P.RoleTypeId
+        FROM dbo.tblOrderPaymentApprovalLog P WITH (NOLOCK)
+        WHERE P.TableId = @OrderId AND P.Round = @Round AND P.Step = 1;
+
+        /* --- next link in the configured chain --------------------------------------- */
+        DECLARE @NewStep int = @Step + 1;
+
+        IF NOT EXISTS (SELECT 1 FROM dbo.tblApprovalMapMaster m WITH (NOLOCK)
+                        JOIN dbo.tblApprovalMapDetail d WITH (NOLOCK)
+                          ON d.ApprovalMapMasterId = m.ApprovalMapMasterId
+                       WHERE m.MenuId = @MenuId AND m.FromRoleId = @OriginRole)
+        BEGIN
+            ROLLBACK TRANSACTION;
+            RAISERROR('The approval chain for this page is no longer configured. Please contact MIS (Approval Step Map).', 16, 1);
+            RETURN;
+        END
+
+        SELECT TOP 1 @NextRoleTypeId = d.ToRoleId
+        FROM dbo.tblApprovalMapMaster m WITH (NOLOCK)
+        JOIN dbo.tblApprovalMapDetail d WITH (NOLOCK) ON d.ApprovalMapMasterId = m.ApprovalMapMasterId
+        WHERE m.MenuId = @MenuId AND m.FromRoleId = @OriginRole AND d.[Order] > @NewStep
+        ORDER BY d.[Order] ASC;
+
+        IF @Action = 'Reject'
+        BEGIN
+            SET @NewStatus      = 'Rejected';
+            SET @NextRoleTypeId = NULL;
+        END
+        ELSE IF @NextRoleTypeId IS NULL
+            SET @NewStatus = 'Accepted';     -- chain finished
         ELSE
-        BEGIN
-            INSERT INTO dbo.tblOrderPaymentApprovalHistory
-                (OrderPaymentApprovalId, OrderId, ActionUserId, ActionEmpId, RoleTypeId, RoleName,
-                 ActionName, FromStatus, ToStatus, Remarks, PaymentPlanVersion)
-            VALUES
-                (@OrderPaymentApprovalId, @OrderId, @ActionUserId, @EmpId, @RoleTypeId, @RoleName,
-                 CASE WHEN @Action = N'Cancel' THEN N'Cancelled'
-                      ELSE ISNULL(@LevelName, N'') + N' Rejected' END,
-                 @Status, @ToStatus, @Remarks, @NewVersion);
-        END
+            SET @NewStatus = 'Verified';
+
+        INSERT INTO dbo.tblOrderPaymentApprovalLog
+            (TableId, Round, Step, RoleTypeId, ToRoleTypeId, Status, Comments, Type, MenuId,
+             FromEmpId, FromUserId, TerritoryId, AreaId, RegionId, GroupId, ComUnitId, DueAmount)
+        VALUES
+            (@OrderId, @Round, @NewStep, @RoleTypeId, @NextRoleTypeId, @NewStatus, @Comments,
+             'OrderPayment', @MenuId, @EmpId, @ActionUserId,
+             @TerritoryId, @AreaId, @RegionId, @GroupId, @ComUnitId, @DueAmount);
 
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
         IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
-        DECLARE @m nvarchar(2048) = ERROR_MESSAGE();
-        RAISERROR(@m, 16, 1);
+
+        IF ERROR_NUMBER() IN (2601, 2627)
+        BEGIN
+            RAISERROR('Someone else has just acted on this request. Please refresh.', 16, 1);
+            RETURN;
+        END
+
+        DECLARE @err nvarchar(2048) = ERROR_MESSAGE();
+        RAISERROR(@err, 16, 1);
         RETURN;
     END CATCH
 
-    SELECT @OrderPaymentApprovalId AS OrderPaymentApprovalId, @ToStatus AS ApprovalStatus;
+    SELECT @NewStatus AS Status, @NextRoleTypeId AS ToRoleTypeId;
 END
 GO
 
+
 /* -------------------------------------------------------------------------------------
-   6. sp_OrderPaymentApproval_GetList  -  approver worklist
+   8. sp_OrderPaymentApproval_CanCreateInvoice   -  the invoice gate
    -------------------------------------------------------------------------------------
-   Row-level scope is derived from the caller's own role and employee id. A user only
-   ever sees the requests routed to their own level - there is no client-supplied filter
-   that can widen it (SEC-OPA-04, guards against IDOR by enumeration).
-   ------------------------------------------------------------------------------------- */
-
-IF OBJECT_ID('dbo.sp_OrderPaymentApproval_GetList', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.sp_OrderPaymentApproval_GetList
-GO
-CREATE PROCEDURE dbo.sp_OrderPaymentApproval_GetList
-    @ActionUserId int,
-    @StatusFilter int  = -1,      /* -1 = all statuses visible to this user */
-    @FromDate     date = NULL,
-    @ToDate       date = NULL
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    DECLARE @EmpId int, @RoleTypeId int;
-
-    SELECT @EmpId = u.EmpInfoId, @RoleTypeId = ur.RoleTypeId
-    FROM dbo.tblUser u WITH (NOLOCK)
-    LEFT JOIN dbo.tbl_UserRoleInfo ur WITH (NOLOCK) ON ur.UserRoleID = u.UserRoleID
-    WHERE u.UserId = @ActionUserId;
-
-    SELECT
-        pa.OrderPaymentApprovalId,
-        pa.OrderId,
-        pa.OrderCode,
-        pa.CustomerCode,
-        pa.CustomerName,
-        pa.TerritoryId,
-        t.TerritoryName,
-        pa.OrderGrossValue,
-        pa.TotalDueAmount,
-        pa.BlockReason,
-        pa.ApprovalStatus,
-        CASE pa.ApprovalStatus
-             WHEN 0 THEN N'Pending AM Approval'
-             WHEN 1 THEN N'AM Approved'
-             WHEN 2 THEN N'Pending DZSM Approval'
-             WHEN 3 THEN N'DZSM Approved'
-             WHEN 4 THEN N'Pending NSM Approval'
-             WHEN 5 THEN N'Fully Approved'
-             WHEN 6 THEN N'Rejected'
-             WHEN 7 THEN N'Cancelled'
-             ELSE N'Unknown' END                       AS ApprovalStatusName,
-        pa.PaymentPlanVersion,
-        pa.IsScheduleLocked,
-        pa.RequestedDate,
-        /* Not every account maps to a tblEmpGeneralInfo row (Admin has EmpInfoId 0), and a
-           blank name in an approval trail is useless - fall back to the login name. */
-        COALESCE(reqEmp.EmpName, reqUsr.LoginName, N'')  AS RequestedByName,
-        ISNULL(sch.ScheduledAmount, 0)                 AS ScheduledAmount,
-        pa.TotalDueAmount - ISNULL(sch.ScheduledAmount, 0) AS RemainingAmount,
-
-        /* The single authority the UI renders its buttons from - never recomputed
-           client-side, and always re-verified by sp_OrderPaymentApproval_Act. */
-        CASE WHEN pa.IsActive = 1
-              AND (   (pa.ApprovalStatus = 0 AND @RoleTypeId = 2 AND pa.AMEmpId   = @EmpId)
-                   OR (pa.ApprovalStatus = 2 AND @RoleTypeId = 3 AND pa.DZSMEmpId = @EmpId)
-                   OR (pa.ApprovalStatus = 4 AND @RoleTypeId = 4 AND pa.NSMEmpId  = @EmpId))
-             THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS CanAct
-    FROM dbo.tblOrderPaymentApproval pa WITH (NOLOCK)
-    LEFT JOIN dbo.tblTerritory t WITH (NOLOCK) ON t.TerritoryId = pa.TerritoryId
-    LEFT JOIN dbo.tblEmpGeneralInfo reqEmp WITH (NOLOCK) ON reqEmp.EmpInfoId = pa.RequestedByEmpId
-    LEFT JOIN dbo.tblUser           reqUsr WITH (NOLOCK) ON reqUsr.UserId    = pa.RequestedByUserId
-    OUTER APPLY (
-        SELECT SUM(s.PaymentAmount) AS ScheduledAmount
-        FROM dbo.tblOrderPaymentApprovalSchedule s WITH (NOLOCK)
-        WHERE s.OrderPaymentApprovalId = pa.OrderPaymentApprovalId
-          AND s.PaymentPlanVersion     = pa.PaymentPlanVersion
-          AND s.IsActive               = 1
-    ) sch
-    WHERE (
-              (@RoleTypeId = 2 AND pa.AMEmpId   = @EmpId)
-           OR (@RoleTypeId = 3 AND pa.DZSMEmpId = @EmpId)
-           OR (@RoleTypeId = 4 AND pa.NSMEmpId  = @EmpId)
-           OR (@RoleTypeId = 5)                              /* Admin: read-only oversight */
-           OR (pa.RequestedByUserId = @ActionUserId)          /* own requests */
-          )
-      AND (@StatusFilter = -1 OR pa.ApprovalStatus = @StatusFilter)
-      AND (@FromDate IS NULL OR CONVERT(date, pa.RequestedDate) >= @FromDate)
-      AND (@ToDate   IS NULL OR CONVERT(date, pa.RequestedDate) <= @ToDate)
-    ORDER BY pa.ApprovalStatus ASC, pa.RequestedDate DESC;
-END
-GO
-
-/* -------------------------------------------------------------------------------------
-   7. sp_OrderPaymentApproval_GetDetail  -  header + schedule + history for one request
-   ------------------------------------------------------------------------------------- */
-
-IF OBJECT_ID('dbo.sp_OrderPaymentApproval_GetDetail', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.sp_OrderPaymentApproval_GetDetail
-GO
-CREATE PROCEDURE dbo.sp_OrderPaymentApproval_GetDetail
-    @OrderPaymentApprovalId int,
-    @ActionUserId           int
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    DECLARE @EmpId int, @RoleTypeId int;
-
-    SELECT @EmpId = u.EmpInfoId, @RoleTypeId = ur.RoleTypeId
-    FROM dbo.tblUser u WITH (NOLOCK)
-    LEFT JOIN dbo.tbl_UserRoleInfo ur WITH (NOLOCK) ON ur.UserRoleID = u.UserRoleID
-    WHERE u.UserId = @ActionUserId;
-
-    /* SEC-OPA-05 (IDOR): a request id the caller has no relationship with returns nothing,
-       not somebody else's customer and due figures. */
-    IF NOT EXISTS (
-        SELECT 1 FROM dbo.tblOrderPaymentApproval pa WITH (NOLOCK)
-        WHERE pa.OrderPaymentApprovalId = @OrderPaymentApprovalId
-          AND (   (@RoleTypeId = 2 AND pa.AMEmpId   = @EmpId)
-               OR (@RoleTypeId = 3 AND pa.DZSMEmpId = @EmpId)
-               OR (@RoleTypeId = 4 AND pa.NSMEmpId  = @EmpId)
-               OR (@RoleTypeId = 5)
-               OR  pa.RequestedByUserId = @ActionUserId)
-    )
-    BEGIN
-        RAISERROR('You are not authorized to view this approval request.', 16, 1);
-        RETURN;
-    END
-
-    SELECT
-        pa.*,
-        CASE pa.ApprovalStatus
-             WHEN 0 THEN N'Pending AM Approval'   WHEN 1 THEN N'AM Approved'
-             WHEN 2 THEN N'Pending DZSM Approval' WHEN 3 THEN N'DZSM Approved'
-             WHEN 4 THEN N'Pending NSM Approval'  WHEN 5 THEN N'Fully Approved'
-             WHEN 6 THEN N'Rejected'              WHEN 7 THEN N'Cancelled'
-             ELSE N'Unknown' END AS ApprovalStatusName,
-        CASE WHEN pa.IsActive = 1
-              AND (   (pa.ApprovalStatus = 0 AND @RoleTypeId = 2 AND pa.AMEmpId   = @EmpId)
-                   OR (pa.ApprovalStatus = 2 AND @RoleTypeId = 3 AND pa.DZSMEmpId = @EmpId)
-                   OR (pa.ApprovalStatus = 4 AND @RoleTypeId = 4 AND pa.NSMEmpId  = @EmpId))
-             THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS CanAct
-    FROM dbo.tblOrderPaymentApproval pa WITH (NOLOCK)
-    WHERE pa.OrderPaymentApprovalId = @OrderPaymentApprovalId;
-
-    SELECT s.ScheduleId, s.PaymentNo, s.PaymentDate, s.PaymentAmount, s.PaymentPlanVersion
-    FROM dbo.tblOrderPaymentApprovalSchedule s WITH (NOLOCK)
-    INNER JOIN dbo.tblOrderPaymentApproval pa WITH (NOLOCK)
-        ON pa.OrderPaymentApprovalId = s.OrderPaymentApprovalId
-       AND pa.PaymentPlanVersion     = s.PaymentPlanVersion
-    WHERE s.OrderPaymentApprovalId = @OrderPaymentApprovalId
-      AND s.IsActive = 1
-    ORDER BY s.PaymentNo;
-
-    SELECT h.HistoryId, h.ActionName, h.FromStatus, h.ToStatus, h.Remarks, h.RoleName,
-           h.PaymentPlanVersion, h.OldValue, h.NewValue, h.ActionDate,
-           COALESCE(e.EmpName, u.LoginName, N'') AS ActionByName
-    FROM dbo.tblOrderPaymentApprovalHistory h WITH (NOLOCK)
-    LEFT JOIN dbo.tblEmpGeneralInfo e WITH (NOLOCK) ON e.EmpInfoId = h.ActionEmpId
-    LEFT JOIN dbo.tblUser           u WITH (NOLOCK) ON u.UserId    = h.ActionUserId
-    WHERE h.OrderPaymentApprovalId = @OrderPaymentApprovalId
-    ORDER BY h.HistoryId;
-END
-GO
-
-/* -------------------------------------------------------------------------------------
-   8. sp_OrderPaymentApproval_CanCreateInvoice  -  the invoice-creation gate
-   -------------------------------------------------------------------------------------
-   Returns CanCreate (bit) + Reason (nvarchar) + ApprovalStatus (int, -1 = no request).
-   This is the authority behind both the button state and the server-side re-check that
-   runs when the button is actually clicked, so a forged/replayed postback gains nothing.
+   The authority for "may this order become an invoice right now". Called before every
+   navigation into invoice creation; a grid button state is a hint, not a control.
    ------------------------------------------------------------------------------------- */
 
 IF OBJECT_ID('dbo.sp_OrderPaymentApproval_CanCreateInvoice', 'P') IS NOT NULL
@@ -952,58 +858,112 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @IsMax bit, @IsCredit bit;
-    SELECT @IsMax = cv.IsMaxOutstandingExceeded, @IsCredit = cv.IsCreditPeriodExceeded
+    DECLARE @Blocked bit, @MaxOut bit, @CreditExc bit;
+
+    SELECT @MaxOut    = cv.IsMaxOutstandingExceeded,
+           @CreditExc = cv.IsCreditPeriodExceeded
     FROM dbo.fnOrderCreditValidation(@OrderId) cv;
 
-    DECLARE @Status int = -1;
-    SELECT @Status = ApprovalStatus
-    FROM dbo.tblOrderPaymentApproval WITH (NOLOCK)
-    WHERE OrderId = @OrderId AND IsActive = 1;
+    SET @Blocked = CASE WHEN ISNULL(@MaxOut, 0) = 1 OR ISNULL(@CreditExc, 0) = 1 THEN 1 ELSE 0 END;
 
-    IF ISNULL(@IsMax, 0) = 0 AND ISNULL(@IsCredit, 0) = 0
+    IF @Blocked = 0
     BEGIN
-        SELECT CAST(1 AS bit) AS CanCreate, N'' AS Reason, ISNULL(@Status, -1) AS ApprovalStatus;
+        SELECT CONVERT(bit, 1) AS CanCreate, CONVERT(nvarchar(200), NULL) AS Reason,
+               CONVERT(nvarchar(50), NULL) AS Status;
         RETURN;
     END
 
-    IF @Status = 5
+    DECLARE @Status nvarchar(50), @WaitingRole nvarchar(100);
+
+    SELECT @Status = st.Status,
+           @WaitingRole = rt.DisplayName
+    FROM dbo.fnOrderPaymentApprovalState(@OrderId) st
+    LEFT JOIN dbo.tblRoleType rt WITH (NOLOCK) ON rt.RoleTypeId = st.ToRoleTypeId;
+
+    IF @Status = 'Accepted'
     BEGIN
-        SELECT CAST(1 AS bit) AS CanCreate, N'' AS Reason, @Status AS ApprovalStatus;
+        SELECT CONVERT(bit, 1) AS CanCreate, CONVERT(nvarchar(200), NULL) AS Reason,
+               @Status AS Status;
         RETURN;
     END
 
     DECLARE @Reason nvarchar(200) =
-        CASE @Status
-             WHEN 0 THEN N'Approval pending with AM.'
-             WHEN 1 THEN N'Approval pending with AM.'
-             WHEN 2 THEN N'Approval pending with DZSM.'
-             WHEN 3 THEN N'Approval pending with DZSM.'
-             WHEN 4 THEN N'Approval pending with NSM.'
-             WHEN 6 THEN N'Payment approval was rejected.'
-             WHEN 7 THEN N'Payment approval request was cancelled.'
-             ELSE CASE WHEN ISNULL(@IsMax, 0) = 1
-                       THEN N'Customer already has maximum outstanding invoices.'
-                       ELSE N'Credit period exceeded.' END
+        CASE
+            WHEN @Status IS NULL     THEN CASE WHEN ISNULL(@MaxOut, 0) = 1
+                                               THEN 'Customer already has the maximum allowed outstanding invoices.'
+                                               ELSE 'Credit period exceeded.' END
+            WHEN @Status = 'Rejected' THEN 'The payment approval for this order was rejected.'
+            ELSE 'Waiting for ' + ISNULL(@WaitingRole, 'approval') + '.'
         END;
 
-    SELECT CAST(0 AS bit) AS CanCreate, @Reason AS Reason, ISNULL(@Status, -1) AS ApprovalStatus;
+    SELECT CONVERT(bit, 0) AS CanCreate, @Reason AS Reason, @Status AS Status;
 END
 GO
 
+
 /* -------------------------------------------------------------------------------------
-   9. EXISTING PROCS - surface the approval status on the Invoice Creation grid
+   9. sp_Get_OrderPaymentSchedule   -  the plan attached to an order
    -------------------------------------------------------------------------------------
-   Minimal change: one LEFT JOIN + two output columns on each of the two procs that feed
-   SInventory_UI/InvoiceCreationByOrder_daaw.aspx. No existing column, filter, join or
-   row-set changes, so every other consumer keeps its current behaviour.
-   Applied by ALTER below (see section 9a/9b) - run this script on a database that
-   already has the current version of both procs.
+   Used by the invoice-creation modal to pre-fill a rejected round for rework, and by
+   anything that wants the instalments as rows rather than as the one-line summary the
+   list proc renders.
    ------------------------------------------------------------------------------------- */
-PRINT 'Sections 9a/9b (ALTER of sp_LoadOrderListForOrderCreationbyTerri and';
-PRINT 'sp_LoadOrderListForOrderRouteDayWise) are in alter_orderlist_payment_approval.sql';
-PRINT 'so this script stays re-runnable independently of those two procs'' current text.';
+
+IF OBJECT_ID('dbo.sp_Get_OrderPaymentSchedule', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_Get_OrderPaymentSchedule
+GO
+CREATE PROCEDURE dbo.sp_Get_OrderPaymentSchedule
+    @OrderId     int,
+    @PlanVersion int = NULL      -- NULL = the latest plan
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @PlanVersion IS NULL
+        SELECT @PlanVersion = MAX(PlanVersion)
+        FROM dbo.tblOrderPaymentSchedule WITH (NOLOCK)
+        WHERE OrderId = @OrderId;
+
+    SELECT s.ScheduleId, s.OrderId, s.PlanVersion, s.PaymentNo, s.PaymentDate, s.PaymentAmount
+    FROM dbo.tblOrderPaymentSchedule s WITH (NOLOCK)
+    WHERE s.OrderId = @OrderId AND s.PlanVersion = @PlanVersion
+    ORDER BY s.PaymentDate;
+END
 GO
 
-PRINT 'Order Payment Approval - schema, functions and procedures deployed.';
+
+/* -------------------------------------------------------------------------------------
+   10. sp_Get_OrderPaymentAppHistory   -  full trail for one order
+   ------------------------------------------------------------------------------------- */
+
+IF OBJECT_ID('dbo.sp_Get_OrderPaymentAppHistory', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_Get_OrderPaymentAppHistory
+GO
+CREATE PROCEDURE dbo.sp_Get_OrderPaymentAppHistory
+    @OrderId int
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        L.OrderPaymentApprovalLogId AS LogId,
+        L.Round, L.Step, L.Status, L.Comments, L.EntryDate,
+        rtDid.DisplayName AS ActionRole,
+        rtNow.DisplayName AS WaitingForRole,
+        emp.EmpName       AS ActionBy
+    FROM dbo.tblOrderPaymentApprovalLog L WITH (NOLOCK)
+    LEFT JOIN dbo.tblRoleType rtDid WITH (NOLOCK) ON rtDid.RoleTypeId = L.RoleTypeId
+    LEFT JOIN dbo.tblRoleType rtNow WITH (NOLOCK) ON rtNow.RoleTypeId = L.ToRoleTypeId
+    LEFT JOIN dbo.tblEmpGeneralInfo emp WITH (NOLOCK) ON emp.EmpInfoId = L.FromEmpId
+    WHERE L.TableId = @OrderId
+    ORDER BY L.Round, L.Step;
+END
+GO
+
+
+PRINT 'Order Payment Approval objects deployed.';
+PRINT 'NEXT STEP: open UserPermission/ApprovalStepMap.aspx, pick menu "Order Payment Approval",';
+PRINT 'pick the From Role that raises the request, and configure the chain.';
+PRINT 'NOTE: the dropdown shows tblRoleType.DisplayName - "NSM" there is RoleTypeId 14,';
+PRINT 'and RoleTypeId 4 is shown as "Regional Head".';
 GO

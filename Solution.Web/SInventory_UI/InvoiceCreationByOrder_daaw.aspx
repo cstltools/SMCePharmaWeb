@@ -492,12 +492,21 @@
                                                         <ItemTemplate>
                                                              <asp:Button ID="gotoinvoiceButton" runat="server" Text="Go To Invoice >>" CssClass="btn btn-sm  btn-info"   OnClientClick="return sweetAlertConfirm_Submit(this);"
                                                                  OnClick="gotoinvoiceButton_Click" />
-                                                               <asp:Button ID="btnGoForApproval" runat="server" Text="Go for Approval" Visible="false" CssClass="btn btn-sm btn-warning" OnClientClick="return sweetAlertConfirm_Submit(this);"
-                                                                 OnClick="btnGoForApproval_Click" />
+                                                               <%-- Opens the payment commitment modal; the modal is the confirmation step,
+                                                                    so no sweetAlert confirm in front of it. --%>
+                                                               <asp:Button ID="btnGoForApproval" runat="server" Text="Go for Approval" Visible="false" CssClass="btn btn-sm btn-warning"
+                                                                 OnClick="btnGoForApproval_Click" CausesValidation="false" />
                                                                <asp:Label ID="lblApprovalStatus" runat="server" Visible="false" CssClass="badge bg-secondary" style="display:block; white-space:normal; max-width:180px; margin-top:5px;"></asp:Label>
                                                                <asp:Label ID="lblWarning" runat="server" ForeColor="Red" Font-Size="Smaller" style="display:block; white-space:normal; max-width:180px; word-wrap:break-word; margin-top:5px; line-height:1.2;"></asp:Label>
-                                                               <asp:HiddenField runat="server" ID="hfCustomerCode" Value='<%#Eval("CustomerCode")%>' /> 
+                                                               <asp:HiddenField runat="server" ID="hfCustomerCode" Value='<%#Eval("CustomerCode")%>' />
                                                                <asp:HiddenField runat="server" ID="hfDistributionRouteId" Value='<%# GetEvalString(Container.DataItem, "DistributionRouteId") %>' />
+                                                               <%-- Header values for the payment commitment modal. Display only: the
+                                                                    instalment total is re-validated against fnOrderCreditValidation
+                                                                    inside sp_Post_OrderPaymentApp, so a stale figure here can only
+                                                                    produce a clean error, never a wrong approval. --%>
+                                                               <asp:HiddenField runat="server" ID="hfOrderCodeApp" Value='<%# GetEvalString(Container.DataItem, "OrderCode") %>' />
+                                                               <asp:HiddenField runat="server" ID="hfCustomerNameApp" Value='<%# GetEvalString(Container.DataItem, "CustomerName") %>' />
+                                                               <asp:HiddenField runat="server" ID="hfDueAmountApp" Value='<%# GetEvalString(Container.DataItem, "DueAmount") %>' />
                                                          </ItemTemplate>
                                                      </asp:TemplateField>
 
@@ -688,6 +697,116 @@
 
         </asp:Panel>
     </div>
+
+    <%-- ==================================================================================
+         Order Payment Approval - payment commitment modal.
+
+         The instalment plan belongs to the REQUEST, not to the approval: the person
+         talking to the customer records what the customer committed to, and the managers
+         approve it or reject it. The approval page stays one-click, exactly like every
+         other page in the approval framework - see deploy_order_payment_approval.sql.
+
+         Same ModalPopupExtender idiom already used on this page for pnl_1.
+         ================================================================================== --%>
+    <div>
+        <cc1:ModalPopupExtender ID="mpeSchedule" runat="server" TargetControlID="hfScheduleTarget"
+            PopupControlID="pnlSchedule" BackgroundCssClass="modalBackground">
+        </cc1:ModalPopupExtender>
+
+        <asp:HiddenField ID="hfScheduleTarget" runat="server" />
+        <asp:HiddenField ID="hfScheduleOrderId" runat="server" />
+
+        <asp:Panel ID="pnlSchedule" runat="server" CssClass="modalPopup"
+            Style="display: none; padding: 10px; border: 1px solid #ccc; background-color: white; border-radius: 10px;"
+            Width="720px">
+
+            <asp:UpdatePanel ID="upSchedule" runat="server">
+                <ContentTemplate>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #ffc107; color: #212529; border-radius: 5px 5px 0 0;">
+                        <h5 style="margin: 0;">Payment Commitment &mdash; Go for Approval</h5>
+                        <asp:Button ID="btnScheduleClose" runat="server" Text="X" CssClass="btn-danger"
+                            OnClick="btnScheduleClose_Click" CausesValidation="false" />
+                    </div>
+
+                    <div class="row mt-3 mb-2">
+                        <div class="col-md-4"><small class="text-muted d-block">Order</small><asp:Label ID="lblScheduleOrder" runat="server" Font-Bold="true" /></div>
+                        <div class="col-md-4"><small class="text-muted d-block">Customer</small><asp:Label ID="lblScheduleCustomer" runat="server" /></div>
+                        <div class="col-md-4"><small class="text-muted d-block">Total Due</small><asp:Label ID="lblScheduleDue" runat="server" Font-Bold="true" /></div>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <asp:GridView ID="gvSchedule" runat="server" AutoGenerateColumns="False"
+                            CssClass="table table-bordered table-sm"
+                            OnRowCommand="gvSchedule_RowCommand" OnRowDataBound="gvSchedule_RowDataBound">
+                            <Columns>
+                                <asp:TemplateField HeaderText="#">
+                                    <ItemTemplate><%# Container.DataItemIndex + 1 %></ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Payment Date">
+                                    <ItemTemplate>
+                                        <asp:TextBox ID="txtPaymentDate" runat="server" CssClass="form-control form-control-sm schedulepicker"
+                                            autocomplete="off" placeholder="dd-MMM-yyyy" />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Amount">
+                                    <ItemTemplate>
+                                        <asp:TextBox ID="txtPaymentAmount" runat="server" CssClass="form-control form-control-sm text-end"
+                                            autocomplete="off" placeholder="0.00" />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="btnRemoveRow" runat="server" CssClass="btn btn-sm btn-outline-danger"
+                                            CommandName="RemoveRow" CommandArgument='<%# Container.DataItemIndex %>'
+                                            CausesValidation="false" Text="Remove" />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                            </Columns>
+                        </asp:GridView>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <asp:LinkButton ID="btnAddScheduleRow" runat="server" CssClass="btn btn-sm btn-outline-secondary"
+                            OnClick="btnAddScheduleRow_Click" CausesValidation="false">
+                            <i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Add Instalment
+                        </asp:LinkButton>
+                        <asp:Label ID="lblScheduleTotal" runat="server" CssClass="badge bg-secondary" />
+                    </div>
+
+                    <div class="mt-2">
+                        <asp:Label ID="lblScheduleError" runat="server" ForeColor="Red" Font-Size="Smaller" />
+                    </div>
+
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            Instalment dates must be today or later and unique. The instalment total must
+                            equal the Total Due.
+                        </small>
+                    </div>
+
+                    <div class="mt-3 text-end">
+                        <asp:Button ID="btnScheduleSubmit" runat="server" Text="Send for Approval"
+                            CssClass="btn btn-sm btn-warning" OnClick="btnScheduleSubmit_Click" />
+                        <asp:Button ID="btnScheduleCancel" runat="server" Text="Cancel"
+                            CssClass="btn btn-sm btn-outline-secondary" OnClick="btnScheduleClose_Click"
+                            CausesValidation="false" />
+                    </div>
+
+                </ContentTemplate>
+            </asp:UpdatePanel>
+        </asp:Panel>
+    </div>
+
+    <script type="text/javascript">
+        // Re-wire the date picker after every partial postback, so rows added with
+        // "Add Instalment" get one too.
+        function pageLoad() {
+            if (window.jQuery && jQuery.fn.pickadate) {
+                $('.schedulepicker').pickadate({ selectMonths: true, selectYears: true, format: 'dd-mmm-yyyy' });
+            }
+        }
+    </script>
 
 
     <asp:UpdatePanel ID="UpdatePanel1" runat="server" Visible="False">

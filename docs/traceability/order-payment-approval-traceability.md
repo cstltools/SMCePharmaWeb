@@ -1,14 +1,17 @@
 ﻿# Requirement Traceability — Order Payment Approval System
 
-Date: 2026-08-20 · Requirement IDs defined in `requirements.md` ·
-Test suites: `test_order_payment_approval.ps1` (procedure layer, 60 assertions) and a scripted
-browser drive of the real pages (34 assertions) — both passing.
+Date: 2026-08-25 (rebuilt on the shared approval framework; first version 2026-08-20) ·
+Requirement IDs defined in `requirements.md` ·
+Test suite: `test_order_payment_approval.ps1` — 46 assertions at the procedure layer, passing.
 
 Each row traces **Requirement → UI → Service → Repository → Stored procedure → Database → Test**.
 Nothing in `requirements.md` is absent from this table.
 
-`§n` references point into `test_order_payment_approval.ps1`'s output. `UI§n` references point into
-the browser drive, summarised in `docs/implementation/order-payment-approval-plan.md` §11.
+`§n` references point into `test_order_payment_approval.ps1`'s output.
+
+A browser drive is **not** recorded here: the 2026-08-20 pass covered pages the rebuild replaced,
+so `UI§n` references have been removed rather than left pointing at a withdrawn design. NFR-OPA-08
+is open.
 
 ---
 
@@ -16,80 +19,89 @@ the browser drive, summarised in `docs/implementation/order-payment-approval-pla
 
 | ID | UI | Service | Repository | Stored procedure | Database | Test |
 |---|---|---|---|---|---|---|
-| FR-OPA-01 Credit validation gates invoice creation | `InvoiceCreationByOrder_daaw.aspx.cs` `orderGridView_RowDataBound` | — (proc-computed) | — | `sp_LoadOrderListForOrderCreationbyTerri`, `sp_LoadOrderListForOrderRouteDayWise` | `tblOrder`, `tblInvoice`, `tblInvoiceDetail`, `tblCustPayDetail`, `tblInvoiceNotBinding` | §1, §10, §11 |
-| FR-OPA-02 Normal order → **Go To Invoice >>** | `gotoinvoiceButton` (`.aspx:493`) | `OrderPaymentApprovalService.CanCreateInvoice` | `OrderPaymentApprovalRepository.CanCreateInvoice` | `sp_OrderPaymentApproval_CanCreateInvoice` | `tblOrderPaymentApproval` (left join)  | §10 "Normal order can create an invoice", UI§6 |
-| FR-OPA-03 Blocked order → **Go for Approval** | `btnGoForApproval` + `btnGoForApproval_Click` | `.Request` | `.Request` | `sp_OrderPaymentApproval_Request` | `tblOrderPaymentApproval`, `…History`  | §2 "Request created", UI§1–2 |
-| FR-OPA-04 Approver chain resolved from the order's territory | — | — | — | `dbo.fnOrderApproverChain` inside `_Request` | `tblTerritory`, `tblArea`, `tblRegion`, `tblASMInfo`, `tblRSMInfo`, `tblNSMInfo` | §0 seed + §2 |
-| FR-OPA-05 AM approval | `OrderPaymentApprovalList.aspx` `btnApprove_Click` | `.Approve` | `.Act` | `sp_OrderPaymentApproval_Act` (status 0) | `tblOrderPaymentApproval`, `…Schedule`, `…History`  | §5, UI§3 |
-| FR-OPA-06 Payment schedule captured at the AM step | `gvScheduleEdit` + `btnAddRow_Click` | `.Approve(schedule)` | `.Act` → `BuildScheduleXml` | `sp_OrderPaymentApproval_Act` `@ScheduleXml` | `tblOrderPaymentApprovalSchedule`  | §4, §5, UI§3 |
-| FR-OPA-07 DZSM approval | same page, role-scoped | `.Approve` | `.Act` | `sp_OrderPaymentApproval_Act` (status 2) | as above  | §6, UI§4 |
-| FR-OPA-08 NSM final approval | same page, role-scoped | `.Approve` | `.Act` | `sp_OrderPaymentApproval_Act` (status 4 → 5) | `IsScheduleLocked = 1`  | §7, UI§5 |
-| FR-OPA-09 Rejection at any level | `btnReject_Click` | `.Reject` | `.Act` | `sp_OrderPaymentApproval_Act` (`@Action='Reject'`) | status 6, `IsActive = 0` | §9 |
-| FR-OPA-10 Cancellation by the requester | (service/proc ready; no button — see OQ-3) | `.Cancel` | `.Act` | `sp_OrderPaymentApproval_Act` (`@Action='Cancel'`) | status 7, `IsActive = 0` | proc path covered by the closed-request assertion, §7 |
-| FR-OPA-11 Fully approved → invoice allowed | `orderGridView_RowDataBound` status 5 branch | `.CanCreateInvoice` | `.CanCreateInvoice` | `sp_OrderPaymentApproval_CanCreateInvoice` | `tblOrderPaymentApproval.ApprovalStatus = 5`  | §7 "Invoice creation now allowed", UI§6 |
-| FR-OPA-12 Re-submission after rejection | `btnGoForApproval` reappears (status resolves to −1) | `.Request` | `.Request` | `sp_OrderPaymentApproval_Request` | filtered unique index on `IsActive = 1` | §9 "Re-submission after rejection is allowed" |
-| FR-OPA-13 Approver worklist | `OrderPaymentApprovalList.aspx` `gvApprovalList` | `.GetList` | `.GetList` | `sp_OrderPaymentApproval_GetList` | all three tables  | §3 IDOR + UI§3–5 (AM/DZSM/NSM each saw only their own step) |
-| FR-OPA-14 Request detail: header + schedule + history | `pnlDetail`, `gvScheduleView`, `gvHistory` | `.GetDetail` | `.GetDetail` | `sp_OrderPaymentApproval_GetDetail` | all three tables  | §3 "Stranger cannot read…", UI§3–5 |
-| FR-OPA-15 Status visible on the Invoice Creation grid | `lblApprovalStatus` | — | — | the two list procs' `PaymentApprovalStatus` | `tblOrderPaymentApproval`  | §11 "PaymentApprovalStatus column present", UI§2 |
-| FR-OPA-16 Menu entry | `tblMainMenuNew` SL 383 | — | — | — | `tblMainMenuNew`, `tblMenuRole` | verified live after applying the menu script |
+| FR-OPA-01 Credit validation gates invoice creation | `InvoiceCreationByOrder_daaw.aspx.cs` `orderGridView_RowDataBound` | — (proc-computed) | — | `sp_LoadOrderListForOrderCreationbyTerri`, `sp_LoadOrderListForOrderRouteDayWise` | `tblOrder`, `tblInvoice`, `tblInvoiceDetail`, `tblCustPayDetail`, `tblInvoiceNotBinding` | §2, §12 |
+| FR-OPA-02 Normal order → **Go To Invoice >>** | `gotoinvoiceButton` | `.CanCreateInvoice` | `.CanCreateInvoice` | `sp_OrderPaymentApproval_CanCreateInvoice` | `fnOrderCreditValidation`, `fnOrderPaymentApprovalState` | §2 |
+| FR-OPA-03 Blocked order → **Go for Approval** → commitment modal | `btnGoForApproval` → `pnlSchedule` / `mpeSchedule`; `btnScheduleSubmit_Click` | `.Post` | `.Post` → `BuildScheduleXml` | `sp_Post_OrderPaymentApp` | `tblOrderPaymentApprovalLog`, `tblOrderPaymentSchedule` | §4 |
+| FR-OPA-04 The chain is configuration, not code | `UserPermission/ApprovalStepMap.aspx` (existing page, unchanged) | — | — | `sp_Post_OrderPaymentApp`, `sp_Save_OrderPaymentAppLog` read `tblApprovalMapMaster`/`Detail` | `tblApprovalMapMaster`, `tblApprovalMapDetail`, `tblRoleType` | §0 reads the live chain; §7 walks whatever it finds |
+| FR-OPA-05 An approver acts only at their own step | `loadGridView_RowCommand` `ApproveData` | `.Approve` | `.Save` | `sp_Save_OrderPaymentAppLog` | `tblOrderPaymentApprovalLog.ToRoleTypeId` | §5, §7 |
+| FR-OPA-06 Payment commitment captured with the request | `gvSchedule` + `btnAddScheduleRow_Click` / `gvSchedule_RowCommand` | `.Post(schedule)` | `.Post` → `@ScheduleXml` | `sp_Post_OrderPaymentApp` | `tblOrderPaymentSchedule` | §3, §4 |
+| FR-OPA-07 Rejection closes the round | `loadGridView_RowCommand` `RejectData` + per-row `txtRemarks` | `.Reject` | `.Save` | `sp_Save_OrderPaymentAppLog` (`@Action='Reject'`) | `Status = 'Rejected'`, `ToRoleTypeId = NULL` | §5, §10 |
+| FR-OPA-08 Re-submission after rejection | `btnGoForApproval` reappears (status resolves to `Rejected`) | `.Post` | `.Post` | `sp_Post_OrderPaymentApp` | new `Round`, new `PlanVersion` | §10 |
+| FR-OPA-09 Approved order → invoice allowed | `orderGridView_RowDataBound` `Accepted` branch | `.CanCreateInvoice` | `.CanCreateInvoice` | `sp_OrderPaymentApproval_CanCreateInvoice` | `fnOrderPaymentApprovalState` | §8 |
+| FR-OPA-10 Approver worklist | `OrderPaymentApprovalList.aspx` `loadGridView` + `IVMarketStructureInvoSearch.ascx` | `.GetList` | `.GetList` | `sp_Get_OrderPaymentApp` | `tblOrderPaymentApprovalLog`, `tblOrderPaymentSchedule`, `View_Webapi_EmployeeFieldForceInfo` | §6 |
+| FR-OPA-11 Approval history | `lbHistory` → `pnlHistory` / `gvHistory` | `.GetHistory` | `.GetHistory` | `sp_Get_OrderPaymentAppHistory` | `tblOrderPaymentApprovalLog` | §9 |
+| FR-OPA-12 Status visible on the Invoice Creation grid | `lblApprovalStatus` | — | — | the two list procs' `PaymentApprovalStatus` / `PaymentApprovalWaitingRole` | `tblOrderPaymentApprovalLog` (via `OUTER APPLY … TOP 1`) | §12 |
+| FR-OPA-13 Menu entry and configurability | `tblMainMenuNew` SL 383, `IsApprovalPage = 1` | — | — | `sp_GET_MainMenuByType` (existing) reads the flag | `tblMainMenuNew`, `tblMenuRole` | verified live after applying the menu script |
+| FR-OPA-14 Missing configuration must never auto-approve | error alert on the modal | `.Post` returns the proc message | `.Post` → `SqlException 50000` | `sp_Post_OrderPaymentApp`, `sp_Save_OrderPaymentAppLog` | `tblApprovalMapMaster` absence | §11 |
+
+**Withdrawn from the first version** — no longer traced because the behaviour no longer exists:
+`FR-OPA-10 (cancellation)`, `FR-OPA-14 (three-result-set detail panel)`, and the
+territory-derived chain formerly traced through `dbo.fnOrderApproverChain` and
+`tblASMInfo`/`tblRSMInfo`/`tblNSMInfo`.
 
 ## Business rules
 
 | ID | Rule | Enforced in | Test |
 |---|---|---|---|
-| BR-OPA-01 | Approval may only be requested for a genuinely credit-blocked order | `sp_OrderPaymentApproval_Request` via `dbo.fnOrderCreditValidation` | §10 "not credit blocked" |
-| BR-OPA-02 | At most one live request per order | filtered unique index + 2601/2627 catch | §2 "Duplicate request rejected" |
-| BR-OPA-03 | A request needs a complete AM/DZSM/NSM chain | `sp_OrderPaymentApproval_Request` | §0 seed requires it; negative path is proc-guarded |
-| BR-OPA-04 | Strict transitions 0→2→4→5, or →6/→7 | `sp_OrderPaymentApproval_Act` | §5–§7 |
-| BR-OPA-05 | A closed request (5/6/7) is immutable | `sp_OrderPaymentApproval_Act` | §7 "already closed" |
-| BR-OPA-06 | An already-invoiced order cannot enter the workflow | `sp_OrderPaymentApproval_Request` (`IsInvoice = 1` guard) | proc-guarded |
-| BR-OPA-07 | NSM final approval locks the schedule | `sp_OrderPaymentApproval_Act` sets `IsScheduleLocked` | §7 "Payment schedule is locked" |
-| BR-OPA-08 | Only the AM step authors the payment plan | `sp_OrderPaymentApproval_Act` | §6 "DZSM cannot rewrite the payment schedule" |
-| BR-OPA-09 | Total due is snapshotted at request time | `sp_OrderPaymentApproval_Request` | §2 "Total due snapshotted" |
+| BR-OPA-01 | Approval may only be requested for a genuinely credit-blocked order | `sp_Post_OrderPaymentApp` via `fnOrderCreditValidation` | proc-guarded; §1 seeds only blocked orders |
+| BR-OPA-02 | At most one live round per order | `sp_Post_OrderPaymentApp` + `UNIQUE (TableId, Round, Step)` | §4 "A second request while one is live is refused" |
+| BR-OPA-03 | A chain must be configured for the raising role | `sp_Post_OrderPaymentApp` | §11 "An unconfigured role gets an error, not a silent auto-approve" |
+| BR-OPA-04 | The request advances only to the next configured role | `sp_Save_OrderPaymentAppLog` | §7 status after each step; §5 "cannot jump the queue" |
+| BR-OPA-05 | A closed round is immutable | `sp_Save_OrderPaymentAppLog` | §7 "cannot approve the same request twice" |
+| BR-OPA-06 | An already-invoiced order cannot enter the workflow | `sp_Post_OrderPaymentApp` (`IsInvoice = 1` guard) | proc-guarded |
+| BR-OPA-07 | The plan belongs to the round and is fixed once submitted | no update path exists | §10 (rework goes through reject → new round) |
+| BR-OPA-08 | Total Due is snapshotted on the round | `DueAmount` on the log row | §4 |
+| BR-OPA-09 | Existing invoice-creation behaviour is unchanged | `OUTER APPLY … TOP 1` only | §12 "did not duplicate or drop rows" (27 → 27) |
 
-## Validation rules (payment schedule — all server-side)
+## Validation rules (payment commitment — all server-side)
 
 | ID | Rule | Enforced in | Test |
 |---|---|---|---|
-| VR-OPA-10 | At least one instalment | `sp_OrderPaymentApproval_Act` | §4 "Empty schedule rejected" |
-| VR-OPA-11 | Payment date ≥ today | " | §4 "Past payment date rejected", UI§3 |
-| VR-OPA-12 | Payment amount > 0 | " + `CK_tblOPASchedule_Amount` | §4 zero + negative |
-| VR-OPA-13 | No duplicate payment date | " + `UX_tblOPASchedule_Date` | §4 "Duplicate payment date rejected" |
-| VR-OPA-14 | Dates ascending (`PaymentNo` assigned by date order) | `ROW_NUMBER() OVER (ORDER BY d, a)` | §5 "Payment numbers are date-ordered" |
-| VR-OPA-15 | `SUM(PaymentAmount) = TotalDueAmount` (±0.005) | `sp_OrderPaymentApproval_Act` | §4 "not equal to total due", §5 "Scheduled total equals total due", UI§3 (message surfaced verbatim in the browser) |
-| VR-OPA-16 | Schedule accepted only on the AM step | " | §6 "Only the AM step", UI§4 (DZSM gets no editor at all) |
-| VR-OPA-17 | Rejection requires a reason | `sp_OrderPaymentApproval_Act` + `OrderPaymentApprovalService.Reject` | §9 "Rejection without a reason is refused" |
-| VR-OPA-18 | Malformed date/amount text reported per instalment | `OrderPaymentApprovalList.aspx.cs` `ParseSchedule` | UI-level; proc rejects anything that gets past it |
+| VR-OPA-10 | At least one instalment | `sp_Post_OrderPaymentApp` | §3 "No schedule at all is refused" |
+| VR-OPA-11 | Payment date ≥ today | " | §3 "A date in the past is refused" |
+| VR-OPA-12 | Payment amount > 0 | " + `CK_tblOPS_Amount` | §3 (client-side per-instalment check for 0 / blank) |
+| VR-OPA-13 | No duplicate payment date | " + `UX_tblOPS_Order_Version_Date` | §3 "Duplicate dates are refused" |
+| VR-OPA-14 | `PaymentNo` follows date order | `ROW_NUMBER() OVER (ORDER BY PaymentDate)` | §4 "Instalments stored against plan version 1" |
+| VR-OPA-15 | `SUM(PaymentAmount) = DueAmount` (±0.01) | `sp_Post_OrderPaymentApp` | §3 "A total below the due amount is refused" (message carries both figures) |
+| VR-OPA-17 | Rejection requires a reason | `sp_Save_OrderPaymentAppLog` + `OrderPaymentApprovalService.Reject` | §5 "Rejecting without a reason is refused" |
+| VR-OPA-18 | Malformed date/amount reported per instalment | `InvoiceCreationByOrder_daaw.aspx.cs` `btnScheduleSubmit_Click` | UI-level; the proc refuses anything that gets past it |
+| VR-OPA-19 | Date and amount both mandatory on a filled row | " | UI-level |
+| — | Nothing is written by a refused attempt | transaction + validate-before-write ordering | §3 "Nothing was written by the refused attempts" (= 0 rows) |
 
 ## Security
 
 | ID | Control | Enforced in | Test |
 |---|---|---|---|
-| SEC-OPA-01 | Identity and role resolved from `@ActionUserId`; nothing role-shaped is a parameter | all five procs | §3 (all four bypass attempts) |
-| SEC-OPA-02 | Caller's role type must own the current status | `sp_OrderPaymentApproval_Act` | §3, §5, §6, §7 |
-| SEC-OPA-03 | Caller must be the employee the request was routed to | `sp_OrderPaymentApproval_Act` | §3 "MIO cannot approve anything" |
-| SEC-OPA-04 | Worklist scope derived from the caller, not from a client filter | `sp_OrderPaymentApproval_GetList` | by construction |
-| SEC-OPA-05 | Detail refuses an unrelated request id (IDOR) | `sp_OrderPaymentApproval_GetDetail` | §3 "Stranger cannot read the request" |
-| SEC-OPA-06 | Invoice gate re-checked server-side on every path | `gotoinvoiceButton_Click`, `DataValidation()`, `InvoiceCreationForCustomerByOrder.Page_Load` | §1, §5, §7, §9, UI§1/UI§6 |
+| SEC-OPA-01 | Identity and role resolved from `@ActionUserId`; nothing role-shaped is a parameter | all five procs | by construction; §5 |
+| SEC-OPA-02 | The caller's role must be the one the request is waiting on | `sp_Save_OrderPaymentAppLog` | §5 "A later-stage approver cannot jump the queue" |
+| SEC-OPA-03 | The caller must be inside the request's market | `sp_Save_OrderPaymentAppLog` | §5 "Right role, wrong market is refused" |
+| SEC-OPA-04 | No level may be skipped | the current row's `ToRoleTypeId` is the gate | §5, §7 |
+| SEC-OPA-05 | The worklist never returns a row outside the caller's scope | `sp_Get_OrderPaymentApp` | §6 (a later-stage approver sees it but `CanAct` is false) |
+| SEC-OPA-06 | Invoice gate re-checked server-side on every path | `gotoinvoiceButton_Click`, `DataValidation()`, `InvoiceCreationForCustomerByOrder.Page_Load` | §2, §8, §10 |
 | SEC-OPA-07 | No dynamic SQL; every parameter bound | all new procs and repository methods | by construction |
-| SEC-OPA-08 | Proc messages JavaScript-encoded before reaching the browser | `RegisterClientAlert` on both pages | by construction |
-| SEC-OPA-09 | Page reachable only through the menu-permission gate | `UserPermissionValidation()` | matches the other Approval_UI pages |
+| SEC-OPA-08 | Proc messages JavaScript-encoded before reaching the browser | `HttpUtility.JavaScriptStringEncode` on both pages | by construction |
+| SEC-OPA-09 | Page reachable only through the menu-permission gate | `UserPersmissionValidation()` | matches the other Approval_UI pages |
+| SEC-OPA-10 | Oversight roles do not gain the ability to act | no role is special-cased; the chain decides | by construction (contrast `CustomerApproveList`, which bypasses for 4 / 5 / 14) |
+| SEC-OPA-11 | CSRF | ViewState MAC + `sessionState InProc` | existing platform behaviour |
 
 ## Audit
 
 | ID | Requirement | Enforced in | Test |
 |---|---|---|---|
-| AUD-OPA-01 | User, role, action, timestamp, from/to status, remarks recorded per action | `tblOrderPaymentApprovalHistory` writes in both procs | §8 "Full history recorded" |
-| AUD-OPA-02 | Payment plan version recorded | `PaymentPlanVersion` column | §5 "Payment plan version incremented" |
-| AUD-OPA-03 | Old/new value recorded where applicable (the schedule text on AM approval) | `NewValue` column | §8 |
-| AUD-OPA-04 | Audit rows are never silently overwritten | `trg_tblOrderPaymentApprovalHistory_NoChange` | §8 update + delete both refused |
+| AUD-OPA-01 | Person, role, action, timestamp, remarks per action | `tblOrderPaymentApprovalLog` — the log **is** the state, so state cannot change without an audit row | §9 "One history row per action" |
+| AUD-OPA-02 | Plan version recorded | `tblOrderPaymentSchedule.PlanVersion` = log `Round` | §10 "...with its own plan version" |
+| AUD-OPA-03 | Earlier rejected attempts survive | new `Round`; nothing overwritten or deactivated | §10 |
+| AUD-OPA-04 | A full cycle is reconstructable | `sp_Get_OrderPaymentAppHistory` | §9 |
 
 ## Non-functional
 
 | ID | Requirement | How met | Evidence |
 |---|---|---|---|
-| NFR-OPA-01 | No regression on the Invoice Creation grid | additive `LEFT JOIN` on a unique filtered index | §11 "did not duplicate or drop rows" (27 → 27) |
-| NFR-OPA-02 | Multi-statement changes are transactional | `BEGIN TRAN` + `XACT_ABORT ON` in both write procs | §4 "Nothing was persisted by the rejected attempts" |
-| NFR-OPA-03 | Concurrent approval is safe | `UPDATE … WHERE ApprovalStatus = @expected` + `@@ROWCOUNT` | §5 "AM cannot approve twice" |
-| NFR-OPA-04 | Follows existing architecture and UI conventions | Service → Repository → proc; `NewMasterPage`, Bootstrap 5, GridView, pickadate, SweetAlert | code review + UI§1–7 screenshots reviewed |
-| NFR-OPA-05 | Deployment is idempotent and reversible | `deploy_order_payment_approval.sql` is re-runnable; rollback in the plan §13 | re-run verified |
+| NFR-OPA-01 | No regression on the Invoice Creation grid | `OUTER APPLY … TOP 1` cannot multiply rows | §12 (27 → 27) |
+| NFR-OPA-02 | Multi-statement changes are transactional | `BEGIN TRAN` + `XACT_ABORT ON` in both write procs | §3 "Nothing was written by the refused attempts" |
+| NFR-OPA-03 | Concurrent approval is safe | `UPDLOCK, HOLDLOCK` on the current-row read + `UNIQUE (TableId, Round, Step)` | §7 "cannot approve the same request twice" |
+| NFR-OPA-04 | Follows existing architecture and UI conventions | Service → Repository → proc; page shaped like `CustomerApproveList.aspx` | code review |
+| NFR-OPA-05 | Deployment is idempotent and reversible | `deploy_order_payment_approval.sql` re-runnable and drops the first version; rollback in plan §13 | re-run verified |
+| NFR-OPA-06 | Rules live where every future caller inherits them | all rules in stored procedures | by construction |
+| NFR-OPA-07 | No unrelated module changed | only the files in the impact analysis | `git status` |
+| NFR-OPA-08 | Works in a real browser | — | **Open.** Not re-run after the rebuild. |
