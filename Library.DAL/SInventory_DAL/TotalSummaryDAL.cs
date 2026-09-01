@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -565,6 +565,13 @@ WHERE I.TpGrandTotal>0 AND I.InvoiceDate BETWEEN @FromDate and @ToDate  GROUP BY
             aSqlParameterList.Add(new SqlParameter("@Year", year));
             aSqlParameterList.Add(new SqlParameter("@Month", month));
             return aCommonInternalDal.GetDataTableUsingReader("sp_RptBussinessSummary_DayWise", aSqlParameterList, "SSIDB");
+        }
+        public DataTable LoadRptBussinessSummary_DCWiseDAL(int year, int month)
+        {
+            List<SqlParameter> aSqlParameterList = new List<SqlParameter>();
+            aSqlParameterList.Add(new SqlParameter("@Year", year));
+            aSqlParameterList.Add(new SqlParameter("@Month", month));
+            return aCommonInternalDal.GetDataTableUsingReader("sp_RptBussinessSummary_DCWise", aSqlParameterList, "SSIDB");
         }
         public DataTable LoadRptNegativeClosingStockDAL(int comUnitId, DateTime fromDate)
         {

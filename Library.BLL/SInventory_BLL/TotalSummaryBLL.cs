@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -267,6 +267,11 @@ namespace Library.BLL.SInventory_BLL
         public DataTable LoadRptBussinessSummary_DayWiseDAL(int comUnitId, int year, int month)
         {
             return aTotalSummaryDAL.LoadRptBussinessSummary_DayWiseDAL(comUnitId, year, month);
+        }
+
+        public DataTable LoadRptBussinessSummary_DCWiseDAL(int year, int month)
+        {
+            return aTotalSummaryDAL.LoadRptBussinessSummary_DCWiseDAL(year, month);
         }
 
         public DataTable LoadRptNegativeClosingStockDAL(int comUnitId, DateTime fromDate)
