@@ -704,7 +704,7 @@
 | `sp_GetCustomerProviderTypeApproveList` | @Parm nvarchar | S |  |  |  |  | tblCustomerPropUpdateMaster, tblEmpGeneralInfo, tbluser | `spec/database/procs/sp_GetCustomerProviderTypeApproveList.sql` |
 | `sp_GetDCRRXDoctorWiseRptView` | @Month nvarchar, @Year nvarchar, @Type nvarchar | S |  |  |  |  | tblDCRRXDoctorWiseReport | `spec/database/procs/sp_GetDCRRXDoctorWiseRptView.sql` |
 | `sp_GetDoctorProviderTypeApproveList` | @Parm nvarchar | S |  |  |  |  | tblDoctorPropUpdateMaster, tblEmpGeneralInfo, tbluser | `spec/database/procs/sp_GetDoctorProviderTypeApproveList.sql` |
-| `sp_GetInvoiceNotBindingById` | @InvoiceNotBindingId INT | S |  |  |  |  | tblCustMaster, tblInvoiceNotBinding | `spec/database/procs/sp_GetInvoiceNotBindingById.sql` |
+| `sp_GetInvoiceNotBindingById` | @InvoiceNotBindingId INT | S |  |  |  |  | tblCustMaster, tblCustomerType, tblInvoiceNotBinding | `spec/database/procs/sp_GetInvoiceNotBindingById.sql` |
 | `sp_GetInvoiceNotBindingList` | (none) | S |  |  |  |  | tblCustMaster, tblCustomerType, tblInvoiceNotBinding | `spec/database/procs/sp_GetInvoiceNotBindingList.sql` |
 | `sp_GetMarketInfoApprovalList` | @Parm nvarchar | S |  |  |  |  | tblEmpGeneralInfo, tblMarketPropMaster, tbluser | `spec/database/procs/sp_GetMarketInfoApprovalList.sql` |
 | `sp_GetOrganogramreportList` | @Parm nvarchar | S |  |  |  |  | View_webapi_FieldForce, tblCustMaster, tblDoctorMaster, tblRouteInformationMarketDetail | `spec/database/procs/sp_GetOrganogramreportList.sql` |

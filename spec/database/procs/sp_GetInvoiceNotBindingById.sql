@@ -1,4 +1,4 @@
-﻿
+
 CREATE PROCEDURE [dbo].[sp_GetInvoiceNotBindingById]
 	@InvoiceNotBindingId INT
 AS
@@ -13,6 +13,7 @@ BEGIN
 		C.CustomerName,
 		ISNULL(C.CellNo, '') AS MobileNo,
 		INB.CustomerTypeId,
+		CT.CustomerType AS CustomerTypeName,
 		INB.ActiveFromDate,
 		INB.ActiveToDate,
 		ISNULL(INB.AllowedNoOfInvoice, 4) AS AllowedNoOfInvoice,
@@ -22,5 +23,6 @@ BEGIN
 		INB.IsActive
 	FROM dbo.tblInvoiceNotBinding INB
 	LEFT JOIN dbo.tblCustMaster C ON INB.CustomerId = C.CustomerMasterId
+	LEFT JOIN dbo.tblCustomerType CT ON INB.CustomerTypeId = CT.CustomerTypeId
 	WHERE INB.InvoiceNotBindingId = @InvoiceNotBindingId;
 END

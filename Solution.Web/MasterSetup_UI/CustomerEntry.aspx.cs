@@ -763,6 +763,19 @@ public partial class MasterSetup_UI_CustomerEntry : System.Web.UI.Page
         //    }
         //}
 
+        // Not-yet-approved customers have no CustomerCode, so they cannot be made active.
+        if (chkIsActive.Checked && id_mastetID.Value != "")
+        {
+            using (DataTable dtChk = _DAL.GetCustomerSetupById(id_mastetID.Value))
+            {
+                if (dtChk.Rows.Count > 0 && string.IsNullOrWhiteSpace(dtChk.Rows[0]["CustomerCode"].ToString()))
+                {
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "Success", "<script>showpop6('Customer need to approve!')</script>", false);
+                    return false;
+                }
+            }
+        }
+
         if (txtMobile.Text != "")
         {
             if (txtMobile.Text.Length != 11)

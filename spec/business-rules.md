@@ -485,6 +485,11 @@ until traced to a single call site.
 - **Hard-coded backdoor**: `CustomerEntry.aspx.cs:349` and `CustomerView.aspx.cs:320` — `Session["LoginName"] == "53323"` re-enables all fields regardless of role; `CustomerEntry.aspx.cs:71` has a second hard-coded login `"51419"`.
 - `CustomerEntry.aspx.cs:766-778` — Mobile number must be 11 digits: `"Mobile NO must be 11 digits!"`
 - **Disabled**: `CustomerEntry.aspx.cs:752-764` — NID length check commented out.
+- **Active requires approval (added 2026-09-01)**: `CustomerEntry.aspx.cs:766-778` — an existing
+  customer cannot be saved with `chkIsActive` checked while its `CustomerCode` is still blank.
+  A blank `CustomerCode` is the marker for "not yet approved" (the code is assigned at approval),
+  so the save is blocked with `"Customer need to approve!"`. Checked via
+  `CustomerInfoDAL.GetCustomerSetupById`; only applies on edit (`id_mastetID` non-empty).
 - `CustomerView.aspx.cs:299-320` — Permission gate (role≠2 without permission row → redirect to Dashboard), same backdoor login override.
 - **Doctor tagging (added 2026-08-09)**: `CustomerEntry.aspx`'s `ddlDoctorTag` multi-select lets a
   customer be tagged to zero or more doctors, following the same pattern as the page's existing

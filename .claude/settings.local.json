@@ -33,7 +33,8 @@
       "Bash(sqlcmd *)",
       "Bash(powershell -NoProfile -Command \"Get-Process iisexpress -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue; Write-Output done\")",
       "Bash(find \"/c/Program Files \\(x86\\)/Microsoft Visual Studio\" \"/c/Program Files/Microsoft Visual Studio\" -maxdepth 6 -iname \"MSBuild.exe\" 2>/dev/null)",
-      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Microsoft Visual Studio/**)"
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Microsoft Visual Studio/**)",
+      "Bash(git push:*)"
     ]
   }
 }
