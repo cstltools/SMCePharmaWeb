@@ -4,7 +4,8 @@ CREATE PROCEDURE [dbo].[sp_RPT_MIOWiseBusinessSummary]
 
 	@fromdate datetime,
 	@todate datetime,
-	@Depid nvarchar(max)  
+	@Depid nvarchar(max),
+	@OnlyActive bit = 0
 
 AS
 BEGIN
@@ -171,6 +172,6 @@ where ID.DeliveryStatus IN ('Full','Partial')   AND CONVERT(date,I.UpdateDate)  
 	--	            tblAdjust ON tblAdjust.ComUnitId = C.ComUnitId 
 
 
---where Mio.isActive=1 and tr.isActive=1 
+WHERE @OnlyActive = 0 OR emp.EmployeeStatus = 'Active'
 ORDER BY emp.EmpMasterCode
 end

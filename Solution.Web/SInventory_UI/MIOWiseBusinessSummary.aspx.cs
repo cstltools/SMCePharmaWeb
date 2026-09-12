@@ -576,7 +576,7 @@ public partial class SInventory_UI_MIOWiseBusinessSummary : System.Web.UI.Page
                 //    Area = F_AreaSelect.SelectedValue;
                 //}
             }
-            aDataTable = aSummaryBll.LoadMIOWiseBusinessSummaryDAL(salesCenterDropDownList.SelectedValue, Convert.ToDateTime(fromDateTextBox.Text.Trim()), Convert.ToDateTime(toDateTextBox.Text.Trim()));
+            aDataTable = aSummaryBll.LoadMIOWiseBusinessSummaryDAL(salesCenterDropDownList.SelectedValue, Convert.ToDateTime(fromDateTextBox.Text.Trim()), Convert.ToDateTime(toDateTextBox.Text.Trim()), onlyActiveCheckBox.Checked);
             if (RoleTypeName == "DZSM")
             {
                 if (F_ZoneSelect.SelectedValue == "")

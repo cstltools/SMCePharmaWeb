@@ -53,7 +53,10 @@
                                     <asp:BoundField DataField="RouteName" HeaderText="Route Name" />
                                     <asp:BoundField DataField="TotalDistance" HeaderText="Total Distance" />
                                     <asp:BoundField DataField="TotalDay" HeaderText="Total Day" />
-                            
+                                    <asp:BoundField DataField="RouteTypeName" HeaderText="Route Type" />
+                                    <asp:BoundField DataField="TAAmount" HeaderText="TA Amount" />
+                                    <asp:BoundField DataField="DAAmount" HeaderText="DA Amount" />
+                                    <asp:BoundField DataField="RouteDayNames" HeaderText="Route Day" />
                                     <asp:BoundField DataField="DANames" HeaderText="DA Name" />
                                     <asp:BoundField DataField="EntryBy" HeaderText="Entry By" />
 

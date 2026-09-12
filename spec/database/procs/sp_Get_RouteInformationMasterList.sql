@@ -23,13 +23,16 @@ BEGIN
 		CONVERT(NVARCHAR(50),A.EntryDate,106)AS EntryDate , 
 		CONVERT(NVARCHAR(50),A.UpdateDate,106)AS UpdateDate,
 		A.*,
-		DA.DANames
+		RT.RouteTypeName,
+		DA.DANames,
+		RD.RouteDayNames
 from dbo.tblRouteInformationMaster A WITH (NOLOCK)
 LEFT JOIN tblUser AS ENUS ON ENUS.UserId = A.EntryBy
 LEFT JOIN tblUser AS UPUS ON UPUS.UserId = A.UpdateBy
 left join tblCompanyUnit cunit on A.DCId=cunit.ComUnitId
 LEFT JOIN tblEmpGeneralInfo AS ENTR ON ENTR.EmpInfoId = ENUS.EmpInfoId
 LEFT JOIN tblEmpGeneralInfo AS UPDT ON UPDT.EmpInfoId = UPUS.EmpInfoId
+LEFT JOIN tblRouteTypeInfo RT ON RT.RouteTypeId = A.RouteTypeId
 OUTER APPLY (
     SELECT STUFF((
         SELECT '', '' + da.DACode+ '' : ''+da.Name
@@ -39,7 +42,16 @@ OUTER APPLY (
         FOR XML PATH(''''), TYPE
     ).value(''.'', ''NVARCHAR(MAX)''), 1, 2, '''') AS DANames
 ) DA
-where A.RouteInformationMasterId is not null  
+OUTER APPLY (
+    SELECT STUFF((
+        SELECT '', '' + wn.WeekName
+        FROM tblRouteInformationWeekNameDetails rwn
+        INNER JOIN tblWeekNameInfo wn ON rwn.WeekNameId = wn.WeekNameId
+        WHERE rwn.RouteInformationMasterId = A.RouteInformationMasterId
+        FOR XML PATH(''''), TYPE
+    ).value(''.'', ''NVARCHAR(MAX)''), 1, 2, '''') AS RouteDayNames
+) RD
+where A.RouteInformationMasterId is not null
 and A.RouteInformationMasterId in (select RouteInformationMasterId from tblRouteInformationMarketDetail where isnull(MarketId,0) >0 )
  ' + @Parameter
 

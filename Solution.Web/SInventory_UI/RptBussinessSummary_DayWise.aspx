@@ -480,7 +480,10 @@
                                     <Columns>
                                         <asp:BoundField DataField="InvoiceId" HeaderText="Invoice Id" />
                                         <asp:BoundField DataField="InvoiceNo" HeaderText="Invoice No" />
-                                        <asp:BoundField DataField="InvoiceDate" HeaderText="Invoice Date" DataFormatString="{0:dd-MMM-yyyy}" />
+                                       
+
+
+
                                         <asp:BoundField DataField="tp" HeaderText="Invoice TP" DataFormatString="{0:N2}">
                                             <ItemStyle HorizontalAlign="Right" />
                                         </asp:BoundField>

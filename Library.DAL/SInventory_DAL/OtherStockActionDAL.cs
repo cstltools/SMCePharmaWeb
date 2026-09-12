@@ -70,6 +70,8 @@ namespace Library.DAL.SInventory_DAL
             ddl.DataTextField = "ComUnitName";
             ddl.DataValueField = "ComUnitId";
             ddl.DataBind();
+            ddl.Items.Insert(0, new ListItem("--------Select---------", string.Empty));
+            ddl.SelectedIndex = 0;
         }
         public void LoadMIO(DropDownList ddl)
         {

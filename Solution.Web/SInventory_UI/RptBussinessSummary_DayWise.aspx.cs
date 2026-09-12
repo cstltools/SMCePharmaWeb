@@ -36,13 +36,13 @@ public partial class SInventory_UI_RptBussinessSummary_DayWise : System.Web.UI.P
             miToDateTextBox.Text = (monthEnd < MiMinFromDate ? MiMinFromDate : monthEnd).ToString(MiUiFmt);
         }
 
-        RenderNegativeClosingChart();
-        RenderDuplicateOrderCode();
-        RenderDuplicateChart(aSummaryBll.LoadRptDuplicateOrderNoInInvoiceDAL(), gv_DupOrderNoInv, dupOrderNoInvChartScript, "dupOrderNoInvChart", "OrderNo", "Duplicate Order No");
-        RenderDuplicateChart(aSummaryBll.LoadRptDuplicateInvoiceNoDAL(), gv_DupInvoiceNo, dupInvoiceNoChartScript, "dupInvoiceNoChart", "InvoiceNo", "Duplicate Invoice No");
-        RenderDuplicateChart(aSummaryBll.LoadRptDuplicateCustomerCodeDAL(), gv_DupCustomerCode, dupCustomerCodeChartScript, "dupCustomerCodeChart", "CustomerCode", "Duplicate Customer Code");
-        RenderVatTpMismatch();
-        RenderTourPlanMissingSerial();
+        //RenderNegativeClosingChart();
+        //RenderDuplicateOrderCode();
+        //RenderDuplicateChart(aSummaryBll.LoadRptDuplicateOrderNoInInvoiceDAL(), gv_DupOrderNoInv, dupOrderNoInvChartScript, "dupOrderNoInvChart", "OrderNo", "Duplicate Order No");
+        //RenderDuplicateChart(aSummaryBll.LoadRptDuplicateInvoiceNoDAL(), gv_DupInvoiceNo, dupInvoiceNoChartScript, "dupInvoiceNoChart", "InvoiceNo", "Duplicate Invoice No");
+        //RenderDuplicateChart(aSummaryBll.LoadRptDuplicateCustomerCodeDAL(), gv_DupCustomerCode, dupCustomerCodeChartScript, "dupCustomerCodeChart", "CustomerCode", "Duplicate Customer Code");
+        //RenderVatTpMismatch();
+        //RenderTourPlanMissingSerial();
     }
 
     private void RenderDuplicateOrderCode()

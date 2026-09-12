@@ -22,9 +22,9 @@ namespace Library.DAL.MAIN_FUNCTION
         public static string Password = @"sa1234";
 
 
-       // public static string DataSource = @"127.0.0.1,57694";
-      //  public static string UserId = @"sa";
-      //  public static string Password = @"sa1234";
+        // public static string DataSource = @"127.0.0.1,57694";
+        //  public static string UserId = @"sa";
+        //  public static string Password = @"sa1234";
 
 
     }

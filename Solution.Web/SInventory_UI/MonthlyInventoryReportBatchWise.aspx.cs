@@ -2,6 +2,7 @@ using Library.BLL.SInventory_BLL;
 using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
@@ -85,10 +86,18 @@ public partial class SInventory_UI_MonthlyInventoryReportBatchWise : System.Web.
         return true;
     }
 
+    private static readonly string[] QtyColumns = { "Opening_Qty", "Cwh_Receive", "B2B_Rcv", "Sales_Qty", "Return_Qty", "B2B_Transfer", "Closing_Qty" };
+
     private void LoadInfo(DateTime fromDate, DateTime toDate)
     {
         DataTable aDataTable = aSummaryBll.LoadMonthlyInventoryReportBatchWiseSap(
             fromDate, toDate, salesCenterDropDownList.SelectedValue, productCodeTextBox.Text);
+
+        if (!showAllZeroCheckBox.Checked)
+        {
+            foreach (DataRow row in aDataTable.Select().Where(r => QtyColumns.All(c => Convert.ToDecimal(r[c]) == 0)).ToArray())
+                aDataTable.Rows.Remove(row);
+        }
 
         if (aDataTable.Rows.Count > 0)
         {
@@ -176,6 +185,13 @@ public partial class SInventory_UI_MonthlyInventoryReportBatchWise : System.Web.
     {
         // required to avoid the runtime error "Control 'loadGridView' of type 'GridView' must be
         // placed inside a form tag with runat=server" during the Excel export's manual RenderControl.
+    }
+
+    protected void showAllZeroCheckBox_CheckedChanged(object sender, EventArgs e)
+    {
+        DateTime fromDate, toDate;
+        if (Validate(out fromDate, out toDate))
+            LoadInfo(fromDate, toDate);
     }
 
     protected void Unnamed_Click(object sender, EventArgs e)

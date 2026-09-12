@@ -159,6 +159,12 @@ CssClass="form-select form-select-sm mb-3 mySelect2" > </asp:DropDownList>
                                                 </div>
 
                                             </div>
+
+                                            <div class="form-group row">
+                                                <div class="col-sm-7 offset-sm-5">
+                                                    <asp:CheckBox ID="onlyActiveCheckBox" runat="server" Text="&nbsp;only active" />
+                                                </div>
+                                            </div>
                                         </div>
 
                                            <div class="col-3" runat="server" visible="false">

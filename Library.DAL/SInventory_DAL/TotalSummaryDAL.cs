@@ -453,7 +453,7 @@ WHERE I.TpGrandTotal>0 AND I.InvoiceDate BETWEEN @FromDate and @ToDate  GROUP BY
 
 
 
-        public DataTable LoadMIOWiseBusinessSummaryDAL(string Depid, DateTime fromdate, DateTime todate)
+        public DataTable LoadMIOWiseBusinessSummaryDAL(string Depid, DateTime fromdate, DateTime todate, bool onlyActive)
         {
 
 
@@ -461,7 +461,8 @@ WHERE I.TpGrandTotal>0 AND I.InvoiceDate BETWEEN @FromDate and @ToDate  GROUP BY
             aSqlParameterList.Add(new SqlParameter("@fromdate", fromdate));
             aSqlParameterList.Add(new SqlParameter("@todate", todate));
             aSqlParameterList.Add(new SqlParameter("@Depid", Depid));
-  
+            aSqlParameterList.Add(new SqlParameter("@OnlyActive", onlyActive));
+
 
             // sp_BusinessSummaryMISReport_All_New
             return aCommonInternalDal.GetDataTableAction("sp_RPT_MIOWiseBusinessSummary", aSqlParameterList, "SSIDB");

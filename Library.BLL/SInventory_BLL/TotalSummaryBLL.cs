@@ -218,9 +218,9 @@ namespace Library.BLL.SInventory_BLL
             return aTotalSummaryDAL.LoadSummaryProductcodewiseGyash__New(fromdate, todate, Type, Area, Terr, ZoneId);
         }
 
-        public DataTable LoadMIOWiseBusinessSummaryDAL(string Depid, DateTime fromdate, DateTime todate)
+        public DataTable LoadMIOWiseBusinessSummaryDAL(string Depid, DateTime fromdate, DateTime todate, bool onlyActive)
         {
-            return aTotalSummaryDAL.LoadMIOWiseBusinessSummaryDAL(Depid, fromdate, todate);
+            return aTotalSummaryDAL.LoadMIOWiseBusinessSummaryDAL(Depid, fromdate, todate, onlyActive);
         }
         public DataTable rptMonitoringReport(DateTime fromdate, DateTime todate, string Type)
         {

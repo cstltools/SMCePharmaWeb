@@ -114,6 +114,9 @@
 
                                                     <asp:LinkButton runat="server" OnClick="Unnamed_Click" class="btn btnMyDesignReset   btn-sm"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp; Reset </asp:LinkButton>
 
+                                                    <asp:CheckBox ID="showAllZeroCheckBox" runat="server" Text="Show All Zero Value" CssClass="ms-3"
+                                                        AutoPostBack="true" OnCheckedChanged="showAllZeroCheckBox_CheckedChanged" />
+
                                                 </div>
                                             </div>
 

@@ -165,7 +165,7 @@ namespace Library.DAL.SInventory_DAL
 
                 aSqlParameters.Add(new SqlParameter("@fromDate", fromDate));
                 aSqlParameters.Add(new SqlParameter("@toDate", toDate));
-                aSqlParameters.Add(new SqlParameter("@CiD", districtId));
+                aSqlParameters.Add(new SqlParameter("@CiD", string.IsNullOrEmpty(districtId) ? (object)DBNull.Value : districtId));
                 aSqlParameters.Add(new SqlParameter("@ProTypId", ProTypId));
 
                 DataTable dt = accessManager.GetDataTable("sp_Get_MonthlyInventoryReport", aSqlParameters);
