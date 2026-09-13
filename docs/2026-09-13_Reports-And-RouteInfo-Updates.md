@@ -34,6 +34,12 @@
 - **Other Stock Action dropdowns** (`SInventory_DAL/OtherStockActionDAL.cs`,
   `LoadCompanyUnit`-style binder) — company-unit dropdown now gets a leading
   "--------Select---------" placeholder item, matching the convention used elsewhere.
+- **Business Summary — Loading** (`SInventory_UI/RptBussinessSummary_Loading.aspx.cs`) — the
+  Territory-wise grid (`Type == "TerritoryTran"`/`"TerritoryNONTran"`) now always drops rows where
+  every KPI column (invoice count/amount, reject, sales, return, collection, receivable — TP and
+  gross) is zero, filtered in C# over the fetched `DataTable` before binding/footer totals. Unlike
+  the Batch-Wise report's zero-value toggle above, there's no checkbox here — zero rows are always
+  hidden.
 
 ## Spec
 

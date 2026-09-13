@@ -1041,6 +1041,15 @@ public partial class SInventory_UI_RptBussinessSummary_Loading : System.Web.UI.P
 
                 if (Type == "TerritoryTran" || Type == "TerritoryNONTran")
                 {
+                    string[] valueColumns = { "NumberofInvoice", "InvoieAmountTP", "InvoiceGrossAmt", "RejectAmtTP", "RejectGrossAmt",
+                        "SalesAmtTP", "SalesGrossAmt", "ReturnAmountTP", "ReturnGrossAmt", "JustSalesAmtTP", "JustSalesGrossAmt",
+                        "CollectionAmtTP", "CollectionGrossAmt", "ReceivableTP", "ReceivableGrossAmount" };
+
+                    var nonZeroRows = aDataTable.AsEnumerable()
+                        .Where(row => valueColumns.Any(col => GetDecimalOrZero(row, col) != 0))
+                        .ToList();
+                    aDataTable = nonZeroRows.Count > 0 ? nonZeroRows.CopyToDataTable() : aDataTable.Clone();
+
                     gv_Territory.DataSource = aDataTable;
                     gv_Territory.DataBind();
 
@@ -1170,6 +1179,11 @@ public partial class SInventory_UI_RptBussinessSummary_Loading : System.Web.UI.P
         }
     }
 
+
+    private static decimal GetDecimalOrZero(DataRow row, string column)
+    {
+        return row.Table.Columns.Contains(column) && !row.IsNull(column) ? Convert.ToDecimal(row[column]) : 0;
+    }
 
     protected void showMessageBox(string message)
     {
